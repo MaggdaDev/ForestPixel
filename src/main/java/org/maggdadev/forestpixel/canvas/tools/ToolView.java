@@ -16,8 +16,14 @@ public class ToolView extends ToggleButton {
     private final ToolType type;
     private final static double BUTTON_SIZE = 32;
     private final ImageView imageView;
-    public ToolView (ToolType type){
+
+    private final ToolViewModel viewModel;
+
+
+
+    public ToolView (ToolViewModel viewModel, ToolType type){
         this.type = type;
+        this.viewModel = viewModel;
         imageView = new ImageView();
 
         imageView.setImage(getImageFromType(type));
@@ -39,7 +45,9 @@ public class ToolView extends ToggleButton {
                     throw new UnsupportedOperationException("For '" + type.toString() + "' the suitable image icon is not implemented.");
         };
     }
-
+    public ToolViewModel getViewModel() {
+        return viewModel;
+    }
 
 
 }
