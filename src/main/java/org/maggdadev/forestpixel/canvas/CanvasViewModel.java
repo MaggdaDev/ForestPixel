@@ -2,11 +2,13 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
-import org.maggdadev.forestpixel.canvas.events.PrimaryButtonEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
-import org.maggdadev.forestpixel.canvas.tools.ToolViewModel;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 public class CanvasViewModel {
 
@@ -30,18 +32,15 @@ public class CanvasViewModel {
 
     void handleCanvasEvent(CanvasEvent event) {
         if(activeToolViewModel.get() != null) { // all the events handled by active tool
-            if(event instanceof PrimaryButtonEvent) {
-                isDirty = activeToolViewModel.get().getOnPrimaryButtonEvent().handleEvent((PrimaryButtonEvent) event);
+            if(event instanceof CanvasMouseEvent) {
+                activeToolViewModel.get().notifyCanvasMouseEvent((CanvasMouseEvent) event);
             } else
                 throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
         } else {    // all the events not handled by active tool
-            throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
+            //throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
         }
 
-
-        if (isDirty) {
-            update();
-        }
+        update();
     }
 
     void update() {
@@ -69,5 +68,45 @@ public class CanvasViewModel {
 
     ToolbarViewModel getToolBarViewModel() {
         return toolBarViewModel;
+    }
+
+    public EventHandler<MouseEvent> getOnCanvasMouseClicked() {
+        return (MouseEvent e) -> {
+            switch (e.getButton()) {
+                case PRIMARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.CLICKED, CanvasMouseEvent.ButtonType.PRIMARY);
+                case SECONDARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.CLICKED, CanvasMouseEvent.ButtonType.SECONDARY);
+            }
+        };
+    }
+
+    public EventHandler<MouseEvent> getOnCanvasMousePressed() {
+        return (MouseEvent e) -> {
+            switch (e.getButton()) {
+                case PRIMARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.PRESSED, CanvasMouseEvent.ButtonType.PRIMARY);
+                case SECONDARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.PRESSED, CanvasMouseEvent.ButtonType.SECONDARY);
+            }
+        };
+    }
+
+    public EventHandler<MouseEvent> getOnCanvasMouseReleased() {
+        return (MouseEvent e) -> {
+            switch (e.getButton()) {
+                case PRIMARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.RELEASED, CanvasMouseEvent.ButtonType.PRIMARY);
+                case SECONDARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.RELEASED, CanvasMouseEvent.ButtonType.SECONDARY);
+            }
+        };
+    }
+
+    public EventHandler<MouseEvent> getOnCanvasMouseDragged() {
+        return (MouseEvent e) -> {
+            switch (e.getButton()) {
+                case PRIMARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.DRAGGED, CanvasMouseEvent.ButtonType.PRIMARY);
+                case SECONDARY -> sendFireCanvasEvent(e, CanvasMouseEvent.ActionType.DRAGGED, CanvasMouseEvent.ButtonType.SECONDARY);
+            }
+        };
+    }
+
+    private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
+            handleCanvasEvent(new CanvasMouseEvent(model, Math.round((float)e.getX()), Math.round((float)e.getY()), aType, bType));
     }
 }

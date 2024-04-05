@@ -1,19 +1,13 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import org.maggdadev.forestpixel.canvas.events.PrimaryButtonEvent;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
-import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
-import org.maggdadev.forestpixel.canvas.tools.ToolViewModel;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 
 public class CanvasView extends HBox {
@@ -60,9 +54,10 @@ public class CanvasView extends HBox {
     }
 
     private void installEventHandlers() {
-        imageView.setOnMouseClicked((MouseEvent e) -> {
-            System.out.println("Mouse clicked on image view");
-            viewModel.handleCanvasEvent(new PrimaryButtonEvent(viewModel.getModel(), Math.round((float)e.getX()), Math.round((float)e.getY())));
-        });
+        imageView.setOnMouseClicked(viewModel.getOnCanvasMouseClicked());
+        imageView.setOnMousePressed(viewModel.getOnCanvasMousePressed());
+        imageView.setOnMouseReleased(viewModel.getOnCanvasMouseReleased());
+        imageView.setOnMouseDragged(viewModel.getOnCanvasMouseDragged());
+
     }
 }

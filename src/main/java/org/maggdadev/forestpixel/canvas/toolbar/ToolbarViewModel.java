@@ -3,7 +3,7 @@ package org.maggdadev.forestpixel.canvas.toolbar;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-import org.maggdadev.forestpixel.canvas.tools.ToolViewModel;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 public class ToolbarViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();

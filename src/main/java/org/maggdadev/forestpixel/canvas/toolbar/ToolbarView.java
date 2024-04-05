@@ -1,20 +1,18 @@
 package org.maggdadev.forestpixel.canvas.toolbar;
 
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.ToolView;
-import org.maggdadev.forestpixel.canvas.tools.ToolViewModel;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 import org.maggdadev.forestpixel.canvas.tools.models.BucketModel;
 import org.maggdadev.forestpixel.canvas.tools.models.PencilModel;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.PencilViewModel;
 
 public class ToolbarView extends ToolBar {
     private final ToolView[] toolViews;
@@ -26,8 +24,8 @@ public class ToolbarView extends ToolBar {
     public ToolbarView(ToolbarViewModel viewModel) {
         this.viewModel = viewModel;
         toolViews = new ToolView[]{
-                new ToolView(new ToolViewModel(new PencilModel()), ToolType.PENCIL),
-                new ToolView(new ToolViewModel(new BucketModel()), ToolType.BUCKET)
+                new ToolView(new PencilViewModel(new PencilModel()), ToolType.PENCIL),
+                new ToolView(new ToolViewModel(), ToolType.BUCKET)
         };
 
         gridPane = new GridPane();

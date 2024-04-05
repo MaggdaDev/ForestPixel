@@ -1,15 +1,11 @@
 package org.maggdadev.forestpixel.canvas.tools;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 import org.maggdadev.forestpixel.io.Images;
-
-import java.io.File;
 
 
 public class ToolView extends ToggleButton {
