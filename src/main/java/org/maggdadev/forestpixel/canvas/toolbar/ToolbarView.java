@@ -9,6 +9,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.ToolView;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.BucketViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 import org.maggdadev.forestpixel.canvas.tools.models.BucketModel;
 import org.maggdadev.forestpixel.canvas.tools.models.PencilModel;
@@ -25,7 +26,7 @@ public class ToolbarView extends ToolBar {
         this.viewModel = viewModel;
         toolViews = new ToolView[]{
                 new ToolView(new PencilViewModel(new PencilModel()), ToolType.PENCIL),
-                new ToolView(new ToolViewModel(), ToolType.BUCKET)
+                new ToolView(new BucketViewModel(new BucketModel()), ToolType.BUCKET)
         };
 
         gridPane = new GridPane();

@@ -2,6 +2,7 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class CanvasModel {
     private WritableImage image;
@@ -14,13 +15,29 @@ public class CanvasModel {
         image = new WritableImage(widthPixels,heightPixels);
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-
-        image.getPixelWriter().setColor(10,10, Color.GREEN);
-        image.getPixelWriter().setColor(11,10, Color.GREEN);
-        image.getPixelWriter().setColor(12,10, Color.GREEN);
-        image.getPixelWriter().setColor(13,10, Color.GREEN);
     }
 
+    public void setPixelColor(int x, int y, Color color) {
+        image.getPixelWriter().setColor(x,y,color);
+    }
+
+    /**
+     *
+     * @param x xIdx
+     * @param y yIdx
+     * @return returns the color at the position or null, if the position is out of range
+     */
+    public Color getPixelColor(int x, int y) {
+        if(isOnCanvas(x, y)) {
+            return image.getPixelReader().getColor(x,y);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isOnCanvas(int x, int y) {
+        return x >= 0 && y >= 0 && x < widthPixels && y < heightPixels;
+    }
     public int getWidthPixels() {
         return widthPixels;
     }

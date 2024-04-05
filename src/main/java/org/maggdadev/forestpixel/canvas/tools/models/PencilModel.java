@@ -8,11 +8,10 @@ import org.maggdadev.forestpixel.canvas.CanvasModel;
 public class PencilModel extends ToolModel {
 
     @Override
-    public boolean applyToCanvas(CanvasModel canvasModel, int xIdx, int yIdx) {
+    public void applyToCanvas(CanvasModel canvasModel, int xIdx, int yIdx) {
         if (xIdx >= 0 && xIdx < canvasModel.getWidthPixels() && yIdx >= 0 && yIdx < canvasModel.getHeightPixels()) {
-            canvasModel.getImage().getPixelWriter().setColor(xIdx, yIdx, Color.BLACK);
+            canvasModel.setPixelColor(xIdx, yIdx, Color.BLACK);
         }
-        return true;
     }
 
     public void applyToCanvas(CanvasModel canvasModel, Iterable<Point2D> points) {
