@@ -16,6 +16,8 @@ public class CanvasViewModel {
     private boolean isDirty = false;
     private final ObjectProperty<WritableImage> image = new SimpleObjectProperty<>();
 
+    private final CanvasContext canvasContext;
+
     private ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
 
     private ToolbarViewModel toolBarViewModel;
@@ -27,6 +29,11 @@ public class CanvasViewModel {
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         this.toolBarViewModel = new ToolbarViewModel();
+        canvasContext = new CanvasContext(toolBarViewModel.colorProperty());
+        createBindings();
+    }
+
+    private void createBindings() {
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
     }
 
@@ -107,6 +114,6 @@ public class CanvasViewModel {
     }
 
     private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
-            handleCanvasEvent(new CanvasMouseEvent(model, Math.round((float)e.getX()), Math.round((float)e.getY()), aType, bType));
+            handleCanvasEvent(new CanvasMouseEvent(model, Math.round((float)e.getX()), Math.round((float)e.getY()), aType, bType, canvasContext));
     }
 }

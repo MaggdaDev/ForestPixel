@@ -2,16 +2,17 @@ package org.maggdadev.forestpixel.canvas.tools.models;
 
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
 
 import java.util.Stack;
 
 public class BucketModel extends ToolModel {
-    private final static Color COLOR = Color.BLACK;
     @Override
-    public void applyToCanvas(CanvasModel canvasModel, int xIdx, int yIdx) {
+    public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         Color startColor = canvasModel.getPixelColor(xIdx, yIdx);
-        if( (!canvasModel.isOnCanvas(xIdx, yIdx)) || startColor.equals(COLOR))
+        Color fillColor = canvasContext.getColor();
+        if( (!canvasModel.isOnCanvas(xIdx, yIdx)) || startColor.equals(fillColor))
             return;
 
         Stack<int[]> stack = new Stack<>();
@@ -28,7 +29,7 @@ public class BucketModel extends ToolModel {
             x = x1;
             if(isToBeFilled(x,y, startColor, canvasModel)) {
                 while(isToBeFilled(x-1, y, startColor, canvasModel)) {
-                    canvasModel.setPixelColor(x-1,y, COLOR);
+                    canvasModel.setPixelColor(x-1,y, fillColor);
                     x--;
                 }
                 if( x < x1) {
@@ -38,7 +39,7 @@ public class BucketModel extends ToolModel {
 
             while(x1 <= x2) {
                 while(isToBeFilled(x1, y, startColor, canvasModel)) {
-                    canvasModel.setPixelColor(x1, y, COLOR);
+                    canvasModel.setPixelColor(x1, y, fillColor);
                     x1 ++;
                 }
                 if(x1 > x) {

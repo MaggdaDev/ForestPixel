@@ -3,10 +3,12 @@ package org.maggdadev.forestpixel.canvas.toolbar;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.ToolView;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.BucketViewModel;
@@ -21,6 +23,10 @@ public class ToolbarView extends ToolBar {
     private final ToggleGroup toggleGroup;
 
     private final ToolbarViewModel viewModel;
+
+    // extra panes
+
+    private ColorPickerPane colorPickerPane;
 
     public ToolbarView(ToolbarViewModel viewModel) {
         this.viewModel = viewModel;
@@ -43,9 +49,6 @@ public class ToolbarView extends ToolBar {
                 System.out.println(t1);
             }
         });
-        getItems().addAll(gridPane);
-        setPrefWidth(50);
-        setWidth(50);
         setOrientation(Orientation.VERTICAL);
         setFocusTraversable(false);
 
@@ -61,5 +64,22 @@ public class ToolbarView extends ToolBar {
         });
         if(toggleGroup.getSelectedToggle() != null)
             viewModel.setActiveToolViewModel(((ToolView) toggleGroup.getSelectedToggle()).getViewModel());
+
+        toggleGroup.selectToggle(toggleGroup.getToggles().getFirst());
+
+        VBox extraPaneVBox = createExtraPaneHVox();
+        extraPaneVBox.setSpacing(20);
+        extraPaneVBox.setPadding(new Insets(20,0,20,0));
+        getItems().addAll(gridPane, extraPaneVBox);
+    }
+
+    private VBox createExtraPaneHVox() {
+        colorPickerPane = new ColorPickerPane();
+        viewModel.colorProperty().bindBidirectional(colorPickerPane.colorProperty());
+        colorPickerPane.visibleProperty().bind(viewModel.colorPickingVisibleProperty());
+
+        VBox extraPaneVBox = new VBox(colorPickerPane);
+
+        return extraPaneVBox;
     }
 }

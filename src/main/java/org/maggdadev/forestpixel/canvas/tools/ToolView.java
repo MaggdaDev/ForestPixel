@@ -10,7 +10,7 @@ import org.maggdadev.forestpixel.io.Images;
 
 public class ToolView extends ToggleButton {
     private final ToolType type;
-    private final static double BUTTON_SIZE = 32;
+    public final static double BUTTON_SIZE = 32;
     private final ImageView imageView;
 
     private final ToolViewModel viewModel;

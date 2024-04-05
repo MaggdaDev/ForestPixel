@@ -1,10 +1,16 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.ToolModel;
 
 
-public class ToolViewModel {
+public abstract class ToolViewModel {
+    private final ToolType toolType;
+
+    ToolViewModel(ToolType toolType) {
+        this.toolType = toolType;
+    }
 
     public final void notifyCanvasMouseEvent(CanvasMouseEvent e) {
         switch (e.buttonType()) {
@@ -25,6 +31,10 @@ public class ToolViewModel {
                 }
                 break;
         }
+    }
+
+    public ToolType getToolType() {
+        return toolType;
     }
 
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
