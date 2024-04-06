@@ -1,9 +1,7 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
 import javafx.event.EventHandler;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
@@ -32,6 +30,13 @@ public class CanvasViewModel {
 
     private final DoubleProperty modelHeight = new SimpleDoubleProperty(0);
     private final DoubleProperty zoomScaleFactor = new SimpleDoubleProperty(1);
+    private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
+
+    private final DoubleProperty viewportPosX = new SimpleDoubleProperty();
+    private final DoubleProperty viewportPosY = new SimpleDoubleProperty();
+
+    private final DoubleProperty effectiveWidth = new SimpleDoubleProperty();
+    private final DoubleProperty effectiveHeight = new SimpleDoubleProperty();
 
     public ObjectProperty<WritableImage> imageProperty() {
         return image;
@@ -44,6 +49,12 @@ public class CanvasViewModel {
         canvasZoomHandler = new CanvasZoomHandler(this);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
+
+        effectiveWidth.bind(Bindings.subtract(Bindings.multiply(zoomScaleFactorProperty(), modelWidth), CanvasView.CANVAS_WIDTH));
+        effectiveHeight.bind(Bindings.subtract(Bindings.multiply(zoomScaleFactorProperty(), modelHeight), CanvasView.CANVAS_HEIGHT));
+
+        viewportPosX.bind(Bindings.multiply(zoomHValueProperty(), effectiveWidth));
+        viewportPosY.bind(Bindings.multiply(zoomVValueProperty(), effectiveHeight));
     }
 
 
@@ -81,6 +92,8 @@ public class CanvasViewModel {
 
             // flush model to viewModel/view property
             image.get().getPixelWriter().setPixels(0, 0, model.getWidthPixels(), model.getHeightPixels(), model.getImage().getPixelReader(), 0, 0);
+
+            setViewNeedsUpdate(true);
         }
     }
 
@@ -134,7 +147,7 @@ public class CanvasViewModel {
     }
 
     private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
-        handleCanvasEvent(new CanvasMouseEvent(model, canvasZoomHandler.xPosToIdx(e.getX()), canvasZoomHandler.yPosToIdx(e.getY()), aType, bType, canvasContext));
+        handleCanvasEvent(new CanvasMouseEvent(model, xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
     }
 
     public EventHandler<ScrollEvent> getOnCanvasZoom() {
@@ -144,6 +157,27 @@ public class CanvasViewModel {
                 e.consume();
             }
         };
+    }
+
+    public int xPosToIdx(double xPos) {
+        int offsetFromViewportOffset = getXIdxFromRelativeToPlaceholderPane(getViewportPosX());
+        int offsetFromPositionRelativeToViewport = (int)((float) ((xPos - getViewportPosX()) / getZoomScaleFactor()));
+        return offsetFromViewportOffset + offsetFromPositionRelativeToViewport;
+    }
+
+    public int yPosToIdx(double yPos) {
+        int offsetFromViewportOffset = getYIdxFromRelativeToPlaceholderPane(getViewportPosY());
+        int offsetFromPositionRelativeToViewport = (int)((float) ((yPos - getViewportPosY()) / getZoomScaleFactor()));
+        return offsetFromViewportOffset + offsetFromPositionRelativeToViewport;
+    }
+
+
+    public int getXIdxFromRelativeToPlaceholderPane(double d) {
+        return (int)((float) (d * getModelWidth() /  (getZoomScaleFactor() * CanvasView.CANVAS_WIDTH)));
+    }
+
+    public int getYIdxFromRelativeToPlaceholderPane(double d) {
+        return (int) (float) (d * getModelHeight() /  (getZoomScaleFactor() * CanvasView.CANVAS_HEIGHT));
     }
 
     public DoubleProperty zoomHValueProperty() {
@@ -192,5 +226,45 @@ public class CanvasViewModel {
 
     public void setZoomVValue(double zoomVValue) {
         this.zoomVValue.set(zoomVValue);
+    }
+
+    public BooleanProperty viewNeedsUpdateProperty() {
+        return viewNeedsUpdate;
+    }
+
+    public void setViewNeedsUpdate(boolean viewNeedsUpdate) {
+        this.viewNeedsUpdate.set(viewNeedsUpdate);
+    }
+
+    public double getViewportPosX() {
+        return viewportPosX.get();
+    }
+
+    public DoubleProperty viewportPosXProperty() {
+        return viewportPosX;
+    }
+
+    public double getViewportPosY() {
+        return viewportPosY.get();
+    }
+
+    public DoubleProperty viewportPosYProperty() {
+        return viewportPosY;
+    }
+
+    public double getEffectiveWidth() {
+        return effectiveWidth.get();
+    }
+
+    public DoubleProperty effectiveWidthProperty() {
+        return effectiveWidth;
+    }
+
+    public double getEffectiveHeight() {
+        return effectiveHeight.get();
+    }
+
+    public DoubleProperty effectiveHeightProperty() {
+        return effectiveHeight;
     }
 }

@@ -17,7 +17,7 @@ public class PencilModel extends ToolModel {
 
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, Iterable<Point2D> points) {
         for(Point2D point: points) {
-            applyToCanvas(canvasModel, canvasContext, Math.round((float)point.getX()), Math.round((float)point.getY()));
+            applyToCanvas(canvasModel, canvasContext, (int)((float)point.getX()), (int)((float)point.getY()));
         }
     }
 }

@@ -43,13 +43,7 @@ public class CanvasZoomHandler {
         viewModel.setZoomVValue(newVVal);
     }
 
-    public int xPosToIdx(double xPos) {
-        return Math.round((float) (xPos / viewModel.getZoomScaleFactor()));
-    }
 
-    public int yPosToIdx(double yPos) {
-        return Math.round((float) (yPos / viewModel.getZoomScaleFactor()));
-    }
 
 
 }

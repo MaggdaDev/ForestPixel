@@ -15,11 +15,6 @@ public class CanvasModel {
         image = new WritableImage(widthPixels,heightPixels);
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-
-        image.getPixelWriter().setColor(300,150, Color.GREEN);
-        image.getPixelWriter().setColor(300,151, Color.GREEN);
-        image.getPixelWriter().setColor(301,151, Color.GREEN);
-        image.getPixelWriter().setColor(301,150, Color.GREEN);
     }
 
     public void setPixelColor(int x, int y, Color color) {

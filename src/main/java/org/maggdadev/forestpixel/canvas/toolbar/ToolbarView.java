@@ -43,12 +43,6 @@ public class ToolbarView extends ToolBar {
 
         gridPane.setHgap(2);
         gridPane.setVgap(2);
-        widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                System.out.println(t1);
-            }
-        });
         setOrientation(Orientation.VERTICAL);
         setFocusTraversable(false);
 
