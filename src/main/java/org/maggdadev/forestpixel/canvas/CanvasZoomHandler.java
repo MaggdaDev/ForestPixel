@@ -11,7 +11,6 @@ public class CanvasZoomHandler {
         this.viewModel = viewModel;
     }
     public void handleZoomEvent(ScrollEvent e) {
-        System.out.println("ZOOM");
         double oldZoomVal = viewModel.zoomScaleFactorProperty().get();
 
         double newZoomVal = oldZoomVal * Math.pow(2.0, Math.signum(e.getDeltaY()));//Math.max(oldZoomVal + e.getDeltaY() * Y_TO_ZOOM_FACT * oldZoomVal, 1.0);

@@ -2,6 +2,9 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
@@ -13,6 +16,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
+
+import java.lang.reflect.Field;
 
 
 public class CanvasView extends HBox {
@@ -76,8 +81,8 @@ public class CanvasView extends HBox {
         canvasScrollPane.hvalueProperty().bindBidirectional(viewModel.zoomHValueProperty());
         canvasScrollPane.vvalueProperty().bindBidirectional(viewModel.zoomVValueProperty());
 
-        scrollPaneSkin.hBarValueProperty().bind(viewModel.zoomHValueProperty());
-        scrollPaneSkin.vBarValueProperty().bind(viewModel.zoomVValueProperty());
+        //scrollPaneSkin.hBarValueProperty().bind(viewModel.zoomHValueProperty());
+        //scrollPaneSkin.vBarValueProperty().bind(viewModel.zoomVValueProperty());
 
     }
 
@@ -96,12 +101,24 @@ public class CanvasView extends HBox {
             }
         });
 
-
-        canvasScrollPane.hvalueProperty().addListener((obs, oldVal, newVal)-> {
-            System.out.println("hval: " + newVal + "             maxH: " + canvasScrollPane.getHmax());
-
+        // dirty hack to make jfx stop messing with my zoom
+        canvasScrollPane.contentProperty().addListener((obs, oldVal, newVal) -> {
+            removeBoundsChangeListenerFromScrollPane();
         });
+        removeBoundsChangeListenerFromScrollPane();
 
+    }
+
+    private void removeBoundsChangeListenerFromScrollPane() {
+        try {
+            Field field = ScrollPaneSkin.class.getDeclaredField("weakBoundsChangeListener");
+            field.setAccessible(true);
+            WeakChangeListener<Bounds> badListener = (WeakChangeListener<Bounds>) field.get(scrollPaneSkin);
+            canvasScrollPane.getContent().layoutBoundsProperty().removeListener(badListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Hack not working.");
+        }
     }
 
     static class CustomScrollPaneSkin extends ScrollPaneSkin {
