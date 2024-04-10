@@ -12,6 +12,7 @@ public class PencilModel extends ToolModel {
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         if (xIdx >= 0 && xIdx < canvasModel.getWidthPixels() && yIdx >= 0 && yIdx < canvasModel.getHeightPixels()) {
             canvasModel.setPixelColor(xIdx, yIdx, canvasContext.getColor());
+            System.out.println("Set pixel to (" + xIdx + "|" + yIdx + ").");
         }
     }
 

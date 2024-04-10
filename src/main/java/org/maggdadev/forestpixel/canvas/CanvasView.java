@@ -24,11 +24,10 @@ import java.lang.reflect.Field;
 
 
 public class CanvasView extends HBox {
-    public final static double CANVAS_WIDTH = 800;
-    public final static double CANVAS_HEIGHT = 500;
+    public final static double CANVAS_WIDTH = 1000;
+    public final static double CANVAS_HEIGHT = 300;
     private final ToolbarView toolBarView;
     private final VBox sideBar;
-    private final CustomScrollPaneSkin scrollPaneSkin;
     private final Canvas canvas;
 
     private ToolViewModel activeToolViewModel;
@@ -36,9 +35,6 @@ public class CanvasView extends HBox {
 
     private final Pane placeHolderPane;
     private final ScrollPane canvasScrollPane;
-
-    private final double SCROLL_LOCK_EPSILON = 0.01;
-
 
     public CanvasView(CanvasViewModel viewModel) {
         this.viewModel = viewModel;
@@ -49,13 +45,16 @@ public class CanvasView extends HBox {
         placeHolderPane = new Pane();
         placeHolderPane.setPickOnBounds(true);
         placeHolderPane.setPadding(Insets.EMPTY);
+        placeHolderPane.setMouseTransparent(false);
+
+
 
         canvas = new Canvas();
         canvas.getGraphicsContext2D().setImageSmoothing(false);
         canvas.setPickOnBounds(true);
         canvas.setMouseTransparent(true);
-        canvas.setWidth(CANVAS_WIDTH);
-        canvas.setHeight(CANVAS_HEIGHT);
+        canvas.widthProperty().bind(viewModel.extendedCanvasPixelWidthProperty());
+        canvas.heightProperty().bind(viewModel.extendedCanvasPixelHeightProperty());
 
 
         toolBarView = new ToolbarView(viewModel.getToolBarViewModel());
@@ -64,9 +63,8 @@ public class CanvasView extends HBox {
         sideBar.getChildren().add(toolBarView);
         StackPane canvasStack = new StackPane(canvas, placeHolderPane);
         canvasScrollPane = new ScrollPane(canvasStack);
-        scrollPaneSkin = new CustomScrollPaneSkin(canvasScrollPane);
-        canvasScrollPane.setSkin(scrollPaneSkin);
         canvasScrollPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+        canvasScrollPane.setPickOnBounds(true);
 
         canvas.setManaged(false);
 
@@ -90,8 +88,8 @@ public class CanvasView extends HBox {
         canvasScrollPane.hvalueProperty().bindBidirectional(viewModel.zoomHValueProperty());
         canvasScrollPane.vvalueProperty().bindBidirectional(viewModel.zoomVValueProperty());
 
-        canvas.layoutXProperty().bind(viewModel.viewportPosXProperty());
-        canvas.layoutYProperty().bind(viewModel.viewportPosYProperty());
+        canvas.layoutXProperty().bind(viewModel.quantizedViewportXProperty());
+        canvas.layoutYProperty().bind(viewModel.quantizedViewportYProperty());
 
         viewModel.zoomScaleFactorProperty().addListener((obs, oldVal, newVal) -> {
             redrawImage();
@@ -116,12 +114,11 @@ public class CanvasView extends HBox {
     }
 
     public void redrawImage() {
-        int sourceStartX = viewModel.xPosToIdx(viewModel.getViewportPosX());//viewModel.getXIdxFromRelativeToPlaceholderPane(viewModel.getViewportPosX());
-        int sourceStartY = viewModel.yPosToIdx(viewModel.getViewportPosY());//viewModel.getXIdxFromRelativeToPlaceholderPane(viewModel.getViewportPosY());
-        int sourceWidth = Math.round((float) (viewModel.getModelWidth() / viewModel.getZoomScaleFactor()));
-        int sourceHeight = Math.round((float) (viewModel.getModelHeight() / viewModel.getZoomScaleFactor()));
+        int leftExtra = viewModel.getSourceStartIndexX() > 0 ? 1 : 0;
+        int topExtra = viewModel.getSourceStartIndexY() > 0 ? 1 : 0;
         canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
-        canvas.getGraphicsContext2D().drawImage(viewModel.imageProperty().get(), sourceStartX, sourceStartY, sourceWidth, sourceHeight, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        canvas.getGraphicsContext2D().drawImage(viewModel.imageProperty().get(), viewModel.getSourceStartIndexX()-1, viewModel.getSourceStartIndexY()-1, viewModel.getExtendedCanvasPixelWidth(), viewModel.getExtendedCanvasPixelHeight(),
+                - leftExtra * viewModel.getZoomScaleFactor(), - topExtra * viewModel.getZoomScaleFactor(), ((double)viewModel.getExtendedCanvasPixelWidth()) * viewModel.getZoomScaleFactor(), ((double)viewModel.getExtendedCanvasPixelHeight()) * viewModel.getZoomScaleFactor());
     }
 
     private void installEventHandlers() {
@@ -130,15 +127,14 @@ public class CanvasView extends HBox {
         placeHolderPane.setOnMouseReleased(viewModel.getOnCanvasMouseReleased());
         placeHolderPane.setOnMouseDragged(viewModel.getOnCanvasMouseDragged());
 
-        placeHolderPane.setOnMouseMoved((MouseEvent e)-> {
-            System.out.println(e.getY() - viewModel.getViewportPosY());
-        });
         canvasScrollPane.addEventFilter(ScrollEvent.SCROLL, (ScrollEvent e) -> { // prevent scroll pane usual scrolling when ctrl is down
             if (e.isControlDown()) {
                 viewModel.getOnCanvasZoom().handle(e);
                 e.consume();
             }
         });
+
+        canvasScrollPane.setPadding(new Insets(0));
 
         // dirty hack to make jfx stop messing with my zoom
         canvasScrollPane.contentProperty().addListener((obs, oldVal, newVal) -> {
@@ -150,9 +146,10 @@ public class CanvasView extends HBox {
 
     private void removeBoundsChangeListenerFromScrollPane() {
         try {
+            canvasScrollPane.setSkin(new ScrollPaneSkin(canvasScrollPane));
             Field field = ScrollPaneSkin.class.getDeclaredField("weakBoundsChangeListener");
             field.setAccessible(true);
-            WeakChangeListener<Bounds> badListener = (WeakChangeListener<Bounds>) field.get(scrollPaneSkin);
+            WeakChangeListener<Bounds> badListener = (WeakChangeListener<Bounds>) field.get(canvasScrollPane.getSkin());
             canvasScrollPane.getContent().layoutBoundsProperty().removeListener(badListener);
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,27 +157,4 @@ public class CanvasView extends HBox {
         }
     }
 
-    static class CustomScrollPaneSkin extends ScrollPaneSkin {
-        CustomScrollPaneSkin(ScrollPane skinnable) {
-            super(skinnable);
-        }
-
-        public void setHBarValue(double val) {
-            getHorizontalScrollBar().setValue(Math.max(0, Math.min(1, val)));
-        }
-
-        public void setVBarValue(double val) {
-            getVerticalScrollBar().setValue(Math.max(0, Math.min(1, val)));
-        }
-
-        public DoubleProperty hBarValueProperty() {
-            return getHorizontalScrollBar().valueProperty();
-        }
-
-        public DoubleProperty vBarValueProperty() {
-            return getVerticalScrollBar().valueProperty();
-        }
-
-
-    }
 }
