@@ -8,7 +8,7 @@ import javafx.scene.paint.Paint;
 
 public class SinglePixelChange implements CanvasChange{
     private final Color oldColor, newColor;
-
+    private final boolean isChange;
     private final int[] point;
     public SinglePixelChange(Image image, int[] point, Color color) {
         if(point.length != 2) {
@@ -17,6 +17,7 @@ public class SinglePixelChange implements CanvasChange{
         newColor = color;
         oldColor = image.getPixelReader().getColor(point[0], point[1]);
         this.point = point;
+        isChange = !newColor.equals(oldColor);
     }
 
     @Override
@@ -33,5 +34,10 @@ public class SinglePixelChange implements CanvasChange{
             throw new RuntimeException("History error: Trying to undo a change, but current state was not achieved with this change (change would be to: " + newColor.toString() + ",     actually found: " + image.getPixelReader().getColor(point[0], point[1]));
         }
         image.getPixelWriter().setColor(point[0], point[1], oldColor);
+    }
+
+    @Override
+    public boolean isChange() {
+        return isChange;
     }
 }

@@ -15,9 +15,11 @@ public class HistoryModel {
     }
 
     public void applyNewChange(CanvasChange change) {
-        change.applyToImage(canvasModel.getImage());
-        undoStack.push(change);;
-        redoStack.clear();
+        if (change.isChange()) {
+            change.applyToImage(canvasModel.getImage());
+            undoStack.push(change);
+            redoStack.clear();
+        }
     }
 
     public void undo() {

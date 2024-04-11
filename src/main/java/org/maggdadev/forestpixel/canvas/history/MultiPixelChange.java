@@ -17,6 +17,7 @@ public class MultiPixelChange implements CanvasChange {
      * @param colors list of colors for the points. Must be of same length as points
      */
     private final SinglePixelChange[] subChanges;
+    private boolean isChange = false;
     public MultiPixelChange(Image image, List<int[]> points, List<Color> colors) {
         if(colors.size() != points.size()) {
             throw new IllegalArgumentException("Points (" + points.size() + ") must be of same length as colors (" + colors.size() + ")!");
@@ -24,6 +25,9 @@ public class MultiPixelChange implements CanvasChange {
         subChanges = new SinglePixelChange[colors.size()];
         for(int i = 0; i < points.size(); i++) {
             subChanges[i] = new SinglePixelChange(image, points.get(i), colors.get(i));
+            if(subChanges[i].isChange()) {
+                isChange = true;
+            }
         }
     }
 
@@ -40,5 +44,10 @@ public class MultiPixelChange implements CanvasChange {
         for(SinglePixelChange singlePixelChange: subChanges) {
             singlePixelChange.undoToImage(image);
         }
+    }
+
+    @Override
+    public boolean isChange() {
+        return isChange;
     }
 }
