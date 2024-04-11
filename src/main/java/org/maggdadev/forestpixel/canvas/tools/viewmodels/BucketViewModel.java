@@ -13,7 +13,12 @@ public class BucketViewModel extends ToolViewModel{
     }
 
     @Override
-    protected void onPrimaryButtonTyped(CanvasMouseEvent e) {
+    protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
+        model.applyToPreview(e.canvasModel(), e.canvasContext(),  e.xIdx(), e.yIdx());
+    }
+
+    @Override
+    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
         model.applyToCanvas(e.canvasModel(), e.canvasContext(),  e.xIdx(), e.yIdx());
     }
 }

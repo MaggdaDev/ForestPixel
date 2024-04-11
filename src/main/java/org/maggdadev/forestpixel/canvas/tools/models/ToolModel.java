@@ -7,5 +7,17 @@ import org.maggdadev.forestpixel.canvas.events.PrimaryButtonEvent;
 
 public abstract class ToolModel {
 
-    public abstract void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx);
+    public void applyToPreview (CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
+        createPreviewImageIfNull(canvasModel, canvasContext);
+    }
+
+    public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
+        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete());
+    }
+
+    protected void createPreviewImageIfNull(CanvasModel canvasModel, CanvasContext canvasContext) {
+        if(canvasContext.getPreviewImage() == null) {
+            canvasContext.setPreviewImage(new WritableImage(canvasModel.getImage().getPixelReader(), canvasModel.getWidthPixels(), canvasModel.getHeightPixels()));
+        }
+    }
 }

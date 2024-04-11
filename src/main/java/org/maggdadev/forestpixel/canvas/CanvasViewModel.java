@@ -15,6 +15,7 @@ public class CanvasViewModel {
 
     private final CanvasModel model;
     private final ObjectProperty<WritableImage> image = new SimpleObjectProperty<>();
+    private final ObjectProperty<WritableImage> previewImage = new SimpleObjectProperty<>();
 
     private final CanvasContext canvasContext;
 
@@ -43,14 +44,12 @@ public class CanvasViewModel {
     private final IntegerProperty extendedCanvasPixelWidth = new SimpleIntegerProperty();
     private final IntegerProperty extendedCanvasPixelHeight = new SimpleIntegerProperty();
 
-    public ObjectProperty<WritableImage> imageProperty() {
-        return image;
-    }
+
 
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         this.toolBarViewModel = new ToolbarViewModel();
-        canvasContext = new CanvasContext(toolBarViewModel.colorProperty());
+        canvasContext = new CanvasContext(toolBarViewModel.colorProperty(), previewImage);
         canvasZoomHandler = new CanvasZoomHandler(this);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
@@ -72,21 +71,19 @@ public class CanvasViewModel {
         extendedCanvasPixelWidth.bind(Bindings.createIntegerBinding(() -> {
             int leftExtra = sceneToIdx(getViewportPosX()) > 0 ? 1 : 0;
             int rightExtra = (getSourceStartIndexX() + canvasWidthToIdx()) < getModelWidthPixels() ? 1 : 0;
-            return Math.round((float)((canvasWidthToIdx() + leftExtra + rightExtra) * getZoomScaleFactor()));
+            return Math.round((float) ((canvasWidthToIdx() + leftExtra + rightExtra) * getZoomScaleFactor()));
         }, zoomScaleFactor, modelWidth, sourceStartIndexX));
 
         extendedCanvasPixelHeight.bind(Bindings.createIntegerBinding(() -> {
             int topExtra = sceneToIdx(getViewportPosY()) > 0 ? 1 : 0;
             int botExtra = (getSourceStartIndexY() + canvasHeightToIdx()) < getModelHeightPixels() ? 1 : 0;
-            return Math.round((float)((canvasHeightToIdx() + topExtra + botExtra) * getZoomScaleFactor()));
+            return Math.round((float) ((canvasHeightToIdx() + topExtra + botExtra) * getZoomScaleFactor()));
         }, zoomScaleFactor, modelHeight, sourceStartIndexY));
 
         extendedCanvasPixelWidth.addListener((obs, oldVal, newVal) -> {
             System.out.println(newVal);
         });
     }
-
-
 
 
     void handleCanvasEvent(CanvasEvent event) {
@@ -126,6 +123,16 @@ public class CanvasViewModel {
 
             setViewNeedsUpdate(true);
         }
+    }
+
+    public void undo() {
+        model.undo();
+        update();
+    }
+
+    public void redo() {
+        model.redo();
+        update();
     }
 
 
@@ -194,7 +201,7 @@ public class CanvasViewModel {
     // START: Calculations/conversions
 
     public int xPosToIdx(double xPos) {
-        return (int)(xPos / getZoomScaleFactor());
+        return (int) (xPos / getZoomScaleFactor());
     }
 
     public int yPosToIdx(double yPos) {
@@ -202,8 +209,9 @@ public class CanvasViewModel {
     }
 
     public int sceneToIdx(double s) {
-        return (int)(s / getZoomScaleFactor());
+        return (int) (s / getZoomScaleFactor());
     }
+
     private int canvasWidthToIdx() {
         return Math.round((float) (CanvasView.CANVAS_WIDTH / getZoomScaleFactor()));
     }
@@ -284,6 +292,7 @@ public class CanvasViewModel {
     public double getViewportPosX() {
         return viewportPosX.get();
     }
+
     public double getViewportPosY() {
         return viewportPosY.get();
     }
@@ -319,5 +328,18 @@ public class CanvasViewModel {
 
     public IntegerProperty extendedCanvasPixelHeightProperty() {
         return extendedCanvasPixelHeight;
+    }
+
+
+    public ObjectProperty<WritableImage> imageProperty() {
+        return image;
+    }
+
+    public WritableImage getPreviewImage() {
+        return previewImage.get();
+    }
+
+    public ObjectProperty<WritableImage> previewImageProperty() {
+        return previewImage;
     }
 }

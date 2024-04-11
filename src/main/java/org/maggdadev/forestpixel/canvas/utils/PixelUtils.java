@@ -7,15 +7,15 @@ import java.util.List;
 
 public class PixelUtils {
 
-    public static List<Point2D> straightLineFromTo(int fromX, int fromY, int toX, int toY) {
-        List<Point2D> retList = new ArrayList<>();
+    public static List<int[]> straightLineFromTo(int fromX, int fromY, int toX, int toY) {
+        List<int[]> retList = new ArrayList<>();
         int currX = fromX;
         int currY = fromY;
         int tempX, tempY;
         double bestScore = 0, currScore;
         int bestX = 0, bestY = 0;
         while(currX != toX || currY != toY) {
-            retList.add(new Point2D(currX, currY));
+            retList.add(new int[]{currX, currY});
             bestScore = 0;
             for(int i = 0; i < 4; i ++) {
                 tempX = currX;
@@ -37,7 +37,7 @@ public class PixelUtils {
             currX = bestX;
             currY = bestY;
         }
-        retList.add(new Point2D(toX, toY));
+        retList.add(new int[]{toX, toY});
         return retList;
     }
 }

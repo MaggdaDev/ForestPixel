@@ -23,12 +23,11 @@ public class PencilViewModel extends ToolViewModel {
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
         if(!alreadyDragging) {
-            model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+            model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
         } else {
-            List<Point2D> points = PixelUtils.straightLineFromTo(lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());
-            model.applyToCanvas(e.canvasModel(), e.canvasContext(), points);
+            List<int[]> points = PixelUtils.straightLineFromTo(lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());
+            model.applyToPreview(e.canvasModel(), e.canvasContext(), points);
         }
-
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
         alreadyDragging = true;
@@ -37,13 +36,14 @@ public class PencilViewModel extends ToolViewModel {
     @Override
     protected  void onPrimaryButtonPressed(CanvasMouseEvent e) {
         alreadyPressed = true;
-        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+        model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
     }
 
     @Override
     protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
         alreadyPressed = false;
         alreadyDragging = false;
+        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
     }
 
 }

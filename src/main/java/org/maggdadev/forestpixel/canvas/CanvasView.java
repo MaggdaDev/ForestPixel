@@ -1,18 +1,15 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.skin.ScrollPaneSkin;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -80,6 +77,7 @@ public class CanvasView extends HBox {
         viewModel.update();
     }
 
+
     private void createBindings() {
         placeHolderPane.prefWidthProperty().bind(Bindings.multiply(viewModel.modelWidthProperty(), viewModel.zoomScaleFactorProperty()));
         placeHolderPane.prefHeightProperty().bind(Bindings.multiply(viewModel.modelHeightProperty(), viewModel.zoomScaleFactorProperty()));
@@ -92,33 +90,49 @@ public class CanvasView extends HBox {
         canvas.layoutYProperty().bind(viewModel.quantizedViewportYProperty());
 
         viewModel.zoomScaleFactorProperty().addListener((obs, oldVal, newVal) -> {
-            redrawImage();
+            redrawAll();
         });
 
         viewModel.viewNeedsUpdateProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
-                redrawImage();
+                redrawAll();
                 viewModel.setViewNeedsUpdate(false);
             }
         });
 
 
         canvasScrollPane.hvalueProperty().addListener( (obs, oldVal, newVal) -> {
-            redrawImage();
+            redrawAll();
         });
 
         canvasScrollPane.vvalueProperty().addListener( (obs, oldVal, newVal) -> {
-            redrawImage();
+            redrawAll();
         });
 
     }
 
-    public void redrawImage() {
+    public void redrawAll() {
+        canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+        drawImage(viewModel.imageProperty().get());
+        if(viewModel.getPreviewImage() != null) {
+            drawImage(viewModel.getPreviewImage());
+            System.out.println("Preview drawn");
+        }
+
+    }
+
+    private void drawImage(Image image) {
         int leftExtra = viewModel.getSourceStartIndexX() > 0 ? 1 : 0;
         int topExtra = viewModel.getSourceStartIndexY() > 0 ? 1 : 0;
-        canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
-        canvas.getGraphicsContext2D().drawImage(viewModel.imageProperty().get(), viewModel.getSourceStartIndexX()-1, viewModel.getSourceStartIndexY()-1, viewModel.getExtendedCanvasPixelWidth(), viewModel.getExtendedCanvasPixelHeight(),
-                - leftExtra * viewModel.getZoomScaleFactor(), - topExtra * viewModel.getZoomScaleFactor(), ((double)viewModel.getExtendedCanvasPixelWidth()) * viewModel.getZoomScaleFactor(), ((double)viewModel.getExtendedCanvasPixelHeight()) * viewModel.getZoomScaleFactor());
+        canvas.getGraphicsContext2D().drawImage(image,
+                viewModel.getSourceStartIndexX()-1,
+                viewModel.getSourceStartIndexY()-1,
+                    viewModel.getExtendedCanvasPixelWidth(),
+                    viewModel.getExtendedCanvasPixelHeight(),
+                - leftExtra * viewModel.getZoomScaleFactor(),
+                - topExtra * viewModel.getZoomScaleFactor(),
+                ((double)viewModel.getExtendedCanvasPixelWidth()) * viewModel.getZoomScaleFactor(),
+                ((double)viewModel.getExtendedCanvasPixelHeight()) * viewModel.getZoomScaleFactor());
     }
 
     private void installEventHandlers() {
@@ -126,6 +140,19 @@ public class CanvasView extends HBox {
         placeHolderPane.setOnMousePressed(viewModel.getOnCanvasMousePressed());
         placeHolderPane.setOnMouseReleased(viewModel.getOnCanvasMouseReleased());
         placeHolderPane.setOnMouseDragged(viewModel.getOnCanvasMouseDragged());
+
+        setOnKeyPressed((KeyEvent e) -> {
+            if(e.isControlDown()) {
+                switch (e.getCode()) {
+                    case Z:
+                        viewModel.undo();
+                        break;
+                    case Y:
+                        viewModel.redo();
+                        break;
+                }
+            }
+        });
 
         canvasScrollPane.addEventFilter(ScrollEvent.SCROLL, (ScrollEvent e) -> { // prevent scroll pane usual scrolling when ctrl is down
             if (e.isControlDown()) {
