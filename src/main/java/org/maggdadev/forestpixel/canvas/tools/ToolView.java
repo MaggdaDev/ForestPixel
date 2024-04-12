@@ -37,6 +37,11 @@ public class ToolView extends ToggleButton {
         return switch (type) {
             case PENCIL -> images.getToolIconPencil();
             case BUCKET -> images.getToolIconBucket();
+            case PIPET -> images.getToolIconPipet();
+            case LINE -> images.getToolIconLine();
+            case MOVE -> images.getToolIconMove();
+            case RUBBER -> images.getToolIconRubber();
+            case SELECT -> images.getToolIconSelect();
             default ->
                     throw new UnsupportedOperationException("For '" + type.toString() + "' the suitable image icon is not implemented.");
         };

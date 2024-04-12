@@ -11,11 +11,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.ToolView;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.BucketViewModel;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
-import org.maggdadev.forestpixel.canvas.tools.models.BucketModel;
-import org.maggdadev.forestpixel.canvas.tools.models.PencilModel;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.PencilViewModel;
+import org.maggdadev.forestpixel.canvas.tools.models.*;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
+
+import java.nio.channels.Pipe;
 
 public class ToolbarView extends ToolBar {
     private final ToolView[] toolViews;
@@ -32,7 +31,12 @@ public class ToolbarView extends ToolBar {
         this.viewModel = viewModel;
         toolViews = new ToolView[]{
                 new ToolView(new PencilViewModel(new PencilModel()), ToolType.PENCIL),
-                new ToolView(new BucketViewModel(new BucketModel()), ToolType.BUCKET)
+                new ToolView(new BucketViewModel(new BucketModel()), ToolType.BUCKET),
+                new ToolView(new PipetViewModel(new PipetModel()), ToolType.PIPET),
+                new ToolView(new RubberViewModel(new RubberModel()), ToolType.RUBBER),
+                new ToolView(new MoveViewModel(new MoveModel()), ToolType.MOVE),
+                new ToolView(new SelectViewModel(new SelectModel()), ToolType.SELECT),
+                new ToolView(new LineViewModel(new LineModel()), ToolType.LINE),
         };
 
         gridPane = new GridPane();
