@@ -83,6 +83,10 @@ public class CanvasViewModel {
         extendedCanvasPixelWidth.addListener((obs, oldVal, newVal) -> {
             System.out.println(newVal);
         });
+
+        previewImage.addListener((obs, oldVal, newVal) -> {
+            System.out.println("Preview image: " + newVal);
+        });
     }
 
 

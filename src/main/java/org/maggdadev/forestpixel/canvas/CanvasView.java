@@ -116,7 +116,6 @@ public class CanvasView extends HBox {
         drawImage(viewModel.imageProperty().get());
         if(viewModel.getPreviewImage() != null) {
             drawImage(viewModel.getPreviewImage());
-            System.out.println("Preview drawn");
         }
 
     }

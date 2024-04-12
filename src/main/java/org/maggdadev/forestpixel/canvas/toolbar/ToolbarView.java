@@ -15,6 +15,7 @@ import org.maggdadev.forestpixel.canvas.tools.models.*;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
 
 import java.nio.channels.Pipe;
+import java.util.Arrays;
 
 public class ToolbarView extends ToolBar {
     private final ToolView[] toolViews;
@@ -27,21 +28,14 @@ public class ToolbarView extends ToolBar {
 
     private ColorPickerPane colorPickerPane;
 
+
     public ToolbarView(ToolbarViewModel viewModel) {
         this.viewModel = viewModel;
-        toolViews = new ToolView[]{
-                new ToolView(new PencilViewModel(new PencilModel()), ToolType.PENCIL),
-                new ToolView(new BucketViewModel(new BucketModel()), ToolType.BUCKET),
-                new ToolView(new PipetViewModel(new PipetModel()), ToolType.PIPET),
-                new ToolView(new RubberViewModel(new RubberModel()), ToolType.RUBBER),
-                new ToolView(new MoveViewModel(new MoveModel()), ToolType.MOVE),
-                new ToolView(new SelectViewModel(new SelectModel()), ToolType.SELECT),
-                new ToolView(new LineViewModel(new LineModel()), ToolType.LINE),
-        };
 
+        toolViews = new ToolView[viewModel.getToolViewModelList().size()];
         gridPane = new GridPane();
-
-        for(int i = 0; i < toolViews.length; i++) {
+        for (int i = 0; i < toolViews.length; i++) {
+            toolViews[i] = new ToolView(viewModel.getToolViewModelList().get(i), viewModel.getToolViewModelList().get(i).getToolType());
             gridPane.add(toolViews[i], i % 2, i / 2);
         }
 
@@ -54,30 +48,39 @@ public class ToolbarView extends ToolBar {
         toggleGroup.getToggles().addAll(toolViews);
 
         toggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-           if(newVal == null) {
-               viewModel.setActiveToolViewModel(null);
-           } else {
-               viewModel.setActiveToolViewModel(((ToolView) newVal).getViewModel());
-           }
+            if (newVal == null) {
+                viewModel.setActiveToolViewModel(null);
+            } else {
+                viewModel.setActiveToolViewModel(((ToolView) newVal).getViewModel());
+            }
         });
-        if(toggleGroup.getSelectedToggle() != null)
+        if (toggleGroup.getSelectedToggle() != null)
             viewModel.setActiveToolViewModel(((ToolView) toggleGroup.getSelectedToggle()).getViewModel());
 
         toggleGroup.selectToggle(toggleGroup.getToggles().getFirst());
 
         VBox extraPaneVBox = createExtraPaneHVox();
         extraPaneVBox.setSpacing(20);
-        extraPaneVBox.setPadding(new Insets(20,0,20,0));
+        extraPaneVBox.setPadding(new Insets(20, 0, 20, 0));
         getItems().addAll(gridPane, extraPaneVBox);
+
+        viewModel.activeToolViewModelProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                if (toggleGroup.getSelectedToggle() != null) {
+                    toggleGroup.getSelectedToggle().setSelected(false);
+                }
+                return;
+            }
+            toolViews[viewModel.getToolViewModelList().indexOf(newVal)].setSelected(true);
+        });
     }
+
 
     private VBox createExtraPaneHVox() {
         colorPickerPane = new ColorPickerPane();
         viewModel.colorProperty().bindBidirectional(colorPickerPane.colorProperty());
         colorPickerPane.visibleProperty().bind(viewModel.colorPickingVisibleProperty());
 
-        VBox extraPaneVBox = new VBox(colorPickerPane);
-
-        return extraPaneVBox;
+        return new VBox(colorPickerPane);
     }
 }

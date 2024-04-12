@@ -17,7 +17,7 @@ public class CanvasContext {
      * @param previewImage can be Null!
      */
     CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<WritableImage> previewImage) {
-        color.bind(colorOrigin);
+        color.bindBidirectional(colorOrigin);
         this.previewImage = previewImage;
     }
     public Color getColor() {
@@ -44,5 +44,9 @@ public class CanvasContext {
         WritableImage ret = previewImage.get();
         previewImage.set(null);
         return ret;
+    }
+
+    public void setColor(Color color) {
+        this.color.set(color);
     }
 }

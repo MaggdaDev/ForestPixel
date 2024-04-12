@@ -1,18 +1,25 @@
 package org.maggdadev.forestpixel.canvas.toolbar;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
+import org.maggdadev.forestpixel.canvas.tools.ToolType;
+import org.maggdadev.forestpixel.canvas.tools.ToolView;
+import org.maggdadev.forestpixel.canvas.tools.models.*;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ToolbarViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
+    private final ObjectProperty<ToolViewModel> previousActiveToolViewModel = new SimpleObjectProperty<>();
     private final BooleanProperty colorPickingVisible = new SimpleBooleanProperty(false);
 
+
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
+
+    private final List<ToolViewModel> toolViewModelList;
     public ToolbarViewModel() {
         this.activeToolViewModel.addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
@@ -20,7 +27,27 @@ public class ToolbarViewModel {
             } else {
                 colorPickingVisible.set(newVal.getToolType().USES_COLOR);
             }
+            if(oldVal != null &&  !oldVal.equals(newVal)) {
+                previousActiveToolViewModel.set(oldVal);
+            }
         });
+
+        toolViewModelList = List.of(
+                new PencilViewModel(new PencilModel()),
+                new BucketViewModel(new BucketModel()),
+                new PipetViewModel(new PipetModel(), this),
+                new RubberViewModel(new RubberModel()),
+                new MoveViewModel(new MoveModel()),
+                new SelectViewModel(new SelectModel()),
+                new LineViewModel(new LineModel())
+                );
+
+    }
+
+    public void selectPreviousTool() {
+        ToolViewModel currModel = activeToolViewModel.get();
+        setActiveToolViewModel(previousActiveToolViewModel.get());
+        previousActiveToolViewModel.set(currModel);
     }
 
     public ObservableValue<? extends ToolViewModel> activeToolViewModelProperty() {
@@ -41,5 +68,9 @@ public class ToolbarViewModel {
 
     public ObjectProperty<Color> colorProperty() {
         return color;
+    }
+
+    public List<ToolViewModel> getToolViewModelList() {
+        return toolViewModelList;
     }
 }
