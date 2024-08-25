@@ -34,7 +34,7 @@ public class ToolbarViewModel {
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasContext.getColor()), ToolType.PENCIL), // pencil
                 new BucketViewModel(new BucketModel()),
                 new PipetViewModel(new PipetModel(), this),
-                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> Color.WHITE), ToolType.RUBBER),  // rubber
+                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasModel.getTransparentColor()), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel()),
                 new SelectViewModel(new SelectModel()),
                 new LineViewModel(new LineModel())

@@ -3,7 +3,6 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import org.maggdadev.forestpixel.canvas.history.HistoryModel;
 import org.maggdadev.forestpixel.canvas.history.MultiPixelChange;
 import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
@@ -14,6 +13,7 @@ import java.util.List;
 
 public class CanvasModel {
     private WritableImage image;
+    private Color transparentColor = Color.PURPLE;
     private int widthPixels = 0, heightPixels = 0;
 
     private final HistoryModel historyModel;
@@ -23,6 +23,11 @@ public class CanvasModel {
 
     public void createNewImage(int widthPixels, int heightPixels) {
         image = new WritableImage(widthPixels,heightPixels);
+        for(int x = 0; x < widthPixels; x++) {
+            for(int y = 0; y < heightPixels; y++) {
+                image.getPixelWriter().setColor(x,y, transparentColor);
+            }
+        }
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
     }
@@ -97,5 +102,13 @@ public class CanvasModel {
             }
         }
         historyModel.applyNewChange(new MultiPixelChange(image, points, colors));
+    }
+
+    public Color getTransparentColor() {
+        return transparentColor;
+    }
+
+    public void setTransparentColor(Color transparentColor) {
+        this.transparentColor = transparentColor;
     }
 }
