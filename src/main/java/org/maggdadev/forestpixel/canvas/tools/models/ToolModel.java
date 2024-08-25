@@ -17,7 +17,7 @@ public abstract class ToolModel {
 
     protected void createPreviewImageIfNull(CanvasModel canvasModel, CanvasContext canvasContext) {
         if(canvasContext.getPreviewImage() == null) {
-            canvasContext.setPreviewImage(new WritableImage(canvasModel.getImage().getPixelReader(), canvasModel.getWidthPixels(), canvasModel.getHeightPixels()));
+            canvasContext.setPreviewImage(new WritableImage(canvasModel.getWidthPixels(), canvasModel.getHeightPixels()));
         }
     }
 }

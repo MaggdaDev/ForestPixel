@@ -95,7 +95,7 @@ public class CanvasModel {
         List<int[]> points = new ArrayList<>();
         for(int i = 0; i < image.getWidth(); i ++) {
             for(int j = 0; j < image.getHeight(); j ++) {
-                if(!modelReader.getColor(i,j).equals(previewReader.getColor(i,j))) {
+                if(!modelReader.getColor(i,j).equals(previewReader.getColor(i,j)) && !previewReader.getColor(i,j).equals(Color.TRANSPARENT)) {
                     points.add(new int[]{i,j});
                     colors.add(previewReader.getColor(i,j));
                 }
