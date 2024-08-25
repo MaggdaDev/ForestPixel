@@ -4,11 +4,9 @@ import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
-import org.maggdadev.forestpixel.canvas.tools.ToolView;
 import org.maggdadev.forestpixel.canvas.tools.models.*;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ToolbarViewModel {
@@ -33,10 +31,10 @@ public class ToolbarViewModel {
         });
 
         toolViewModelList = List.of(
-                new PencilViewModel(new PencilModel()),
+                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasContext.getColor()), ToolType.PENCIL), // pencil
                 new BucketViewModel(new BucketModel()),
                 new PipetViewModel(new PipetModel(), this),
-                new RubberViewModel(new RubberModel()),
+                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> Color.WHITE), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel()),
                 new SelectViewModel(new SelectModel()),
                 new LineViewModel(new LineModel())

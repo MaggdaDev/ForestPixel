@@ -1,22 +1,23 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
-import javafx.geometry.Point2D;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
-import org.maggdadev.forestpixel.canvas.tools.models.PencilModel;
-import org.maggdadev.forestpixel.canvas.tools.models.ToolModel;
+import org.maggdadev.forestpixel.canvas.tools.models.FreeHandDrawingToolModel;
 import org.maggdadev.forestpixel.canvas.utils.PixelUtils;
 
 import java.util.List;
 
-public class PencilViewModel extends ToolViewModel {
+/**
+ * Viewmodel for pencil and rubber tool
+ */
+public class FreeHandDrawingToolViewModel extends ToolViewModel {
     private boolean alreadyPressed = false, alreadyDragging = false;
     private final int[] lastDragPos = new int[]{0,0};
 
-    private final PencilModel model;
+    private final FreeHandDrawingToolModel model;
 
-    public PencilViewModel(PencilModel model) {
-        super(ToolType.PENCIL);
+    public FreeHandDrawingToolViewModel(FreeHandDrawingToolModel model, ToolType toolType) {
+        super(toolType);
         this.model = model;
     }
 
