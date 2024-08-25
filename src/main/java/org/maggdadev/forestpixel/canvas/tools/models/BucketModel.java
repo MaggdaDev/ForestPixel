@@ -12,6 +12,7 @@ public class BucketModel extends ToolModel {
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
+        WritableImage workingImage = new WritableImage(canvasModel.getImage().getPixelReader(), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());
 
         Color startColor = canvasModel.getPixelColor(xIdx, yIdx);
         Color fillColor = canvasContext.getColor();
@@ -30,9 +31,10 @@ public class BucketModel extends ToolModel {
             y = currArr[2];
             dy = currArr[3];
             x = x1;
-            if (isToBeFilled(x, y, startColor, canvasModel, canvasContext.getPreviewImage())) {
-                while (isToBeFilled(x - 1, y, startColor, canvasModel, canvasContext.getPreviewImage())) {
+            if (isToBeFilled(x, y, startColor, canvasModel, workingImage)) {
+                while (isToBeFilled(x - 1, y, startColor, canvasModel, workingImage)) {
                     canvasContext.getPreviewImage().getPixelWriter().setColor(x - 1, y, fillColor);
+                    workingImage.getPixelWriter().setColor(x - 1, y, fillColor);
                     x--;
                 }
                 if (x < x1) {
@@ -41,8 +43,9 @@ public class BucketModel extends ToolModel {
             }
 
             while (x1 <= x2) {
-                while (isToBeFilled(x1, y, startColor, canvasModel, canvasContext.getPreviewImage())) {
+                while (isToBeFilled(x1, y, startColor, canvasModel, workingImage)) {
                     canvasContext.getPreviewImage().getPixelWriter().setColor(x1, y, fillColor);
+                    workingImage.getPixelWriter().setColor(x1, y, fillColor);
                     x1++;
                 }
                 if (x1 > x) {
@@ -52,7 +55,7 @@ public class BucketModel extends ToolModel {
                     stack.add(new int[]{x2 + 1, x1 - 1, y - dy, -dy});
                 }
                 x1++;
-                while (x1 < x2 && (!isToBeFilled(x1, y, startColor, canvasModel, canvasContext.getPreviewImage()))) {
+                while (x1 < x2 && (!isToBeFilled(x1, y, startColor, canvasModel, workingImage))) {
                     x1++;
                 }
                 x = x1;
