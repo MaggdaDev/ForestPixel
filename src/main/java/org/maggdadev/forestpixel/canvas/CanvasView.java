@@ -2,9 +2,11 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.WeakChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.skin.ScrollPaneSkin;
@@ -59,6 +61,18 @@ public class CanvasView extends HBox {
 
         sideBar.getChildren().add(toolBarView);
         StackPane canvasStack = new StackPane(canvas, placeHolderPane);
+
+        placeHolderPane.getChildren().addAll(toolBarView.getAdditionalToolNodesOnCanvas()); // keep children updated according to additional nodes on canvas
+        toolBarView.getAdditionalToolNodesOnCanvas().addListener((ListChangeListener<? super Node>) (listChange) -> {
+            while(listChange.next()) {
+                if(listChange.wasAdded()) {
+                    placeHolderPane.getChildren().addAll(listChange.getAddedSubList());
+                } else if(listChange.wasRemoved()) {
+                    placeHolderPane.getChildren().removeAll(listChange.getRemoved());
+                }
+            }
+        });
+
         canvasScrollPane = new ScrollPane(canvasStack);
         canvasScrollPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         canvasScrollPane.setPickOnBounds(true);

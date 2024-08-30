@@ -1,12 +1,14 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
-import org.maggdadev.forestpixel.canvas.tools.models.ToolModel;
 
 
 public abstract class ToolViewModel {
     private final ToolType toolType;
+    private final BooleanProperty mouseAreaIndicatorActive = new SimpleBooleanProperty(false);
 
     ToolViewModel(ToolType toolType) {
         this.toolType = toolType;
@@ -61,6 +63,15 @@ public abstract class ToolViewModel {
     protected void onSecondaryButtonDragged(CanvasMouseEvent e) {
     }
 
+    public boolean isMouseAreaIndicatorActive() {
+        return mouseAreaIndicatorActive.get();
+    }
 
+    public BooleanProperty mouseAreaIndicatorActiveProperty() {
+        return mouseAreaIndicatorActive;
+    }
 
+    public void setMouseAreaIndicatorActive(boolean mouseAreaIndicatorActive) {
+        this.mouseAreaIndicatorActive.set(mouseAreaIndicatorActive);
+    }
 }

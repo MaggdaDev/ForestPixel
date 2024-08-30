@@ -189,7 +189,7 @@ public class CanvasViewModel {
     }
 
     private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
-        handleCanvasEvent(new CanvasMouseEvent(model, xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
+        handleCanvasEvent(new CanvasMouseEvent(model, e.getX(), e.getY(), xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
     }
 
     public EventHandler<ScrollEvent> getOnCanvasZoom() {

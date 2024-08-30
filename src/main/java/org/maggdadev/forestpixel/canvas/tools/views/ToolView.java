@@ -1,9 +1,10 @@
-package org.maggdadev.forestpixel.canvas.tools;
+package org.maggdadev.forestpixel.canvas.tools.views;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 import org.maggdadev.forestpixel.io.Images;
 

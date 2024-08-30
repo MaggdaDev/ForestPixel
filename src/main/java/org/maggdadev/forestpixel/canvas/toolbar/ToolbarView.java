@@ -1,21 +1,18 @@
 package org.maggdadev.forestpixel.canvas.toolbar;
 
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import org.maggdadev.forestpixel.canvas.tools.ToolType;
-import org.maggdadev.forestpixel.canvas.tools.ToolView;
-import org.maggdadev.forestpixel.canvas.tools.models.*;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
-
-import java.nio.channels.Pipe;
-import java.util.Arrays;
+import org.maggdadev.forestpixel.canvas.tools.viewmodels.SelectViewModel;
+import org.maggdadev.forestpixel.canvas.tools.views.SelectView;
+import org.maggdadev.forestpixel.canvas.tools.views.ToolView;
 
 public class ToolbarView extends ToolBar {
     private final ToolView[] toolViews;
@@ -28,6 +25,8 @@ public class ToolbarView extends ToolBar {
 
     private ColorPickerPane colorPickerPane;
 
+    private final ObservableList<Node> additionalToolNodesOnCanvas = FXCollections.observableArrayList();
+
 
     public ToolbarView(ToolbarViewModel viewModel) {
         this.viewModel = viewModel;
@@ -35,8 +34,15 @@ public class ToolbarView extends ToolBar {
         toolViews = new ToolView[viewModel.getToolViewModelList().size()];
         gridPane = new GridPane();
         for (int i = 0; i < toolViews.length; i++) {
-            toolViews[i] = new ToolView(viewModel.getToolViewModelList().get(i), viewModel.getToolViewModelList().get(i).getToolType());
-            gridPane.add(toolViews[i], i % 2, i / 2);
+            if (viewModel.getToolViewModelList().get(i) instanceof SelectViewModel selectViewModel) {
+                toolViews[i] = new SelectView(selectViewModel);
+                gridPane.add(toolViews[i], i % 2, i / 2);
+                additionalToolNodesOnCanvas.add(((SelectView) toolViews[i]).getMouseAreaRectangle());
+
+            } else {
+                toolViews[i] = new ToolView(viewModel.getToolViewModelList().get(i), viewModel.getToolViewModelList().get(i).getToolType());
+                gridPane.add(toolViews[i], i % 2, i / 2);
+            }
         }
 
         gridPane.setHgap(2);
@@ -73,6 +79,10 @@ public class ToolbarView extends ToolBar {
             }
             toolViews[viewModel.getToolViewModelList().indexOf(newVal)].setSelected(true);
         });
+    }
+
+    public ObservableList<Node> getAdditionalToolNodesOnCanvas() {
+        return additionalToolNodesOnCanvas;
     }
 
 
