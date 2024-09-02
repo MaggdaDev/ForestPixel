@@ -86,11 +86,11 @@ public class CanvasModel {
         this.image = image;
     }
 
-    public void applyPreviewImage(WritableImage previewImage) {
+    public void applyPreviewImage(PreviewImage previewImage) {
         if(previewImage == null)
             return;
         PixelReader modelReader = image.getPixelReader();
-        PixelReader previewReader = previewImage.getPixelReader();
+        PixelReader previewReader = previewImage.getDrawableImage().getPixelReader();
         List<Color> colors = new ArrayList<>();
         List<int[]> points = new ArrayList<>();
         for(int i = 0; i < image.getWidth(); i ++) {
@@ -110,5 +110,15 @@ public class CanvasModel {
 
     public void setTransparentColor(Color transparentColor) {
         this.transparentColor = transparentColor;
+    }
+
+    public void eraseAreaForSelection(int xStart, int yStart, int width, int height) {
+        List<int[]> points = new ArrayList<>();
+        for(int i = xStart; i < xStart + width; i++) {
+            for(int j = yStart; j < yStart + height; j++) {
+                points.add(new int[]{i,j});
+            }
+        }
+        historyModel.applyNewChange(new SingleColorMultiPixelChange(image, points, transparentColor));
     }
 }

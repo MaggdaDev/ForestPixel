@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.canvas.tools.models;
 import javafx.scene.image.WritableImage;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
+import org.maggdadev.forestpixel.canvas.PreviewImage;
 
 public abstract class ToolModel {
 
@@ -16,7 +17,7 @@ public abstract class ToolModel {
 
     protected void createPreviewImageIfNull(CanvasModel canvasModel, CanvasContext canvasContext) {
         if(canvasContext.getPreviewImage() == null) {
-            canvasContext.setPreviewImage(new WritableImage(canvasModel.getWidthPixels(), canvasModel.getHeightPixels()));
+            canvasContext.setPreviewImage(new PreviewImage(canvasModel.getWidthPixels(), canvasModel.getHeightPixels()));
         }
     }
 }

@@ -129,7 +129,7 @@ public class CanvasView extends HBox {
         canvas.getGraphicsContext2D().clearRect(0,0, canvas.getWidth(), canvas.getHeight());
         drawImage(viewModel.imageProperty().get());
         if(viewModel.getPreviewImage() != null) {
-            drawImage(viewModel.getPreviewImage());
+            drawImage(viewModel.getPreviewImage().getDrawableImage());
         }
 
     }

@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 
 public class CanvasContext {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>(), transparentColor = new SimpleObjectProperty<>(Color.PURPLE);
-    private final ObjectProperty<WritableImage> previewImage ;
+    private final ObjectProperty<PreviewImage> previewImage ;
 
     private final ObjectProperty<CanvasState> state = new SimpleObjectProperty<>(CanvasState.IDLE);
 
@@ -17,7 +17,7 @@ public class CanvasContext {
      * @param colorOrigin
      * @param previewImage can be Null!
      */
-    CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<WritableImage> previewImage, DoubleProperty zoomFactor) {
+    CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<PreviewImage> previewImage, DoubleProperty zoomFactor) {
         color.bindBidirectional(colorOrigin);
         this.previewImage = previewImage;
         this.zoomFactor = zoomFactor;
@@ -31,20 +31,20 @@ public class CanvasContext {
         return color;
     }
 
-    public WritableImage getPreviewImage() {
+    public PreviewImage getPreviewImage() {
         return previewImage.get();
     }
 
-    public ObjectProperty<WritableImage> previewImageProperty() {
+    public ObjectProperty<PreviewImage> previewImageProperty() {
         return previewImage;
     }
 
-    public void setPreviewImage(WritableImage previewImage) {
+    public void setPreviewImage(PreviewImage previewImage) {
         this.previewImage.set(previewImage);
     }
 
-    public WritableImage getPreviewImageAndDelete() {
-        WritableImage ret = previewImage.get();
+    public PreviewImage getPreviewImageAndDelete() {
+        PreviewImage ret = previewImage.get();
         previewImage.set(null);
         return ret;
     }

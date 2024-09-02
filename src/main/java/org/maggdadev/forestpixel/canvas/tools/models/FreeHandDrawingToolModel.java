@@ -16,7 +16,7 @@ public class FreeHandDrawingToolModel extends ToolModel {
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
         if (xIdx >= 0 && xIdx < canvasModel.getWidthPixels() && yIdx >= 0 && yIdx < canvasModel.getHeightPixels()) {
-            canvasContext.getPreviewImage().getPixelWriter().setColor(xIdx, yIdx, determinePixelColorFunction.apply(canvasModel, canvasContext));
+            canvasContext.getPreviewImage().setColor(xIdx, yIdx, determinePixelColorFunction.apply(canvasModel, canvasContext));
         }
     }
 

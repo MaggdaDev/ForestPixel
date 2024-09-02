@@ -26,18 +26,10 @@ public class SelectModel extends ToolModel {
         int yEnd = Math.max(selectionStartIdxY, selectionEndIdxY);
         int width = xEnd - xStart;
         int height = yEnd - yStart;
-        eraseAreaFromPreview(canvasContext.getPreviewImage(), xStart, yStart, width, height, canvasModel.getTransparentColor());
-        canvasContext.getPreviewImage().getPixelWriter().setPixels(xStart, yStart, width, height, canvasModel.getImage().getPixelReader(), xStart, yStart);
+        canvasContext.getPreviewImage().setPixels(xStart, yStart, width, height, canvasModel.getImage().getPixelReader(), xStart, yStart);
+        canvasModel.eraseAreaForSelection(xStart, yStart, width, height);
     }
 
-    private void eraseAreaFromPreview(WritableImage previewImage, int x, int y, int width, int height, Color transparentColor) {
-        PixelWriter writer = previewImage.getPixelWriter();
-        for (int i = x; i < x + width; i++) {
-            for (int j = y; j < y + height; j++) {
-                writer.setColor(i, j, transparentColor);
-            }
-        }
-    }
 
     @Override
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {

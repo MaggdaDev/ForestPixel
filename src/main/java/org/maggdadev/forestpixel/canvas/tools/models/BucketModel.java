@@ -33,7 +33,7 @@ public class BucketModel extends ToolModel {
             x = x1;
             if (isToBeFilled(x, y, startColor, canvasModel, workingImage)) {
                 while (isToBeFilled(x - 1, y, startColor, canvasModel, workingImage)) {
-                    canvasContext.getPreviewImage().getPixelWriter().setColor(x - 1, y, fillColor);
+                    canvasContext.getPreviewImage().setColor(x - 1, y, fillColor);
                     workingImage.getPixelWriter().setColor(x - 1, y, fillColor);
                     x--;
                 }
@@ -44,7 +44,7 @@ public class BucketModel extends ToolModel {
 
             while (x1 <= x2) {
                 while (isToBeFilled(x1, y, startColor, canvasModel, workingImage)) {
-                    canvasContext.getPreviewImage().getPixelWriter().setColor(x1, y, fillColor);
+                    canvasContext.getPreviewImage().setColor(x1, y, fillColor);
                     workingImage.getPixelWriter().setColor(x1, y, fillColor);
                     x1++;
                 }

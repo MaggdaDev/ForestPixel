@@ -16,7 +16,9 @@ public class CanvasViewModel {
 
     private final CanvasModel model;
     private final ObjectProperty<WritableImage> image = new SimpleObjectProperty<>();
-    private final ObjectProperty<WritableImage> previewImage = new SimpleObjectProperty<>();
+    private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
+
+    private final IntegerProperty previewImageViewportStartX = new SimpleIntegerProperty(0), previewImageViewPortStartY = new SimpleIntegerProperty(0);
 
     private final CanvasContext canvasContext;
 
@@ -362,11 +364,11 @@ public class CanvasViewModel {
         return image;
     }
 
-    public WritableImage getPreviewImage() {
+    public PreviewImage getPreviewImage() {
         return previewImage.get();
     }
 
-    public ObjectProperty<WritableImage> previewImageProperty() {
+    public ObjectProperty<PreviewImage> previewImageProperty() {
         return previewImage;
     }
 }
