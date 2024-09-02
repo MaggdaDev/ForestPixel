@@ -45,7 +45,6 @@ public class CanvasViewModel {
     private final IntegerProperty extendedCanvasPixelHeight = new SimpleIntegerProperty();
 
 
-
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         this.toolBarViewModel = new ToolbarViewModel();
@@ -91,16 +90,27 @@ public class CanvasViewModel {
 
 
     void handleCanvasEvent(CanvasEvent event) {
-        if (activeToolViewModel.get() != null) { // all the events handled by active tool
+        if (activeToolViewModel.get() != null &&
+                (!getCanvasState().equals(CanvasState.SELECTED) || activeToolViewModel.get().isRequestMouseEventsEvenIfSelected())) {
             if (event instanceof CanvasMouseEvent) {
                 activeToolViewModel.get().notifyCanvasMouseEvent((CanvasMouseEvent) event);
             } else
                 throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
-        } else {    // all the events not handled by active tool
-            //throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
+
+        } else if(getCanvasState().equals(CanvasState.SELECTED)){
+            handleClickWhileSelected(event);
         }
 
         update();
+    }
+
+    private void handleClickWhileSelected(CanvasEvent event){
+        if(event instanceof CanvasMouseEvent mouseEvent){
+            if(mouseEvent.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && mouseEvent.buttonType().equals(CanvasMouseEvent.ButtonType.PRIMARY)){
+                canvasContext.setState(CanvasState.IDLE);
+                System.out.println("Back to idle");
+            }
+        }
     }
 
     void update() {
@@ -202,7 +212,7 @@ public class CanvasViewModel {
     }
 
 
-    // START: Calculations/conversions
+// START: Calculations/conversions
 
     public int xPosToIdx(double xPos) {
         return (int) (xPos / getZoomScaleFactor());
@@ -232,10 +242,18 @@ public class CanvasViewModel {
         return Math.round((float) (getModelHeight() / getZoomScaleFactor()));
     }
 
-    // END: CALCULATIONS/conversions
+// END: CALCULATIONS/conversions
 
 
-    // start: get/set
+// start: get/set
+
+    public ObjectProperty<CanvasState> canvasStateProperty() {
+        return canvasContext.stateProperty();
+    }
+
+    public CanvasState getCanvasState() {
+        return canvasContext.getState();
+    }
 
     public DoubleProperty zoomHValueProperty() {
         return zoomHValue;

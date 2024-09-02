@@ -1,4 +1,4 @@
 package org.maggdadev.forestpixel.canvas.tools.models;
 
-public class SelectModel {
+public class SelectModel extends ToolModel {
 }

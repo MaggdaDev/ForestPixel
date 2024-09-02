@@ -12,7 +12,7 @@ public class SelectView extends ToolView{
         mouseAreaRectangle.yProperty().bind(viewModel.areaStartYProperty());
         mouseAreaRectangle.widthProperty().bind(viewModel.widthProperty());
         mouseAreaRectangle.heightProperty().bind(viewModel.heightProperty());
-        mouseAreaRectangle.visibleProperty().bind(viewModel.mouseAreaIndicatorActiveProperty());
+        mouseAreaRectangle.visibleProperty().bind(viewModel.selectStateProperty().isNotEqualTo(SelectViewModel.SelectState.IDLE));
     }
 
     public Rectangle getMouseAreaRectangle() {

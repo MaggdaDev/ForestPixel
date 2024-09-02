@@ -8,10 +8,15 @@ import org.maggdadev.forestpixel.canvas.tools.ToolType;
 
 public abstract class ToolViewModel {
     private final ToolType toolType;
-    private final BooleanProperty mouseAreaIndicatorActive = new SimpleBooleanProperty(false);
+    private final boolean requestMouseEventsEvenIfSelected;
+
 
     ToolViewModel(ToolType toolType) {
+        this(toolType, false);
+    }
+    ToolViewModel(ToolType toolType, boolean requestMouseEventsEvenIfSelected) {
         this.toolType = toolType;
+        this.requestMouseEventsEvenIfSelected = requestMouseEventsEvenIfSelected;
     }
 
     public final void notifyCanvasMouseEvent(CanvasMouseEvent e) {
@@ -39,6 +44,10 @@ public abstract class ToolViewModel {
         return toolType;
     }
 
+    public boolean isRequestMouseEventsEvenIfSelected() {
+        return requestMouseEventsEvenIfSelected;
+    }
+
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
     }
 
@@ -63,15 +72,4 @@ public abstract class ToolViewModel {
     protected void onSecondaryButtonDragged(CanvasMouseEvent e) {
     }
 
-    public boolean isMouseAreaIndicatorActive() {
-        return mouseAreaIndicatorActive.get();
-    }
-
-    public BooleanProperty mouseAreaIndicatorActiveProperty() {
-        return mouseAreaIndicatorActive;
-    }
-
-    public void setMouseAreaIndicatorActive(boolean mouseAreaIndicatorActive) {
-        this.mouseAreaIndicatorActive.set(mouseAreaIndicatorActive);
-    }
 }

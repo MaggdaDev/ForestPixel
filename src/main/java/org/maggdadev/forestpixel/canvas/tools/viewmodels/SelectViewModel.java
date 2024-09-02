@@ -1,10 +1,8 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
+import org.maggdadev.forestpixel.canvas.CanvasState;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.SelectModel;
@@ -20,7 +18,7 @@ public class SelectViewModel extends ToolViewModel {
             areaStartX = new SimpleDoubleProperty(0),
             areaStartY = new SimpleDoubleProperty(0);
 
-    private final BooleanProperty mouseAreaIndicatorActive = new SimpleBooleanProperty(false);
+    private final ObjectProperty<SelectState> selectState = new SimpleObjectProperty<>(SelectState.IDLE);
 
     public SelectViewModel(SelectModel model) {
         super(ToolType.SELECT);
@@ -34,7 +32,7 @@ public class SelectViewModel extends ToolViewModel {
     @Override
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
         super.onPrimaryButtonPressed(e);
-        mouseAreaIndicatorActive.set(true);
+        selectState.set(SelectState.SELECTING);
         gestureStartX.set(e.pixelXPos());
         gestureStartY.set(e.pixelYPos());
         System.out.println("SelectViewModel.onPrimaryButtonPressed " + e.pixelXPos());
@@ -43,7 +41,8 @@ public class SelectViewModel extends ToolViewModel {
     @Override
     protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
         super.onPrimaryButtonReleased(e);
-        mouseAreaIndicatorActive.set(false);
+        selectState.set(SelectState.SELECTED);
+        e.canvasContext().setState(CanvasState.SELECTED);
     }
 
     @Override
@@ -51,6 +50,12 @@ public class SelectViewModel extends ToolViewModel {
         super.onPrimaryButtonDragged(e);
         gestureEndX.set(e.pixelXPos());
         gestureEndY.set(e.pixelYPos());
+    }
+
+    public static enum SelectState {
+        IDLE,
+        SELECTING,
+        SELECTED
     }
 
     public double getGestureStartX() {
@@ -85,12 +90,12 @@ public class SelectViewModel extends ToolViewModel {
         return height;
     }
 
-    public boolean isMouseAreaIndicatorActive() {
-        return mouseAreaIndicatorActive.get();
+    public SelectState getSelectState() {
+        return selectState.get();
     }
 
-    public BooleanProperty mouseAreaIndicatorActiveProperty() {
-        return mouseAreaIndicatorActive;
+    public ObjectProperty<SelectState> selectStateProperty() {
+        return selectState;
     }
 
     public double getGestureEndX() {

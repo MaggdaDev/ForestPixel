@@ -11,6 +11,8 @@ public class CanvasContext {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
     private final ObjectProperty<WritableImage> previewImage ;
 
+    private final ObjectProperty<CanvasState> state = new SimpleObjectProperty<>(CanvasState.IDLE);
+
     /**
      *
      * @param colorOrigin
@@ -48,5 +50,17 @@ public class CanvasContext {
 
     public void setColor(Color color) {
         this.color.set(color);
+    }
+
+    public CanvasState getState() {
+        return state.get();
+    }
+
+    public ObjectProperty<CanvasState> stateProperty() {
+        return state;
+    }
+
+    public void setState(CanvasState state) {
+        this.state.set(state);
     }
 }
