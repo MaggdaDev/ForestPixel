@@ -5,7 +5,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 public class CanvasContext {
-    private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
+    private final ObjectProperty<Color> color = new SimpleObjectProperty<>(), transparentColor = new SimpleObjectProperty<>(Color.PURPLE);
     private final ObjectProperty<WritableImage> previewImage ;
 
     private final ObjectProperty<CanvasState> state = new SimpleObjectProperty<>(CanvasState.IDLE);

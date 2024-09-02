@@ -57,11 +57,13 @@ public class SelectViewModel extends ToolViewModel {
             selectState.set(SelectState.SELECTED);
             e.canvasContext().setState(CanvasState.SELECTED);
         }
+        model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
     }
 
     @Override
     protected void onSelectionCancelled(CanvasMouseEvent e) {
         super.onSelectionCancelled(e);
+        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
         resetSelection(e.canvasContext());
     }
 
