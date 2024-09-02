@@ -3,6 +3,9 @@ package org.maggdadev.forestpixel.canvas.toolbar;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.*;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
@@ -42,6 +45,19 @@ public class ToolbarViewModel {
 
     }
 
+    public void notifyAllToolsSelectionCancelled(CanvasMouseEvent event) {
+        CanvasMouseEvent cancelEvent = new CanvasMouseEvent(event.canvasModel(), event.pixelXPos(), event.pixelYPos(),  event.xIdx(), event.yIdx(), CanvasMouseEvent.ActionType.SELECTION_CANCELLED, event.buttonType(), event.canvasContext());
+        for(ToolViewModel toolViewModel : toolViewModelList) {
+            toolViewModel.notifyCanvasMouseEvent(cancelEvent);
+        }
+    }
+
+    public void notifyAllToolsZoom(CanvasZoomEvent event) {
+        for(ToolViewModel toolViewModel : toolViewModelList) {
+            toolViewModel.onZoomEvent(event);
+        }
+    }
+
     public void selectPreviousTool() {
         ToolViewModel currModel = activeToolViewModel.get();
         setActiveToolViewModel(previousActiveToolViewModel.get());
@@ -71,4 +87,6 @@ public class ToolbarViewModel {
     public List<ToolViewModel> getToolViewModelList() {
         return toolViewModelList;
     }
+
+
 }

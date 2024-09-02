@@ -2,23 +2,27 @@ package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import org.maggdadev.forestpixel.canvas.CanvasContext;
+import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.CanvasState;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.SelectModel;
 
 public class SelectViewModel extends ToolViewModel {
     private final SelectModel model;
-    private final DoubleProperty gestureStartX = new SimpleDoubleProperty(0),
-            gestureStartY = new SimpleDoubleProperty(0),
+    private final DoubleProperty gestureStartX = new SimpleDoubleProperty(-1),
+            gestureStartY = new SimpleDoubleProperty(-1),
             width = new SimpleDoubleProperty(0),
             height = new SimpleDoubleProperty(0),
-            gestureEndX = new SimpleDoubleProperty(0),
-            gestureEndY = new SimpleDoubleProperty(0),
+            gestureEndX = new SimpleDoubleProperty(-1),
+            gestureEndY = new SimpleDoubleProperty(-1),
             areaStartX = new SimpleDoubleProperty(0),
             areaStartY = new SimpleDoubleProperty(0);
 
     private final ObjectProperty<SelectState> selectState = new SimpleObjectProperty<>(SelectState.IDLE);
+    private final BooleanProperty mouseAreaIndicatorVisible = new SimpleBooleanProperty(false);
 
     public SelectViewModel(SelectModel model) {
         super(ToolType.SELECT);
@@ -27,32 +31,91 @@ public class SelectViewModel extends ToolViewModel {
         height.bind(Bindings.max(gestureEndY.subtract(gestureStartY), gestureStartY.subtract(gestureEndY)));
         areaStartX.bind(Bindings.min(gestureStartX, gestureEndX));
         areaStartY.bind(Bindings.min(gestureStartY, gestureEndY));
-    }
 
-    @Override
-    protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
-        super.onPrimaryButtonPressed(e);
-        selectState.set(SelectState.SELECTING);
-        gestureStartX.set(e.pixelXPos());
-        gestureStartY.set(e.pixelYPos());
-        System.out.println("SelectViewModel.onPrimaryButtonPressed " + e.pixelXPos());
-    }
+        selectState.addListener((obs, oldVal, newVal) -> {
+            System.out.println(newVal);
+        });
 
-    @Override
-    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
-        super.onPrimaryButtonReleased(e);
-        selectState.set(SelectState.SELECTED);
-        e.canvasContext().setState(CanvasState.SELECTED);
+        mouseAreaIndicatorVisible.bind(Bindings.createBooleanBinding(() ->
+                        ((!selectState.get().equals(SelectState.IDLE)) && Math.min(Math.min(getGestureStartX(), getGestureStartY()), Math.min(getGestureEndX(), getGestureEndY())) >= 0),
+                        selectState, gestureStartX, gestureStartY, gestureEndX, gestureEndY));
     }
 
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
         super.onPrimaryButtonDragged(e);
-        gestureEndX.set(e.pixelXPos());
-        gestureEndY.set(e.pixelYPos());
+        if(selectState.get().equals(SelectState.IDLE)) {
+            startSelection(e);
+        }
+        writeEndIdxToModel(e.pixelXPos(), e.pixelYPos(), e.canvasContext());
+        loadFromModel(e.canvasContext());
+    }
+    @Override
+    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
+        super.onPrimaryButtonReleased(e);
+        if(selectState.get().equals(SelectState.SELECTING)) {
+            selectState.set(SelectState.SELECTED);
+            e.canvasContext().setState(CanvasState.SELECTED);
+        }
     }
 
-    public static enum SelectState {
+    @Override
+    protected void onSelectionCancelled(CanvasMouseEvent e) {
+        super.onSelectionCancelled(e);
+        resetSelection(e.canvasContext());
+    }
+
+    @Override
+    public void onZoomEvent(CanvasZoomEvent event) {
+        super.onZoomEvent(event);
+        loadFromModel(event.canvasContext());
+    }
+
+    private void startSelection(CanvasMouseEvent e) {
+        resetSelection(e.canvasContext());
+        writeStartIdxToModel(e.pixelXPos(), e.pixelYPos(), e.canvasContext());
+        selectState.set(SelectState.SELECTING);
+    }
+    private void resetSelection(CanvasContext context) {
+        selectState.set(SelectState.IDLE);
+        model.resetSelection();
+        loadFromModel(context);
+    }
+
+    private void loadFromModel(CanvasContext context) {
+        gestureStartX.set(idxToX(model.getSelectionStartIdxX(), context));
+        gestureStartY.set(idxToY(model.getSelectionStartIdxY(), context));
+        gestureEndX.set(idxToX(model.getSelectionEndIdxX(), context));
+        gestureEndY.set(idxToY(model.getSelectionEndIdxY(), context));
+    }
+
+    private void writeStartIdxToModel(double x, double y, CanvasContext context) {
+        model.setSelectionStartIdxX(xToIdx(x, context));
+        model.setSelectionStartIdxY(yToIdx(y, context));
+    }
+
+    private void writeEndIdxToModel(double x, double y, CanvasContext context) {
+        model.setSelectionEndIdxX(xToIdx(x, context));
+        model.setSelectionEndIdxY(yToIdx(y, context));
+    }
+
+    private int xToIdx(double x, CanvasContext context) {
+        return Math.round ((float) (x / context.getZoomFactor()));
+    }
+
+    private int yToIdx(double y, CanvasContext context) {
+        return Math.round((float) (y / context.getZoomFactor()));
+    }
+
+    private double idxToX(int xIdx, CanvasContext context) {
+        return xIdx * context.getZoomFactor();
+    }
+
+    private double idxToY(int yIdx, CanvasContext context) {
+        return yIdx * context.getZoomFactor();
+    }
+
+    public enum SelectState {
         IDLE,
         SELECTING,
         SELECTED
@@ -128,5 +191,13 @@ public class SelectViewModel extends ToolViewModel {
 
     public DoubleProperty areaStartYProperty() {
         return areaStartY;
+    }
+
+    public boolean isMouseAreaIndicatorVisible() {
+        return mouseAreaIndicatorVisible.get();
+    }
+
+    public BooleanProperty mouseAreaIndicatorVisibleProperty() {
+        return mouseAreaIndicatorVisible;
     }
 }

@@ -1,9 +1,6 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
@@ -13,14 +10,18 @@ public class CanvasContext {
 
     private final ObjectProperty<CanvasState> state = new SimpleObjectProperty<>(CanvasState.IDLE);
 
+    private final DoubleProperty zoomFactor;
+
     /**
      *
      * @param colorOrigin
      * @param previewImage can be Null!
      */
-    CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<WritableImage> previewImage) {
+    CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<WritableImage> previewImage, DoubleProperty zoomFactor) {
         color.bindBidirectional(colorOrigin);
         this.previewImage = previewImage;
+        this.zoomFactor = zoomFactor;
+
     }
     public Color getColor() {
         return color.get();
@@ -62,5 +63,9 @@ public class CanvasContext {
 
     public void setState(CanvasState state) {
         this.state.set(state);
+    }
+
+    public double getZoomFactor() {
+        return zoomFactor.get();
     }
 }

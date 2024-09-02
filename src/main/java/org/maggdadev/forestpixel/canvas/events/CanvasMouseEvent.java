@@ -9,7 +9,9 @@ public record CanvasMouseEvent(CanvasModel canvasModel, double pixelXPos, double
         PRESSED,
         CLICKED,
         RELEASED,
-        DRAGGED
+        DRAGGED,
+
+        SELECTION_CANCELLED
     }
 
     public static enum ButtonType {

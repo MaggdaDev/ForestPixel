@@ -8,6 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
@@ -48,7 +49,7 @@ public class CanvasViewModel {
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         this.toolBarViewModel = new ToolbarViewModel();
-        canvasContext = new CanvasContext(toolBarViewModel.colorProperty(), previewImage);
+        canvasContext = new CanvasContext(toolBarViewModel.colorProperty(), previewImage, zoomScaleFactor);
         canvasZoomHandler = new CanvasZoomHandler(this);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
@@ -89,24 +90,27 @@ public class CanvasViewModel {
     }
 
 
-    void handleCanvasEvent(CanvasEvent event) {
+    private void handleCanvasMouseEvent(CanvasMouseEvent event) {
         if (activeToolViewModel.get() != null &&
                 (!getCanvasState().equals(CanvasState.SELECTED) || activeToolViewModel.get().isRequestMouseEventsEvenIfSelected())) {
-            if (event instanceof CanvasMouseEvent) {
-                activeToolViewModel.get().notifyCanvasMouseEvent((CanvasMouseEvent) event);
-            } else
-                throw new UnsupportedOperationException("The following canvas event has not yet been implemented: " + event.getClass().getName());
+            activeToolViewModel.get().notifyCanvasMouseEvent(event);
 
-        } else if(getCanvasState().equals(CanvasState.SELECTED)){
+        } else if (event.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && getCanvasState().equals(CanvasState.SELECTED)) {
+            toolBarViewModel.notifyAllToolsSelectionCancelled(event);
             handleClickWhileSelected(event);
         }
 
         update();
     }
 
-    private void handleClickWhileSelected(CanvasEvent event){
-        if(event instanceof CanvasMouseEvent mouseEvent){
-            if(mouseEvent.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && mouseEvent.buttonType().equals(CanvasMouseEvent.ButtonType.PRIMARY)){
+    private void handleZoomEvent(CanvasZoomEvent event) {
+        toolBarViewModel.notifyAllToolsZoom(event);
+    }
+
+
+    private void handleClickWhileSelected(CanvasEvent event) {
+        if (event instanceof CanvasMouseEvent mouseEvent) {
+            if (mouseEvent.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && mouseEvent.buttonType().equals(CanvasMouseEvent.ButtonType.PRIMARY)) {
                 canvasContext.setState(CanvasState.IDLE);
                 System.out.println("Back to idle");
             }
@@ -199,13 +203,14 @@ public class CanvasViewModel {
     }
 
     private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
-        handleCanvasEvent(new CanvasMouseEvent(model, e.getX(), e.getY(), xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
+        handleCanvasMouseEvent(new CanvasMouseEvent(model, e.getX(), e.getY(), xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
     }
 
     public EventHandler<ScrollEvent> getOnCanvasZoom() {
         return (ScrollEvent e) -> {
             if (e.isControlDown()) {
                 canvasZoomHandler.handleZoomEvent(e);
+                handleZoomEvent(new CanvasZoomEvent(canvasContext));
                 e.consume();
             }
         };
