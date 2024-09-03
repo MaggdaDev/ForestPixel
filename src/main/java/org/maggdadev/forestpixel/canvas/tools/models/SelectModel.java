@@ -1,9 +1,5 @@
 package org.maggdadev.forestpixel.canvas.tools.models;
 
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
 
@@ -19,6 +15,9 @@ public class SelectModel extends ToolModel {
 
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
+        if(isSelectionInvalid()) {
+            return;
+        }
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
         int xStart = Math.min(selectionStartIdxX, selectionEndIdxX);
         int xEnd = Math.max(selectionStartIdxX, selectionEndIdxX);
@@ -35,6 +34,10 @@ public class SelectModel extends ToolModel {
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToCanvas(canvasModel, canvasContext, xIdx, yIdx);
         canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete());
+    }
+
+    private boolean isSelectionInvalid() {
+        return selectionStartIdxX == -1 || selectionStartIdxY == -1 || selectionEndIdxX == -1 || selectionEndIdxY == -1;
     }
 
     // GET/SET

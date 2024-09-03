@@ -3,7 +3,6 @@ package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
-import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.CanvasState;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
@@ -31,10 +30,6 @@ public class SelectViewModel extends ToolViewModel {
         height.bind(Bindings.max(gestureEndY.subtract(gestureStartY), gestureStartY.subtract(gestureEndY)));
         areaStartX.bind(Bindings.min(gestureStartX, gestureEndX));
         areaStartY.bind(Bindings.min(gestureStartY, gestureEndY));
-
-        selectState.addListener((obs, oldVal, newVal) -> {
-            System.out.println(newVal);
-        });
 
         mouseAreaIndicatorVisible.bind(Bindings.createBooleanBinding(() ->
                         ((!selectState.get().equals(SelectState.IDLE)) && Math.min(Math.min(getGestureStartX(), getGestureStartY()), Math.min(getGestureEndX(), getGestureEndY())) >= 0),

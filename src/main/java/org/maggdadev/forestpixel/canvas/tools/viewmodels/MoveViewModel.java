@@ -19,13 +19,23 @@ public class MoveViewModel extends ToolViewModel{
         super.onPrimaryButtonDragged(e);
         if(moveState.get().equals(MoveState.IDLE)) {
             startMove(e);
-            model.setEndMove(e.pixelXPos(), e.pixelYPos());
+            model.setEndMove(e.pixelXPos(), e.pixelYPos(), e.canvasModel().getWidthPixels(), e.canvasModel().getHeightPixels());
         }
-        model.setEndMove(e.pixelXPos(), e.pixelYPos());
+        model.setEndMove(e.pixelXPos(), e.pixelYPos(), e.canvasModel().getWidthPixels(), e.canvasModel().getHeightPixels());
         if(model.isDirty()) {
             model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
         }
 
+    }
+
+    @Override
+    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
+        super.onPrimaryButtonReleased(e);
+        if(moveState.get().equals(MoveState.MOVING)) {
+            model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+            model.terminateSubMovement();
+            moveState.set(MoveState.IDLE);
+        }
     }
 
     @Override

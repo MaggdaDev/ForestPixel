@@ -5,6 +5,7 @@ import org.maggdadev.forestpixel.canvas.CanvasModel;
 
 public class MoveModel extends ToolModel {
     private double moveStartX, moveStartY, moveEndX, moveEndY;
+    private double previousSubMovementsX = 0, previousSubMovementsY = 0;
 
     private boolean isDirty = false;
 
@@ -15,8 +16,14 @@ public class MoveModel extends ToolModel {
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
         isDirty = false;
-        canvasContext.getPreviewImage().setXOffset(Math.round ((float)(moveEndX - moveStartX)));
-        canvasContext.getPreviewImage().setYOffset(Math.round ((float)(moveEndY - moveStartY)));
+        canvasContext.getPreviewImage().setXOffset(Math.round ((float)(previousSubMovementsX + moveEndX - moveStartX)));
+        canvasContext.getPreviewImage().setYOffset(Math.round ((float)(previousSubMovementsY + moveEndY - moveStartY)));
+    }
+
+    public void terminateSubMovement() {
+        previousSubMovementsX += moveEndX - moveStartX;
+        previousSubMovementsY += moveEndY - moveStartY;
+        reset();
     }
 
     public boolean isDirty() {
@@ -36,11 +43,21 @@ public class MoveModel extends ToolModel {
         isDirty = true;
     }
 
-    public void setEndMove(double x, double y) {
+    public void setEndMove(double x, double y, double canvasWidth, double canvasHeight) {
         if(Math.round(x - moveStartX) != Math.round( moveEndX - moveStartX) || Math.round(y - moveStartY) != Math.round(moveEndY - moveStartY) ) {
             isDirty = true;
         }
-        moveEndX = x;
-        moveEndY = y;
+        if(x - moveStartX > 0) {
+            moveEndX = Math.min(x, canvasWidth - previousSubMovementsX + moveStartX);
+        } else {
+            moveEndX = Math.max(x, - canvasWidth + moveStartX -previousSubMovementsX);
+        }
+        if(y - moveStartY > 0) {
+            moveEndY = Math.min(y, canvasHeight - previousSubMovementsY + moveStartY);
+        } else {
+            moveEndY = Math.max(y, - canvasHeight + moveStartY -previousSubMovementsY);
+        }
     }
+
+
 }
