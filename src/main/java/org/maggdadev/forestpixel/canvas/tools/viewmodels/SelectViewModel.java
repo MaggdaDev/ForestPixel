@@ -19,36 +19,40 @@ public class SelectViewModel extends ToolViewModel {
             gestureEndY = new SimpleDoubleProperty(-1),
             areaStartX = new SimpleDoubleProperty(0),
             areaStartY = new SimpleDoubleProperty(0);
+    private final IntegerProperty offsetX = new SimpleIntegerProperty(0), offsetY = new SimpleIntegerProperty(0);
 
     private final ObjectProperty<SelectState> selectState = new SimpleObjectProperty<>(SelectState.IDLE);
     private final BooleanProperty mouseAreaIndicatorVisible = new SimpleBooleanProperty(false);
 
-    public SelectViewModel(SelectModel model) {
+    public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY) {
         super(ToolType.SELECT);
         this.model = model;
+        this.offsetX.bind(offsetX);
+        this.offsetY.bind(offsetY);
         width.bind(Bindings.max(gestureEndX.subtract(gestureStartX), gestureStartX.subtract(gestureEndX)));
         height.bind(Bindings.max(gestureEndY.subtract(gestureStartY), gestureStartY.subtract(gestureEndY)));
-        areaStartX.bind(Bindings.min(gestureStartX, gestureEndX));
-        areaStartY.bind(Bindings.min(gestureStartY, gestureEndY));
+        areaStartX.bind(Bindings.min(gestureStartX, gestureEndX).add(offsetX));
+        areaStartY.bind(Bindings.min(gestureStartY, gestureEndY).add(offsetY));
 
         mouseAreaIndicatorVisible.bind(Bindings.createBooleanBinding(() ->
                         ((!selectState.get().equals(SelectState.IDLE)) && Math.min(Math.min(getGestureStartX(), getGestureStartY()), Math.min(getGestureEndX(), getGestureEndY())) >= 0),
-                        selectState, gestureStartX, gestureStartY, gestureEndX, gestureEndY));
+                selectState, gestureStartX, gestureStartY, gestureEndX, gestureEndY));
     }
 
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
         super.onPrimaryButtonDragged(e);
-        if(selectState.get().equals(SelectState.IDLE)) {
+        if (selectState.get().equals(SelectState.IDLE)) {
             startSelection(e);
         }
         writeEndIdxToModel(e.pixelXPos(), e.pixelYPos(), e.canvasContext());
         loadFromModel(e.canvasContext());
     }
+
     @Override
     protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
         super.onPrimaryButtonReleased(e);
-        if(selectState.get().equals(SelectState.SELECTING)) {
+        if (selectState.get().equals(SelectState.SELECTING)) {
             selectState.set(SelectState.SELECTED);
             e.canvasContext().setState(CanvasState.SELECTED);
         }
@@ -73,6 +77,7 @@ public class SelectViewModel extends ToolViewModel {
         writeStartIdxToModel(e.pixelXPos(), e.pixelYPos(), e.canvasContext());
         selectState.set(SelectState.SELECTING);
     }
+
     private void resetSelection(CanvasContext context) {
         selectState.set(SelectState.IDLE);
         model.resetSelection();
@@ -96,8 +101,16 @@ public class SelectViewModel extends ToolViewModel {
         model.setSelectionEndIdxY(yToIdx(y, context));
     }
 
+    public IntegerProperty offsetXProperty() {
+        return offsetX;
+    }
+
+    public IntegerProperty offsetYProperty() {
+        return offsetY;
+    }
+
     private int xToIdx(double x, CanvasContext context) {
-        return Math.round ((float) (x / context.getZoomFactor()));
+        return Math.round((float) (x / context.getZoomFactor()));
     }
 
     private int yToIdx(double y, CanvasContext context) {

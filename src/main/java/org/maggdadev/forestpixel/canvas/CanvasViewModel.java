@@ -50,8 +50,8 @@ public class CanvasViewModel {
 
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
-        this.toolBarViewModel = new ToolbarViewModel();
-        canvasContext = new CanvasContext(toolBarViewModel.colorProperty(), previewImage, zoomScaleFactor);
+        canvasContext = new CanvasContext(previewImage, zoomScaleFactor);
+        this.toolBarViewModel = new ToolbarViewModel(canvasContext);
         canvasZoomHandler = new CanvasZoomHandler(this);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());

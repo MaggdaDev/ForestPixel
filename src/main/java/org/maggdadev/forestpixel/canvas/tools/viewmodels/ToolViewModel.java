@@ -26,6 +26,10 @@ public abstract class ToolViewModel {
             onSelectionCancelled(e);
             return;
         }
+        if (e.actionType().equals(CanvasMouseEvent.ActionType.AFTER_SELECTION_CANCELLED)) {
+            afterSelectionCancelled(e);
+            return;
+        }
         switch (e.buttonType()) {
             case PRIMARY:
                 switch (e.actionType()) {
@@ -57,6 +61,9 @@ public abstract class ToolViewModel {
         return requestMouseEventsEvenIfSelected;
     }
     protected void onSelectionCancelled(CanvasMouseEvent e) {
+    }
+
+    protected void afterSelectionCancelled(CanvasMouseEvent e) {
     }
 
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {

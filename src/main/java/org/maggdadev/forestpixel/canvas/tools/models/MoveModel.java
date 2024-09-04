@@ -9,15 +9,12 @@ public class MoveModel extends ToolModel {
 
     private boolean isDirty = false;
 
-    public MoveModel() {
-        resetAll();
-    }
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
         isDirty = false;
-        canvasContext.getPreviewImage().setXOffset(Math.round ((float)(previousSubMovementsX + moveEndX - moveStartX)));
-        canvasContext.getPreviewImage().setYOffset(Math.round ((float)(previousSubMovementsY + moveEndY - moveStartY)));
+        canvasContext.setPreviewOffsetX(Math.round ((float)(previousSubMovementsX + moveEndX - moveStartX)));
+        canvasContext.setPreviewOffsetY(Math.round ((float)(previousSubMovementsY + moveEndY - moveStartY)));
     }
 
     public void terminateSubMovement() {
@@ -37,10 +34,12 @@ public class MoveModel extends ToolModel {
         moveEndY = -1;
     }
 
-    public void resetAll() {
+    public void resetAll(CanvasContext context) {
         resetStartAndEnd();
         previousSubMovementsX = 0;
         previousSubMovementsY = 0;
+        context.setPreviewOffsetX(0);
+        context.setPreviewOffsetY(0);
     }
 
     public void setStartMove(double x, double y) {

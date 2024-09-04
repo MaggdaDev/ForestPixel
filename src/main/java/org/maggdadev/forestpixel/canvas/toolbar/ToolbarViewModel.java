@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.canvas.toolbar;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
@@ -21,7 +22,8 @@ public class ToolbarViewModel {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
 
     private final List<ToolViewModel> toolViewModelList;
-    public ToolbarViewModel() {
+    public ToolbarViewModel(CanvasContext context) {
+        color.bindBidirectional(context.colorProperty());
         this.activeToolViewModel.addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
                 colorPickingVisible.set(false);
@@ -39,7 +41,7 @@ public class ToolbarViewModel {
                 new PipetViewModel(new PipetModel(), this),
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasModel.getTransparentColor()), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel()),
-                new SelectViewModel(new SelectModel()),
+                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty()),
                 new LineViewModel(new LineModel())
                 );
 
@@ -49,6 +51,10 @@ public class ToolbarViewModel {
         CanvasMouseEvent cancelEvent = new CanvasMouseEvent(event.canvasModel(), event.pixelXPos(), event.pixelYPos(),  event.xIdx(), event.yIdx(), CanvasMouseEvent.ActionType.SELECTION_CANCELLED, event.buttonType(), event.canvasContext());
         for(ToolViewModel toolViewModel : toolViewModelList) {
             toolViewModel.notifyCanvasMouseEvent(cancelEvent);
+        }
+        CanvasMouseEvent afterCancelEvent = new CanvasMouseEvent(event.canvasModel(), event.pixelXPos(), event.pixelYPos(),  event.xIdx(), event.yIdx(), CanvasMouseEvent.ActionType.AFTER_SELECTION_CANCELLED, event.buttonType(), event.canvasContext());
+        for(ToolViewModel toolViewModel : toolViewModelList) {
+            toolViewModel.notifyCanvasMouseEvent(afterCancelEvent);
         }
     }
 

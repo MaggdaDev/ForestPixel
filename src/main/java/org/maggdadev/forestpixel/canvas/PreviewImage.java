@@ -34,14 +34,6 @@ public class PreviewImage {
         image.getPixelWriter().setPixels(sourceXToPreview(xStart), sourceYToPreview(yStart), width, height, pixelReader, xSrc, ySrc);
     }
 
-    public void setXOffset(int xOffset) {
-        this.xOffset.set(xOffset);
-    }
-
-    public void setYOffset(int yOffset) {
-        this.yOffset.set(yOffset);
-    }
-
     public WritableImage getDrawableImage() {
        return new WritableImage(image.getPixelReader(), sourceXToPreview(0), sourceYToPreview(0), sourceWidth, sourceHeight);
     }
@@ -52,5 +44,15 @@ public class PreviewImage {
 
     private int sourceYToPreview(int sourceY) {
         return sourceY + sourceHeight - yOffset.get();
+    }
+
+
+    public IntegerProperty xOffsetProperty() {
+        return xOffset;
+    }
+
+
+    public IntegerProperty yOffsetProperty() {
+        return yOffset;
     }
 }

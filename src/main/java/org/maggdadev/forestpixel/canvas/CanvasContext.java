@@ -12,13 +12,13 @@ public class CanvasContext {
 
     private final DoubleProperty zoomFactor;
 
+    private final IntegerProperty previewOffsetX = new SimpleIntegerProperty(0), previewOffsetY = new SimpleIntegerProperty(0);
+
     /**
      *
-     * @param colorOrigin
      * @param previewImage can be Null!
      */
-    CanvasContext(ObjectProperty<Color> colorOrigin, ObjectProperty<PreviewImage> previewImage, DoubleProperty zoomFactor) {
-        color.bindBidirectional(colorOrigin);
+    CanvasContext(ObjectProperty<PreviewImage> previewImage, DoubleProperty zoomFactor) {
         this.previewImage = previewImage;
         this.zoomFactor = zoomFactor;
 
@@ -27,7 +27,7 @@ public class CanvasContext {
         return color.get();
     }
 
-    public ReadOnlyObjectProperty<Color> colorProperty() {
+    public ObjectProperty<Color> colorProperty() {
         return color;
     }
 
@@ -41,6 +41,8 @@ public class CanvasContext {
 
     public void setPreviewImage(PreviewImage previewImage) {
         this.previewImage.set(previewImage);
+        previewImage.xOffsetProperty().bindBidirectional(previewOffsetX);
+        previewImage.yOffsetProperty().bindBidirectional(previewOffsetY);
     }
 
     public PreviewImage getPreviewImageAndDelete() {
@@ -67,5 +69,29 @@ public class CanvasContext {
 
     public double getZoomFactor() {
         return zoomFactor.get();
+    }
+
+    public int getPreviewOffsetX() {
+        return previewOffsetX.get();
+    }
+
+    public IntegerProperty previewOffsetXProperty() {
+        return previewOffsetX;
+    }
+
+    public int getPreviewOffsetY() {
+        return previewOffsetY.get();
+    }
+
+    public IntegerProperty previewOffsetYProperty() {
+        return previewOffsetY;
+    }
+
+    public void setPreviewOffsetX(int previewOffsetX) {
+        this.previewOffsetX.set(previewOffsetX);
+    }
+
+    public void setPreviewOffsetY(int previewOffsetY) {
+        this.previewOffsetY.set(previewOffsetY);
     }
 }
