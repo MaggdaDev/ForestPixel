@@ -41,7 +41,7 @@ public class MoveViewModel extends ToolViewModel{
     @Override
     protected void onSelectionCancelled(CanvasMouseEvent e) {
         super.onSelectionCancelled(e);
-        model.reset();
+        model.resetAll();
     }
 
     private void startMove(CanvasMouseEvent e) {

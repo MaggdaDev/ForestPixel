@@ -10,7 +10,7 @@ public class MoveModel extends ToolModel {
     private boolean isDirty = false;
 
     public MoveModel() {
-        reset();
+        resetAll();
     }
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
@@ -23,18 +23,24 @@ public class MoveModel extends ToolModel {
     public void terminateSubMovement() {
         previousSubMovementsX += moveEndX - moveStartX;
         previousSubMovementsY += moveEndY - moveStartY;
-        reset();
+        resetStartAndEnd();
     }
 
     public boolean isDirty() {
         return isDirty;
     }
 
-    public void reset() {
+    public void resetStartAndEnd() {
         moveStartX = -1;
         moveStartY = -1;
         moveEndX = -1;
         moveEndY = -1;
+    }
+
+    public void resetAll() {
+        resetStartAndEnd();
+        previousSubMovementsX = 0;
+        previousSubMovementsY = 0;
     }
 
     public void setStartMove(double x, double y) {
