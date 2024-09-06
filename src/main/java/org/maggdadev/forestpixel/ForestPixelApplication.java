@@ -17,6 +17,7 @@ public class ForestPixelApplication extends Application {
         Parent root = new CanvasView(viewModel);
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        stage.setTitle("Forest Pixel");
         stage.show();
     }
 }

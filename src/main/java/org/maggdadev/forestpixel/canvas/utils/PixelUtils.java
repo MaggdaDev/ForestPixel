@@ -1,43 +1,45 @@
 package org.maggdadev.forestpixel.canvas.utils;
 
-import javafx.geometry.Point2D;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class PixelUtils {
 
-    public static List<int[]> straightLineFromTo(int fromX, int fromY, int toX, int toY) {
+    public static List<int[]> straightLineFromTo(int fromX, int fromY, int toX, int toY, int lineWidth) {
         List<int[]> retList = new ArrayList<>();
-        int currX = fromX;
-        int currY = fromY;
-        int tempX, tempY;
-        double bestScore = 0, currScore;
-        int bestX = 0, bestY = 0;
-        while(currX != toX || currY != toY) {
-            retList.add(new int[]{currX, currY});
-            bestScore = 0;
-            for(int i = 0; i < 4; i ++) {
-                tempX = currX;
-                tempY = currY;
-                switch (i) {
-                    case 0 -> tempX += 1;
-                    case 1 -> tempY += 1;
-                    case 2 -> tempX -= 1;
-                    case 3 -> tempY -= 1;
-                }
-                currScore = 1.0 / (Math.pow(toX - tempX, 2.0) + Math.pow(toY - tempY, 2.0));
-                if(currScore > bestScore) {
-                    bestScore = currScore;
-                    bestX = tempX;
-                    bestY = tempY;
-                }
+        int dx = Math.abs(toX - fromX);
+        int dy = Math.abs(toY - fromY);
+        int sx = fromX < toX ? 1 : -1;
+        int sy = fromY < toY ? 1 : -1;
+        int err = dx - dy;
 
+        int e2;
+        while (true) {
+            addPointsWithLineWidth(retList, fromX, fromY, lineWidth);
+            if (fromX == toX && fromY == toY) {
+                break;
             }
-            currX = bestX;
-            currY = bestY;
+            e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                fromX += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                fromY += sy;
+            }
         }
-        retList.add(new int[]{toX, toY});
         return retList;
+    }
+
+    private static void addPointsWithLineWidth(List<int[]> retList, int x, int y, int lineWidth) {
+        int radius = lineWidth / 2;
+        for (int i = -radius; i <= radius; i++) {
+            for (int j = -radius; j <= radius; j++) {
+                if (i * i + j * j <= radius * radius) {
+                    retList.add(new int[]{x + i, y + j});
+                }
+            }
+        }
     }
 }

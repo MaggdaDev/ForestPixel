@@ -3,16 +3,12 @@ package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.FreeHandDrawingToolModel;
-import org.maggdadev.forestpixel.canvas.utils.PixelUtils;
-
-import java.util.List;
 
 /**
  * Viewmodel for pencil and rubber tool
  */
 public class FreeHandDrawingToolViewModel extends ToolViewModel {
-    private boolean alreadyPressed = false, alreadyDragging = false;
-    private final int[] lastDragPos = new int[]{0,0};
+    private final int[] lastDragPos = new int[]{0, 0};
 
     private final FreeHandDrawingToolModel model;
 
@@ -23,28 +19,16 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
 
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
-        if(!alreadyDragging) {
-            model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
-        } else {
-            List<int[]> points = PixelUtils.straightLineFromTo(lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());
-            model.applyToPreview(e.canvasModel(), e.canvasContext(), points);
-        }
+        model.applyToPreview(e.canvasModel(), e.canvasContext(), lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());   // start == last drag pos
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
-        alreadyDragging = true;
     }
 
     @Override
-    protected  void onPrimaryButtonPressed(CanvasMouseEvent e) {
-        alreadyPressed = true;
-        model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
-    }
-
-    @Override
-    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
-        alreadyPressed = false;
-        alreadyDragging = false;
-        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+    protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
+        lastDragPos[0] = e.xIdx();
+        lastDragPos[1] = e.yIdx();
+        model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx(), e.xIdx(), e.yIdx());   // start == end
     }
 
 }

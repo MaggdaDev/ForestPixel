@@ -3,7 +3,9 @@ package org.maggdadev.forestpixel.canvas.tools.models;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
+import org.maggdadev.forestpixel.canvas.utils.PixelUtils;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 public class FreeHandDrawingToolModel extends ToolModel {
@@ -12,17 +14,9 @@ public class FreeHandDrawingToolModel extends ToolModel {
         this.determinePixelColorFunction = determinePixelColorFunction;
     }
 
-    @Override
-    public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
-        super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
-        if (xIdx >= 0 && xIdx < canvasModel.getWidthPixels() && yIdx >= 0 && yIdx < canvasModel.getHeightPixels()) {
-            canvasContext.getPreviewImage().setColor(xIdx, yIdx, determinePixelColorFunction.apply(canvasModel, canvasContext));
-        }
-    }
-
-    public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, Iterable<int[]> points) {
-        for(int[] point: points) {
-            applyToPreview(canvasModel, canvasContext, point[0],point[1]);
-        }
+    public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int startX, int startY, int endX, int endY) {
+        super.applyToPreview(canvasModel, canvasContext, endX, endY);
+        List<int[]> points = PixelUtils.straightLineFromTo(startX, startY, endX, endY, canvasContext.getLineWidth());
+        canvasContext.getPreviewImage().setColor(points, determinePixelColorFunction.apply(canvasModel, canvasContext));
     }
 }
