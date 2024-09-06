@@ -24,11 +24,14 @@ public class SelectViewModel extends ToolViewModel {
     private final ObjectProperty<SelectState> selectState = new SimpleObjectProperty<>(SelectState.IDLE);
     private final BooleanProperty mouseAreaIndicatorVisible = new SimpleBooleanProperty(false);
 
-    public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY, ReadOnlyDoubleProperty zoomFactor) {
+    private final BooleanProperty isMouseInSelectArea;
+
+    public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY, ReadOnlyDoubleProperty zoomFactor, BooleanProperty isMouseInSelectArea) {
         super(ToolType.SELECT);
         this.model = model;
         this.offsetX.bind(offsetX);
         this.offsetY.bind(offsetY);
+        this.isMouseInSelectArea = isMouseInSelectArea;
         width.bind(Bindings.max(gestureEndX.subtract(gestureStartX), gestureStartX.subtract(gestureEndX)));
         height.bind(Bindings.max(gestureEndY.subtract(gestureStartY), gestureStartY.subtract(gestureEndY)));
         areaStartX.bind(Bindings.min(gestureStartX, gestureEndX).add(offsetX.multiply(zoomFactor)));
@@ -209,5 +212,17 @@ public class SelectViewModel extends ToolViewModel {
 
     public BooleanProperty mouseAreaIndicatorVisibleProperty() {
         return mouseAreaIndicatorVisible;
+    }
+
+    public void setIsMouseInSelectArea(boolean isMouseInSelectArea) {
+        this.isMouseInSelectArea.set(isMouseInSelectArea);
+    }
+
+    public boolean isIsMouseInSelectArea() {
+        return isMouseInSelectArea.get();
+    }
+
+    public BooleanProperty isMouseInSelectAreaProperty() {
+        return isMouseInSelectArea;
     }
 }

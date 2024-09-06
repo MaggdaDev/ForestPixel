@@ -42,7 +42,6 @@ public class PreviewImage {
         for (int[] point : points) {
             setColor(point[0], point[1], color);
         }
-        System.out.println("MinX: " + minDrawnPosXOnPreviewImage + ", MinY: " + minDrawnPosYOnPreviewImage + ", MaxX: " + maxDrawnPosXOnPreviewImage + ", MaxY: " + maxDrawnPosYOnPreviewImage);
         return this;
     }
 

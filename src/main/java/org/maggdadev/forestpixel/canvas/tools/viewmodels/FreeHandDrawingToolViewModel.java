@@ -19,6 +19,7 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
 
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
+        System.out.println("Drag");
         model.applyToPreview(e.canvasModel(), e.canvasContext(), lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());   // start == last drag pos
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
@@ -26,6 +27,7 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
 
     @Override
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
+        System.out.println("Press");
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
         model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx(), e.xIdx(), e.yIdx());   // start == end

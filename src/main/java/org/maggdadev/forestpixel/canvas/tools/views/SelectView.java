@@ -2,7 +2,6 @@ package org.maggdadev.forestpixel.canvas.tools.views;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.SelectViewModel;
@@ -22,6 +21,8 @@ public class SelectView extends ToolView{
         mouseAreaRectangle.setStrokeWidth(2);
         mouseAreaRectangle.setStrokeType(StrokeType.OUTSIDE);
         mouseAreaRectangle.getStrokeDashArray().addAll(5d, 10d);
+
+        viewModel.isMouseInSelectAreaProperty().bind(mouseAreaRectangle.hoverProperty().and(mouseAreaRectangle.visibleProperty()));
     }
 
     public Rectangle getMouseAreaRectangle() {

@@ -13,8 +13,8 @@ public class MoveModel extends ToolModel {
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
         isDirty = false;
-        canvasContext.setPreviewOffsetX(Math.round ((float)(previousSubMovementsX + moveEndX - moveStartX)));
-        canvasContext.setPreviewOffsetY(Math.round ((float)(previousSubMovementsY + moveEndY - moveStartY)));
+        canvasContext.setPreviewOffsetX(getMoveX());
+        canvasContext.setPreviewOffsetY(getMoveY());
     }
 
     public void terminateSubMovement() {
@@ -49,20 +49,28 @@ public class MoveModel extends ToolModel {
     }
 
     public void setEndMove(double x, double y, double canvasWidth, double canvasHeight) {
-        if(Math.round(x - moveStartX) != Math.round( moveEndX - moveStartX) || Math.round(y - moveStartY) != Math.round(moveEndY - moveStartY) ) {
+        if (Math.round(x - moveStartX) != Math.round(moveEndX - moveStartX) || Math.round(y - moveStartY) != Math.round(moveEndY - moveStartY)) {
             isDirty = true;
         }
-        if(x - moveStartX > 0) {
+        if (x - moveStartX > 0) {
             moveEndX = Math.min(x, canvasWidth - previousSubMovementsX + moveStartX);
         } else {
-            moveEndX = Math.max(x, - canvasWidth + moveStartX -previousSubMovementsX);
+            moveEndX = Math.max(x, -canvasWidth + moveStartX - previousSubMovementsX);
         }
-        if(y - moveStartY > 0) {
+        if (y - moveStartY > 0) {
             moveEndY = Math.min(y, canvasHeight - previousSubMovementsY + moveStartY);
         } else {
-            moveEndY = Math.max(y, - canvasHeight + moveStartY -previousSubMovementsY);
+            moveEndY = Math.max(y, -canvasHeight + moveStartY - previousSubMovementsY);
         }
     }
 
+
+    public Integer getMoveX() {
+        return Math.round((float) (previousSubMovementsX + moveEndX - moveStartX));
+    }
+
+    public Integer getMoveY() {
+        return Math.round((float) (previousSubMovementsY + moveEndY - moveStartY));
+    }
 
 }

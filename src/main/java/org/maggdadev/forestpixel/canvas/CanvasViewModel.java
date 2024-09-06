@@ -51,8 +51,8 @@ public class CanvasViewModel {
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         canvasContext = new CanvasContext(previewImage, zoomScaleFactor);
-        this.toolBarViewModel = new ToolbarViewModel(canvasContext);
         canvasZoomHandler = new CanvasZoomHandler(this);
+        this.toolBarViewModel = new ToolbarViewModel(canvasContext, canvasZoomHandler::moveCanvasBy);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
 
@@ -81,14 +81,6 @@ public class CanvasViewModel {
             int botExtra = (getSourceStartIndexY() + canvasHeightToIdx()) < getModelHeightPixels() ? 1 : 0;
             return Math.round((float) ((canvasHeightToIdx() + topExtra + botExtra) * getZoomScaleFactor()));
         }, zoomScaleFactor, modelHeight, sourceStartIndexY));
-
-        extendedCanvasPixelWidth.addListener((obs, oldVal, newVal) -> {
-            System.out.println(newVal);
-        });
-
-        previewImage.addListener((obs, oldVal, newVal) -> {
-            System.out.println("Preview image: " + newVal);
-        });
     }
 
 
@@ -114,7 +106,6 @@ public class CanvasViewModel {
         if (event instanceof CanvasMouseEvent mouseEvent) {
             if (mouseEvent.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && mouseEvent.buttonType().equals(CanvasMouseEvent.ButtonType.PRIMARY)) {
                 canvasContext.setState(CanvasState.IDLE);
-                System.out.println("Back to idle");
             }
         }
     }
@@ -371,4 +362,6 @@ public class CanvasViewModel {
     public ObjectProperty<PreviewImage> previewImageProperty() {
         return previewImage;
     }
+
+
 }

@@ -1,8 +1,6 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.application.Platform;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 
 public class CanvasZoomHandler {
     private final static double Y_TO_ZOOM_FACT = 0.01;
@@ -19,11 +17,11 @@ public class CanvasZoomHandler {
         double oldVVal = viewModel.getZoomVValue();
 
 
-        double oldEffWidth = viewModel.getModelWidth() * oldZoomVal - CanvasView.CANVAS_WIDTH;
-        double oldEffHeight = viewModel.getModelHeight() * oldZoomVal - CanvasView.CANVAS_HEIGHT;
+        double oldEffWidth = calculateEffectiveDimension(viewModel.getModelWidth(), oldZoomVal, CanvasView.CANVAS_WIDTH);
+        double oldEffHeight = calculateEffectiveDimension(viewModel.getModelHeight(), oldZoomVal, CanvasView.CANVAS_HEIGHT);
 
-        double newEffWidth = viewModel.getModelWidth() * newZoomVal - CanvasView.CANVAS_WIDTH;
-        double newEffHeight = viewModel.getModelHeight() * newZoomVal - CanvasView.CANVAS_HEIGHT;
+        double newEffWidth = calculateEffectiveDimension(viewModel.getModelWidth(), newZoomVal, CanvasView.CANVAS_WIDTH);
+        double newEffHeight = calculateEffectiveDimension(viewModel.getModelHeight(), newZoomVal, CanvasView.CANVAS_HEIGHT);
 
         double modelEventX = (e.getX() + oldHVal * oldEffWidth) / oldZoomVal;
 
@@ -41,6 +39,15 @@ public class CanvasZoomHandler {
 
         viewModel.setZoomHValue(newHVal);
         viewModel.setZoomVValue(newVVal);
+    }
+
+    private double calculateEffectiveDimension(double modelDimension, double zoomFactor, double canvasDimension) {
+        return modelDimension * zoomFactor - canvasDimension;
+    }
+
+    public void moveCanvasBy(double deltaX, double deltaY) {
+        viewModel.setZoomHValue(viewModel.getZoomHValue() - viewModel.getZoomScaleFactor() * deltaX / calculateEffectiveDimension(viewModel.getModelWidth(), viewModel.getZoomScaleFactor(), CanvasView.CANVAS_WIDTH));
+        viewModel.setZoomVValue(viewModel.getZoomVValue() - viewModel.getZoomScaleFactor() * deltaY / calculateEffectiveDimension(viewModel.getModelHeight(), viewModel.getZoomScaleFactor(), CanvasView.CANVAS_HEIGHT));
     }
 
 

@@ -15,6 +15,8 @@ public class CanvasContext {
 
     private final IntegerProperty previewOffsetX = new SimpleIntegerProperty(0), previewOffsetY = new SimpleIntegerProperty(0);
 
+    private final BooleanProperty mouseInSelectArea = new SimpleBooleanProperty(false);
+
     /**
      * @param previewImage can be Null!
      */
@@ -106,5 +108,20 @@ public class CanvasContext {
 
     public IntegerProperty lineWidthProperty() {
         return lineWidth;
+    }
+
+    public BooleanProperty mouseInSelectAreaProperty() {
+        return mouseInSelectArea;
+    }
+
+    public void setMouseInSelectArea(boolean mouseInSelectArea) {
+        this.mouseInSelectArea.set(mouseInSelectArea);
+    }
+
+    public boolean isMouseInSelectArea() {
+        return mouseInSelectArea.get();
+    }
+
+    public void moveCanvasBy(int moveX, int moveY) {
     }
 }

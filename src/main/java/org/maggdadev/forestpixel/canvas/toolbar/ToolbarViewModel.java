@@ -11,6 +11,7 @@ import org.maggdadev.forestpixel.canvas.tools.models.*;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class ToolbarViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
@@ -21,7 +22,8 @@ public class ToolbarViewModel {
     private final IntegerProperty lineWidth = new SimpleIntegerProperty(1);
 
     private final List<ToolViewModel> toolViewModelList;
-    public ToolbarViewModel(CanvasContext context) {
+
+    public ToolbarViewModel(CanvasContext context, BiConsumer<Double, Double> moveCanvasFunction) {
         color.bindBidirectional(context.colorProperty());
         lineWidth.bindBidirectional(context.lineWidthProperty());
         this.activeToolViewModel.addListener((obs, oldVal, newVal) -> {
@@ -42,8 +44,8 @@ public class ToolbarViewModel {
                 new BucketViewModel(new BucketModel()),
                 new PipetViewModel(new PipetModel(), this),
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasModel.getTransparentColor()), ToolType.RUBBER),  // rubber
-                new MoveViewModel(new MoveModel()),
-                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty()),
+                new MoveViewModel(new MoveModel(), context.mouseInSelectAreaProperty(), moveCanvasFunction),
+                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty(), context.mouseInSelectAreaProperty()),
                 new LineViewModel(new LineModel())
                 );
 
