@@ -23,7 +23,6 @@ public class ToolbarView extends ToolBar {
 
     // extra panes
 
-    private ColorPickerPane colorPickerPane;
 
     private final ObservableList<Node> additionalToolNodesOnCanvas = FXCollections.observableArrayList();
 
@@ -65,9 +64,7 @@ public class ToolbarView extends ToolBar {
 
         toggleGroup.selectToggle(toggleGroup.getToggles().getFirst());
 
-        VBox extraPaneVBox = createExtraPaneHVox();
-        extraPaneVBox.setSpacing(20);
-        extraPaneVBox.setPadding(new Insets(20, 0, 20, 0));
+        VBox extraPaneVBox = createExtraPaneHBox();
         getItems().addAll(gridPane, extraPaneVBox);
 
         viewModel.activeToolViewModelProperty().addListener((obs, oldVal, newVal) -> {
@@ -79,6 +76,7 @@ public class ToolbarView extends ToolBar {
             }
             toolViews[viewModel.getToolViewModelList().indexOf(newVal)].setSelected(true);
         });
+        setMinHeight(300);
     }
 
     public ObservableList<Node> getAdditionalToolNodesOnCanvas() {
@@ -86,11 +84,19 @@ public class ToolbarView extends ToolBar {
     }
 
 
-    private VBox createExtraPaneHVox() {
-        colorPickerPane = new ColorPickerPane();
+    private VBox createExtraPaneHBox() {
+        ColorPickerPane colorPickerPane = new ColorPickerPane();
         viewModel.colorProperty().bindBidirectional(colorPickerPane.colorProperty());
         colorPickerPane.visibleProperty().bind(viewModel.colorPickingVisibleProperty());
 
-        return new VBox(colorPickerPane);
+        LineWidthPickerPane lineWidthPickerPane = new LineWidthPickerPane();
+        viewModel.lineWidthProperty().bindBidirectional(lineWidthPickerPane.lineWidthProperty());
+        lineWidthPickerPane.visibleProperty().bind(viewModel.lineWidthPickerVisibleProperty());
+
+        VBox extraPaneVBox = new VBox(colorPickerPane, lineWidthPickerPane);
+
+        extraPaneVBox.setSpacing(20);
+        extraPaneVBox.setPadding(new Insets(20, 0, 20, 0));
+        return extraPaneVBox;
     }
 }

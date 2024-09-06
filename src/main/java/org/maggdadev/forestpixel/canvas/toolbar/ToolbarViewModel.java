@@ -4,7 +4,6 @@ import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
-import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
@@ -16,19 +15,22 @@ import java.util.List;
 public class ToolbarViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
     private final ObjectProperty<ToolViewModel> previousActiveToolViewModel = new SimpleObjectProperty<>();
-    private final BooleanProperty colorPickingVisible = new SimpleBooleanProperty(false);
-
+    private final BooleanProperty colorPickingVisible = new SimpleBooleanProperty(false), lineWidthPickerVisible = new SimpleBooleanProperty(false);
 
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>();
+    private final IntegerProperty lineWidth = new SimpleIntegerProperty(1);
 
     private final List<ToolViewModel> toolViewModelList;
     public ToolbarViewModel(CanvasContext context) {
         color.bindBidirectional(context.colorProperty());
+        lineWidth.bindBidirectional(context.lineWidthProperty());
         this.activeToolViewModel.addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
                 colorPickingVisible.set(false);
+                lineWidthPickerVisible.set(false);
             } else {
                 colorPickingVisible.set(newVal.getToolType().USES_COLOR);
+                lineWidthPickerVisible.set(newVal.getToolType().USES_LINE_WIDTH);
             }
             if(oldVal != null &&  !oldVal.equals(newVal)) {
                 previousActiveToolViewModel.set(oldVal);
@@ -94,5 +96,19 @@ public class ToolbarViewModel {
         return toolViewModelList;
     }
 
+    public int getLineWidth() {
+        return lineWidth.get();
+    }
 
+    public IntegerProperty lineWidthProperty() {
+        return lineWidth;
+    }
+
+    public boolean isLineWidthPickerVisible() {
+        return lineWidthPickerVisible.get();
+    }
+
+    public BooleanProperty lineWidthPickerVisibleProperty() {
+        return lineWidthPickerVisible;
+    }
 }

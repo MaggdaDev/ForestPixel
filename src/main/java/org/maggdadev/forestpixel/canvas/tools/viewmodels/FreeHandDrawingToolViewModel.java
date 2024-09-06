@@ -31,4 +31,9 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
         model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx(), e.xIdx(), e.yIdx());   // start == end
     }
 
+    @Override
+    protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
+        super.onPrimaryButtonReleased(e);
+        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+    }
 }
