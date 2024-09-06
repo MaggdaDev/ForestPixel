@@ -24,15 +24,15 @@ public class SelectViewModel extends ToolViewModel {
     private final ObjectProperty<SelectState> selectState = new SimpleObjectProperty<>(SelectState.IDLE);
     private final BooleanProperty mouseAreaIndicatorVisible = new SimpleBooleanProperty(false);
 
-    public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY) {
+    public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY, ReadOnlyDoubleProperty zoomFactor) {
         super(ToolType.SELECT);
         this.model = model;
         this.offsetX.bind(offsetX);
         this.offsetY.bind(offsetY);
         width.bind(Bindings.max(gestureEndX.subtract(gestureStartX), gestureStartX.subtract(gestureEndX)));
         height.bind(Bindings.max(gestureEndY.subtract(gestureStartY), gestureStartY.subtract(gestureEndY)));
-        areaStartX.bind(Bindings.min(gestureStartX, gestureEndX).add(offsetX));
-        areaStartY.bind(Bindings.min(gestureStartY, gestureEndY).add(offsetY));
+        areaStartX.bind(Bindings.min(gestureStartX, gestureEndX).add(offsetX.multiply(zoomFactor)));
+        areaStartY.bind(Bindings.min(gestureStartY, gestureEndY).add(offsetY.multiply(zoomFactor)));
 
         mouseAreaIndicatorVisible.bind(Bindings.createBooleanBinding(() ->
                         ((!selectState.get().equals(SelectState.IDLE)) && Math.min(Math.min(getGestureStartX(), getGestureStartY()), Math.min(getGestureEndX(), getGestureEndY())) >= 0),

@@ -41,7 +41,7 @@ public class ToolbarViewModel {
                 new PipetViewModel(new PipetModel(), this),
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasModel.getTransparentColor()), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel()),
-                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty()),
+                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty()),
                 new LineViewModel(new LineModel())
                 );
 

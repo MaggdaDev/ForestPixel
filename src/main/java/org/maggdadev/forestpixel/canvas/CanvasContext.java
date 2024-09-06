@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 
 public class CanvasContext {
     private final ObjectProperty<Color> color = new SimpleObjectProperty<>(), transparentColor = new SimpleObjectProperty<>(Color.PURPLE);
-    private final ObjectProperty<PreviewImage> previewImage ;
+    private final ObjectProperty<PreviewImage> previewImage;
 
     private final ObjectProperty<CanvasState> state = new SimpleObjectProperty<>(CanvasState.IDLE);
 
@@ -15,7 +15,6 @@ public class CanvasContext {
     private final IntegerProperty previewOffsetX = new SimpleIntegerProperty(0), previewOffsetY = new SimpleIntegerProperty(0);
 
     /**
-     *
      * @param previewImage can be Null!
      */
     CanvasContext(ObjectProperty<PreviewImage> previewImage, DoubleProperty zoomFactor) {
@@ -23,6 +22,7 @@ public class CanvasContext {
         this.zoomFactor = zoomFactor;
 
     }
+
     public Color getColor() {
         return color.get();
     }
@@ -69,6 +69,10 @@ public class CanvasContext {
 
     public double getZoomFactor() {
         return zoomFactor.get();
+    }
+
+    public DoubleProperty zoomFactorProperty() {
+        return zoomFactor;
     }
 
     public int getPreviewOffsetX() {
