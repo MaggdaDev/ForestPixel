@@ -3,8 +3,7 @@ package org.maggdadev.forestpixel.canvas.tools.models;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.utils.PixelUtils;
-
-import java.util.List;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
 public class LineModel extends ToolModel {
 
@@ -16,7 +15,7 @@ public class LineModel extends ToolModel {
         if (isInvalid()) {
             return;
         }
-        List<int[]> linePositions = PixelUtils.straightLineFromTo(startX, startY, endX, endY, canvasContext.getLineWidth());
+        Iterable<Point> linePositions = PixelUtils.straightLineFromTo(startX, startY, endX, endY, canvasContext.getLineWidth());
         canvasContext.getPreviewImage().clear().setColor(linePositions, canvasContext.getColor());
     }
 

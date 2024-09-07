@@ -4,8 +4,8 @@ import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.utils.PixelUtils;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
-import java.util.List;
 import java.util.function.BiFunction;
 
 public class FreeHandDrawingToolModel extends ToolModel {
@@ -16,7 +16,7 @@ public class FreeHandDrawingToolModel extends ToolModel {
 
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int startX, int startY, int endX, int endY) {
         super.applyToPreview(canvasModel, canvasContext, endX, endY);
-        List<int[]> points = PixelUtils.straightLineFromTo(startX, startY, endX, endY, canvasContext.getLineWidth());
+        Iterable<Point> points = PixelUtils.straightLineFromTo(startX, startY, endX, endY, canvasContext.getLineWidth());
         canvasContext.getPreviewImage().setColor(points, determinePixelColorFunction.apply(canvasModel, canvasContext));
     }
 }

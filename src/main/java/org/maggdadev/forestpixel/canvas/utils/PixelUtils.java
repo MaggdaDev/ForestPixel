@@ -1,12 +1,14 @@
 package org.maggdadev.forestpixel.canvas.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PixelUtils {
 
-    public static List<int[]> straightLineFromTo(int fromX, int fromY, int toX, int toY, int lineWidth) {
-        List<int[]> retList = new ArrayList<>();
+    public static Iterable<Point> straightLineFromTo(int fromX, int fromY, int toX, int toY, int lineWidth) {
+        long timeNow = System.currentTimeMillis();
+        Set<Point> set = new HashSet<>();
         int dx = Math.abs(toX - fromX);
         int dy = Math.abs(toY - fromY);
         int sx = fromX < toX ? 1 : -1;
@@ -15,7 +17,7 @@ public class PixelUtils {
 
         int e2;
         while (true) {
-            addPointsWithLineWidth(retList, fromX, fromY, lineWidth);
+            addPointsWithLineWidth(set, fromX, fromY, lineWidth);
             if (fromX == toX && fromY == toY) {
                 break;
             }
@@ -29,15 +31,16 @@ public class PixelUtils {
                 fromY += sy;
             }
         }
-        return retList;
+        System.out.println("Time: " + (System.currentTimeMillis() - timeNow));
+        return set;
     }
 
-    private static void addPointsWithLineWidth(List<int[]> retList, int x, int y, int lineWidth) {
+    private static void addPointsWithLineWidth(Collection<Point> retSet, int x, int y, int lineWidth) {
         int radius = lineWidth / 2;
         for (int i = -radius; i <= radius; i++) {
             for (int j = -radius; j <= radius; j++) {
                 if (i * i + j * j <= radius * radius) {
-                    retList.add(new int[]{x + i, y + j});
+                    retSet.add(new Point(x + i, y + j));
                 }
             }
         }

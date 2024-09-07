@@ -9,6 +9,7 @@ import org.maggdadev.forestpixel.canvas.tools.models.FreeHandDrawingToolModel;
  */
 public class FreeHandDrawingToolViewModel extends ToolViewModel {
     private final int[] lastDragPos = new int[]{0, 0};
+    private boolean alreadyDrawing = false;
 
     private final FreeHandDrawingToolModel model;
 
@@ -19,7 +20,11 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
 
     @Override
     protected void onPrimaryButtonDragged(CanvasMouseEvent e) {
-        System.out.println("Drag");
+        if (!alreadyDrawing) {
+            alreadyDrawing = true;
+            lastDragPos[0] = e.xIdx();
+            lastDragPos[1] = e.yIdx();
+        }
         model.applyToPreview(e.canvasModel(), e.canvasContext(), lastDragPos[0], lastDragPos[1], e.xIdx(), e.yIdx());   // start == last drag pos
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
@@ -27,7 +32,7 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
 
     @Override
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
-        System.out.println("Press");
+        alreadyDrawing = true;
         lastDragPos[0] = e.xIdx();
         lastDragPos[1] = e.yIdx();
         model.applyToPreview(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx(), e.xIdx(), e.yIdx());   // start == end
@@ -37,5 +42,6 @@ public class FreeHandDrawingToolViewModel extends ToolViewModel {
     protected void onPrimaryButtonReleased(CanvasMouseEvent e) {
         super.onPrimaryButtonReleased(e);
         model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
+        alreadyDrawing = false;
     }
 }

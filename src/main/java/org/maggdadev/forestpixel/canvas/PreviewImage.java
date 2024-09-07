@@ -6,8 +6,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-
-import java.util.List;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
 public class PreviewImage {
     private final WritableImage image;
@@ -38,9 +37,9 @@ public class PreviewImage {
         return this;
     }
 
-    public PreviewImage setColor(List<int[]> points, Color color) {
-        for (int[] point : points) {
-            setColor(point[0], point[1], color);
+    public PreviewImage setColor(Iterable<Point> points, Color color) {
+        for (Point point : points) {
+            setColor(point.x, point.y, color);
         }
         return this;
     }
