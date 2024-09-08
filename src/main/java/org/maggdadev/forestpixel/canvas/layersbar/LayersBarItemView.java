@@ -1,7 +1,9 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
 import javafx.beans.value.ChangeListener;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -9,6 +11,7 @@ import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
 import javafx.util.Subscription;
@@ -18,17 +21,23 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
 
     private final RadioButton radioButton = new RadioButton();
 
+    private final Button deleteButton = new Button("X");
     private final TextField textField = new TextField();
 
-    private final HBox graphic = new HBox(radioButton, textField);
+    private final BorderPane graphic = new BorderPane();
 
     private Subscription subscriptionOnViewModelSelected;
     private ChangeListener<Boolean> listenerOnThisSelected;
 
     public LayersBarItemView(ListView<LayersBarItemViewModel> listView) {
         radioButton.setMouseTransparent(true);
-        graphic.setSpacing(5);
-        graphic.setAlignment(Pos.CENTER_LEFT);
+        HBox content = new HBox(radioButton, textField);
+        content.setSpacing(5);
+        content.setAlignment(Pos.CENTER_LEFT);
+        graphic.setLeft(content);
+        graphic.setRight(deleteButton);
+        deleteButton.setOnAction(this::delete);
+
         setConverter(new StringConverter<>() {
             @Override
             public String toString(LayersBarItemViewModel object) {
@@ -78,6 +87,20 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
             event.consume();
         });
 
+        if (viewModel.isRequestFocusPending()) {
+            textField.requestFocus();
+            textField.selectAll();
+            viewModel.setRequestFocusPending(false);
+        }
+
+        textField.setOnAction(event -> {
+            requestFocus();
+        });
+
+    }
+
+    private void delete(ActionEvent e) {
+        getListView().getItems().remove(getItem());
     }
 
     private void clearAll(LayersBarItemViewModel viewModel) {
@@ -87,6 +110,7 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
         setOnDragDetected(null);
         setOnDragOver(null);
         setOnDragDone(null);
+        textField.setOnAction(null);
         if (subscriptionOnViewModelSelected != null) {
             subscriptionOnViewModelSelected.unsubscribe();
             subscriptionOnViewModelSelected = null;

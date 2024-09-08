@@ -35,9 +35,15 @@ public class LineWidthPickerPane extends HBox {
         setSpacing(5);
         getChildren().addAll(lineWidthTextField, label);
 
-        // add listener to print line width
-        lineWidthTextField.textProperty().addListener((obs, oldVal, newVal) -> {
-            System.out.println("Line width changed to: " + newVal);
+        lineWidthTextField.setOnAction(event -> {
+            getParent().requestFocus();
+        });
+        lineWidthTextField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                if (lineWidth.get() < 1) {
+                    lineWidth.set(1);
+                }
+            }
         });
     }
 

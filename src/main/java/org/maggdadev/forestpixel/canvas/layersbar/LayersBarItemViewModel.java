@@ -13,10 +13,13 @@ public class LayersBarItemViewModel {
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
     private final String id;
 
+    private boolean requestFocusPending = false;
+
     public LayersBarItemViewModel(String name) {
         this.name.set(name);
         this.id = String.valueOf(idCounter++);
     }
+
 
     public void swapOrderWith(ObservableList<LayersBarItemViewModel> items, String otherID) {
         int thisIndex = items.indexOf(this);
@@ -57,5 +60,13 @@ public class LayersBarItemViewModel {
 
     public void setSelected(boolean selected) {
         this.selected.set(selected);
+    }
+
+    public boolean isRequestFocusPending() {
+        return requestFocusPending;
+    }
+
+    public void setRequestFocusPending(boolean requestFocusPending) {
+        this.requestFocusPending = requestFocusPending;
     }
 }
