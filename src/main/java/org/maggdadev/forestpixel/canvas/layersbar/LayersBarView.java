@@ -1,9 +1,6 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -17,7 +14,6 @@ public class LayersBarView extends VBox {
     private final Label headingLabel = new Label("Layers");
     private final ListView<LayersBarItemViewModel> layersListView;
     private final LayersBarViewModel viewModel;
-    private final ObservableList<LayersBarItemViewModel> layers = FXCollections.observableArrayList();
 
     public LayersBarView(LayersBarViewModel viewModel) {
         this.viewModel = viewModel;
@@ -29,27 +25,21 @@ public class LayersBarView extends VBox {
         headingLabel.setStyle("-fx-font-weight: bold");
 
         // ListView
-        layersListView = new ListView<>(layers);
+        layersListView = new ListView<>(viewModel.getLayers());
         layersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         layersListView.setCellFactory(LayersBarItemView::new);
         layersListView.setFixedCellSize(30);
-        layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> layersListView.getFixedCellSize() * layers.size() + 5, layers, layersListView.fixedCellSizeProperty()));
+        layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> layersListView.getFixedCellSize() * viewModel.getLayers().size() + 5, viewModel.getLayers(), layersListView.fixedCellSizeProperty()));
 
         // Add layer
-        addLayerButton.setOnAction(this::addLayer);
+        addLayerButton.setOnAction(e -> viewModel.addLayer());
         VBox addLayerBox = new VBox(addLayerButton);
         addLayerBox.setAlignment(javafx.geometry.Pos.CENTER);
         getChildren().addAll(header, layersListView, addLayerBox);
 
         createBindings();
-        layers.addAll(new LayersBarItemViewModel("hand"), new LayersBarItemViewModel("leg"), new LayersBarItemViewModel("head"));
     }
 
-    private void addLayer(ActionEvent e) {
-        LayersBarItemViewModel newLayer = new LayersBarItemViewModel("New layer");
-        newLayer.setRequestFocusPending(true);
-        layers.add(newLayer);
-    }
 
     private void createBindings() {
         layersListView.visibleProperty().bind(viewModel.isExpandedProperty());

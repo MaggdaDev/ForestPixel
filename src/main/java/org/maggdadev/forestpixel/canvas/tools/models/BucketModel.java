@@ -1,6 +1,5 @@
 package org.maggdadev.forestpixel.canvas.tools.models;
 
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
@@ -12,9 +11,9 @@ public class BucketModel extends ToolModel {
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
-        WritableImage workingImage = new WritableImage(canvasModel.getImage().getPixelReader(), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());
+        WritableImage workingImage = new WritableImage(canvasModel.getPixelReaderForLayer(canvasContext.getActiveLayerId()), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());
 
-        Color startColor = canvasModel.getPixelColor(xIdx, yIdx);
+        Color startColor = canvasModel.getPixelColor(xIdx, yIdx, canvasContext.getActiveLayerId());
         Color fillColor = canvasContext.getColor();
         if ((!canvasModel.isOnCanvas(xIdx, yIdx)) || startColor.equals(fillColor))
             return;

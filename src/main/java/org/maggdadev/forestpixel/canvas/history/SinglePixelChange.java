@@ -1,39 +1,36 @@
 package org.maggdadev.forestpixel.canvas.history;
 
-import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
-public class SinglePixelChange implements CanvasChange{
+public class SinglePixelChange extends CanvasChange {
     private final Color oldColor, newColor;
     private final boolean isChange;
-    private final int[] point;
-    public SinglePixelChange(Image image, int[] point, Color color) {
-        if(point.length != 2) {
-            throw new IllegalArgumentException("Point must be 2D, found: " + point.length);
-        }
+    private final Point point;
+
+    public SinglePixelChange(CanvasLayerModel model, Point point, Color color) {
+        super(model);
         newColor = color;
-        oldColor = image.getPixelReader().getColor(point[0], point[1]);
+        oldColor = model.getColorAt(point.x, point.y);
         this.point = point;
         isChange = !newColor.equals(oldColor);
     }
 
     @Override
-    public void applyToImage(WritableImage image) {
-        if(!image.getPixelReader().getColor(point[0], point[1]).equals(oldColor)) {
-            throw new RuntimeException("History error: Trying to apply a change, but old colors differ (saved old: " + oldColor.toString() + ",     actual old: " + image.getPixelReader().getColor(point[0], point[1]));
+    public void apply() {
+        if (!model.getColorAt(point.x, point.y).equals(oldColor)) {
+            throw new RuntimeException("History error: Trying to apply a change, but old colors differ (saved old: " + oldColor.toString() + ",     actual old: " + model.getColorAt(point.x, point.y));
         }
-        image.getPixelWriter().setColor(point[0], point[1], newColor);
+        model.setColorAt(point.x, point.y, newColor);
     }
 
     @Override
-    public void undoToImage(WritableImage image) {
-        if(!image.getPixelReader().getColor(point[0], point[1]).equals(newColor)) {
-            throw new RuntimeException("History error: Trying to undo a change, but current state was not achieved with this change (change would be to: " + newColor.toString() + ",     actually found: " + image.getPixelReader().getColor(point[0], point[1]));
+    public void undo() {
+        if (!model.getColorAt(point.x, point.y).equals(newColor)) {
+            throw new RuntimeException("History error: Trying to undo a change, but current state was not achieved with this change (change would be to: " + newColor.toString() + ",     actually found: " + model.getColorAt(point.x, point.y));
         }
-        image.getPixelWriter().setColor(point[0], point[1], oldColor);
+        model.setColorAt(point.x, point.y, oldColor);
     }
 
     @Override

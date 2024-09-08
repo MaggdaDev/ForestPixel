@@ -11,7 +11,10 @@ public abstract class ToolModel {
     }
 
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
-        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete());
+        if (canvasContext.getPreviewImage() == null) {
+            return;
+        }
+        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete(), canvasContext.getActiveLayerId());
     }
 
     protected void createPreviewImageIfNull(CanvasModel canvasModel, CanvasContext canvasContext) {

@@ -1,30 +1,29 @@
 package org.maggdadev.forestpixel.canvas.history;
 
-import javafx.geometry.Point2D;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
-import java.util.Collection;
 import java.util.List;
 
-public class MultiPixelChange implements CanvasChange {
+public class MultiPixelChange extends CanvasChange {
     /**
      *
-     * @param image image to be edited
+     * @param CanvasLayerModel layer to be edited
      * @param points list of points, where each paint is an 2D-index-tuple
      * @param colors list of colors for the points. Must be of same length as points
      */
     private final SinglePixelChange[] subChanges;
     private boolean isChange = false;
-    public MultiPixelChange(Image image, List<int[]> points, List<Color> colors) {
+
+    public MultiPixelChange(CanvasLayerModel model, List<Point> points, List<Color> colors) {
+        super(model);
         if(colors.size() != points.size()) {
             throw new IllegalArgumentException("Points (" + points.size() + ") must be of same length as colors (" + colors.size() + ")!");
         }
         subChanges = new SinglePixelChange[colors.size()];
         for(int i = 0; i < points.size(); i++) {
-            subChanges[i] = new SinglePixelChange(image, points.get(i), colors.get(i));
+            subChanges[i] = new SinglePixelChange(model, points.get(i), colors.get(i));
             if(subChanges[i].isChange()) {
                 isChange = true;
             }
@@ -33,16 +32,16 @@ public class MultiPixelChange implements CanvasChange {
 
 
     @Override
-    public void applyToImage(WritableImage image) {
+    public void apply() {
         for(SinglePixelChange singlePixelChange: subChanges) {
-            singlePixelChange.applyToImage(image);
+            singlePixelChange.apply();
         }
     }
 
     @Override
-    public void undoToImage(WritableImage image) {
+    public void undo() {
         for(SinglePixelChange singlePixelChange: subChanges) {
-            singlePixelChange.undoToImage(image);
+            singlePixelChange.undo();
         }
     }
 

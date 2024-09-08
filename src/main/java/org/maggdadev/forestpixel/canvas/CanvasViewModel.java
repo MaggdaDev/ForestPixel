@@ -3,12 +3,12 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.event.EventHandler;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
 import org.maggdadev.forestpixel.canvas.layersbar.LayersBarViewModel;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
@@ -16,7 +16,6 @@ import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 public class CanvasViewModel {
 
     private final CanvasModel model;
-    private final ObjectProperty<WritableImage> image = new SimpleObjectProperty<>();
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
 
     private final IntegerProperty previewImageViewportStartX = new SimpleIntegerProperty(0), previewImageViewPortStartY = new SimpleIntegerProperty(0);
@@ -53,6 +52,8 @@ public class CanvasViewModel {
 
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
+        this.modelWidth.set(model.getWidthPixels());
+        this.modelHeight.set(model.getHeightPixels());
         canvasContext = new CanvasContext(previewImage, zoomScaleFactor);
         canvasZoomHandler = new CanvasZoomHandler(this);
         this.toolBarViewModel = new ToolbarViewModel(canvasContext, canvasZoomHandler::moveCanvasBy);
@@ -116,7 +117,7 @@ public class CanvasViewModel {
         }
     }
 
-    void update() {
+    void update() {/*
         if (model.getImage() == null) {
             image.set(null);
             modelHeight.set(0);
@@ -139,7 +140,8 @@ public class CanvasViewModel {
             image.get().getPixelWriter().setPixels(0, 0, model.getWidthPixels(), model.getHeightPixels(), model.getImage().getPixelReader(), 0, 0);
 
             setViewNeedsUpdate(true);
-        }
+        }*/
+        setViewNeedsUpdate(true);
     }
 
     public void undo() {
@@ -356,11 +358,6 @@ public class CanvasViewModel {
         return extendedCanvasPixelHeight;
     }
 
-
-    public ObjectProperty<WritableImage> imageProperty() {
-        return image;
-    }
-
     public PreviewImage getPreviewImage() {
         return previewImage.get();
     }
@@ -372,5 +369,13 @@ public class CanvasViewModel {
 
     public LayersBarViewModel getLayersBarViewModel() {
         return layersBarViewModel;
+    }
+
+    public CanvasContext getCanvasContext() {
+        return canvasContext;
+    }
+
+    public CanvasLayerViewModel addLayer() {
+        return new CanvasLayerViewModel(model.addLayer(0));
     }
 }

@@ -6,9 +6,17 @@ public class Point {
     public int x;
     public int y;
 
+    public int layer = -1;   // No layer
+
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Point(int x, int y, int layer) {
+        this.x = x;
+        this.y = y;
+        this.layer = layer;
     }
 
     @Override
@@ -20,12 +28,12 @@ public class Point {
             return false;
         }
         Point other = (Point) obj;
-        return other.x == x && other.y == y;
+        return other.x == x && other.y == y && other.layer == layer;
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y);
+        return Objects.hash(x, y, layer);
     }
 }

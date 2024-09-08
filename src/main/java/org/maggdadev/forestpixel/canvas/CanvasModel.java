@@ -1,39 +1,37 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.history.HistoryModel;
-import org.maggdadev.forestpixel.canvas.history.MultiPixelChange;
 import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
-import org.maggdadev.forestpixel.canvas.history.SinglePixelChange;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CanvasModel {
-    private WritableImage image;
+
+    private final HashMap<Integer, CanvasLayerModel> layers = new HashMap<>();
     private Color transparentColor = Color.PURPLE;
     private int widthPixels = 0, heightPixels = 0;
 
     private final HistoryModel historyModel;
-    public CanvasModel() {
+
+    public CanvasModel(int widthPixels, int heightPixels) {
+        this.widthPixels = widthPixels;
+        this.heightPixels = heightPixels;
         historyModel = new HistoryModel(this);
     }
 
-    public void createNewImage(int widthPixels, int heightPixels) {
-        image = new WritableImage(widthPixels,heightPixels);
-        for(int x = 0; x < widthPixels; x++) {
-            for(int y = 0; y < heightPixels; y++) {
-                image.getPixelWriter().setColor(x,y, transparentColor);
-            }
+    public CanvasLayerModel addLayer(int layerId) {
+        if (layers.containsKey(layerId)) {
+            throw new IllegalArgumentException("Layer with id " + layerId + " already exists!");
         }
-        this.widthPixels = widthPixels;
-        this.heightPixels = heightPixels;
-    }
-
-    public void setPixelColor(int x, int y, Color color) {
-        historyModel.applyNewChange(new SinglePixelChange(image, new int[]{x,y}, color));
+        CanvasLayerModel layer = new CanvasLayerModel(widthPixels, heightPixels, transparentColor, layerId);
+        layers.put(layerId, layer);
+        return layer;
     }
 
     /**
@@ -41,8 +39,8 @@ public class CanvasModel {
      * @param points Array of 2D-int-tuples representing the indices of the points
      * @param color Single color for all of the points
      */
-    public void setPixelColor(List<int[]> points, Color color) {
-        historyModel.applyNewChange(new SingleColorMultiPixelChange(image, points, color));
+    public void setPixelColor(List<Point> points, Color color, int layerId) {
+        historyModel.applyNewChange(new SingleColorMultiPixelChange(layers.get(layerId), points, color));
     }
 
     public void undo() {
@@ -59,9 +57,9 @@ public class CanvasModel {
      * @param y yIdx
      * @return returns the color at the position or null, if the position is out of range
      */
-    public Color getPixelColor(int x, int y) {
+    public Color getPixelColor(int x, int y, int layerId) {
         if(isOnCanvas(x, y)) {
-            return image.getPixelReader().getColor(x,y);
+            return layers.get(layerId).getColorAt(x, y);
         } else {
             return null;
         }
@@ -78,31 +76,11 @@ public class CanvasModel {
         return heightPixels;
     }
 
-    public WritableImage getImage() {
-        return image;
+
+    public void applyPreviewImage(PreviewImage previewImage, int layerIndex) {
+        historyModel.applyNewChange(layers.get(layerIndex).previewImageToMultiPixelChange(previewImage));
     }
 
-    public void setImage(WritableImage image) {
-        this.image = image;
-    }
-
-    public void applyPreviewImage(PreviewImage previewImage) {
-        if(previewImage == null)
-            return;
-        PixelReader modelReader = image.getPixelReader();
-        PixelReader previewReader = previewImage.getDrawableImage().getPixelReader();
-        List<Color> colors = new ArrayList<>();
-        List<int[]> points = new ArrayList<>();
-        for(int i = 0; i < image.getWidth(); i ++) {
-            for(int j = 0; j < image.getHeight(); j ++) {
-                if(!modelReader.getColor(i,j).equals(previewReader.getColor(i,j)) && !previewReader.getColor(i,j).equals(Color.TRANSPARENT)) {
-                    points.add(new int[]{i,j});
-                    colors.add(previewReader.getColor(i,j));
-                }
-            }
-        }
-        historyModel.applyNewChange(new MultiPixelChange(image, points, colors));
-    }
 
     public Color getTransparentColor() {
         return transparentColor;
@@ -112,13 +90,17 @@ public class CanvasModel {
         this.transparentColor = transparentColor;
     }
 
-    public void eraseAreaForSelection(int xStart, int yStart, int width, int height) {
-        List<int[]> points = new ArrayList<>();
+    public void eraseAreaForSelection(int xStart, int yStart, int width, int height, int layerId) {
+        List<Point> points = new ArrayList<>();
         for(int i = xStart; i < xStart + width; i++) {
             for(int j = yStart; j < yStart + height; j++) {
-                points.add(new int[]{i,j});
+                points.add(new Point(i, j));
             }
         }
-        historyModel.applyNewChange(new SingleColorMultiPixelChange(image, points, transparentColor));
+        historyModel.applyNewChange(new SingleColorMultiPixelChange(layers.get(layerId), points, transparentColor));
+    }
+
+    public PixelReader getPixelReaderForLayer(int layerId) {
+        return layers.get(layerId).getPixelReader();
     }
 }

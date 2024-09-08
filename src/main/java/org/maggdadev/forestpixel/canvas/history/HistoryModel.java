@@ -16,7 +16,7 @@ public class HistoryModel {
 
     public void applyNewChange(CanvasChange change) {
         if (change.isChange()) {
-            change.applyToImage(canvasModel.getImage());
+            change.apply();
             undoStack.push(change);
             redoStack.clear();
         }
@@ -26,7 +26,7 @@ public class HistoryModel {
         if (!undoStack.isEmpty()) {
             System.out.println("Undo");
             CanvasChange change = undoStack.pop();
-            change.undoToImage(canvasModel.getImage());
+            change.undo();
             redoStack.push(change);
         }
     }
@@ -34,7 +34,7 @@ public class HistoryModel {
     public void redo() {
         if (!redoStack.isEmpty()) {
             CanvasChange change = redoStack.pop();
-            change.applyToImage(canvasModel.getImage());
+            change.apply();
             undoStack.push(change);
         }
     }

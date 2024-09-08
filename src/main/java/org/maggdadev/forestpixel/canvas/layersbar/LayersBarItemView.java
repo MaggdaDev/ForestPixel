@@ -1,5 +1,6 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -37,6 +38,7 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
         graphic.setLeft(content);
         graphic.setRight(deleteButton);
         deleteButton.setOnAction(this::delete);
+        deleteButton.visibleProperty().bind(Bindings.createBooleanBinding(() -> listView.getItems().size() > 1, listView.getItems()));
 
         setConverter(new StringConverter<>() {
             @Override

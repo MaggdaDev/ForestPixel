@@ -1,14 +1,15 @@
 package org.maggdadev.forestpixel.canvas.history;
 
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.utils.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SingleColorMultiPixelChange extends MultiPixelChange {
-    public SingleColorMultiPixelChange(Image image, List<int[]> points, Color color) {
-        super(image, points, createColorList(color, points.size()));
+    public SingleColorMultiPixelChange(CanvasLayerModel model, List<Point> points, Color color) {
+        super(model, points, createColorList(color, points.size()));
     }
 
     private static List<Color> createColorList(Color color, int listSize) {

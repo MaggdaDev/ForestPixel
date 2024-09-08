@@ -1,11 +1,18 @@
 package org.maggdadev.forestpixel.canvas.history;
 
-import javafx.scene.image.WritableImage;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
 
-public interface CanvasChange {
+public abstract class CanvasChange {
 
-    public void applyToImage(WritableImage image);
-    public void undoToImage(WritableImage image);
+    protected final CanvasLayerModel model;
 
-    public boolean isChange();
+    protected CanvasChange(CanvasLayerModel model) {
+        this.model = model;
+    }
+
+    public abstract void apply();
+
+    public abstract void undo();
+
+    public abstract boolean isChange();
 }

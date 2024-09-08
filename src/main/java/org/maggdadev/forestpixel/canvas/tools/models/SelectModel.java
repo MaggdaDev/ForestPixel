@@ -25,15 +25,17 @@ public class SelectModel extends ToolModel {
         int yEnd = Math.max(selectionStartIdxY, selectionEndIdxY);
         int width = xEnd - xStart;
         int height = yEnd - yStart;
-        canvasContext.getPreviewImage().setPixels(xStart, yStart, width, height, canvasModel.getImage().getPixelReader(), xStart, yStart);
-        canvasModel.eraseAreaForSelection(xStart, yStart, width, height);
+        canvasContext.getPreviewImage().setPixels(xStart, yStart, width, height, canvasModel.getPixelReaderForLayer(canvasContext.getActiveLayerId()), xStart, yStart);
+        canvasModel.eraseAreaForSelection(xStart, yStart, width, height, canvasContext.getActiveLayerId());
     }
 
 
     @Override
     public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToCanvas(canvasModel, canvasContext, xIdx, yIdx);
-        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete());
+        if (canvasContext.getPreviewImage() != null) {
+            canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete(), canvasContext.getActiveLayerId());
+        }
     }
 
     private boolean isSelectionInvalid() {
