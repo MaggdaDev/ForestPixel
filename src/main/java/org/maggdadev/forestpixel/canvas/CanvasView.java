@@ -5,7 +5,6 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
@@ -16,17 +15,20 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.maggdadev.forestpixel.canvas.layersbar.LayersBarView;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 import java.lang.reflect.Field;
 
 
-public class CanvasView extends HBox {
+public class CanvasView extends BorderPane {
     public final static double CANVAS_WIDTH = 1000;
     public final static double CANVAS_HEIGHT = 300;
     private final ToolbarView toolBarView;
-    private final VBox sideBar;
+
+    private final LayersBarView layersBarView;
+    private final VBox leftSideBar, rightSideBar;
     private final Canvas canvas;
 
     private ToolViewModel activeToolViewModel;
@@ -37,7 +39,9 @@ public class CanvasView extends HBox {
 
     public CanvasView(CanvasViewModel viewModel) {
         this.viewModel = viewModel;
-        sideBar = new VBox();
+        leftSideBar = new VBox();
+        rightSideBar = new VBox();
+
         Rectangle imageViewBackground = new Rectangle();
         imageViewBackground.setFill(Color.WHITE);
 
@@ -57,9 +61,11 @@ public class CanvasView extends HBox {
 
 
         toolBarView = new ToolbarView(viewModel.getToolBarViewModel());
+        leftSideBar.getChildren().add(toolBarView);
 
+        layersBarView = new LayersBarView(viewModel.getLayersBarViewModel());
+        rightSideBar.getChildren().add(layersBarView);
 
-        sideBar.getChildren().add(toolBarView);
         StackPane canvasStack = new StackPane(canvas, placeHolderPane);
 
         placeHolderPane.getChildren().addAll(toolBarView.getAdditionalToolNodesOnCanvas()); // keep children updated according to additional nodes on canvas
@@ -79,10 +85,12 @@ public class CanvasView extends HBox {
 
         canvas.setManaged(false);
 
-        getChildren().addAll(sideBar, canvasScrollPane);
-        setAlignment(Pos.TOP_LEFT);
+        //getChildren().addAll(leftSideBar, canvasScrollPane, rightSideBar);
+        setLeft(leftSideBar);
+        setCenter(canvasScrollPane);
+        setRight(rightSideBar);
         setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
-        HBox.setHgrow(sideBar, Priority.NEVER);
+        HBox.setHgrow(leftSideBar, Priority.NEVER);
 
         installEventHandlers();
 

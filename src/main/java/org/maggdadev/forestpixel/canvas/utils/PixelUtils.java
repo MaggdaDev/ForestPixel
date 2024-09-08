@@ -7,7 +7,6 @@ import java.util.Set;
 public class PixelUtils {
 
     public static Iterable<Point> straightLineFromTo(int fromX, int fromY, int toX, int toY, int lineWidth) {
-        long timeNow = System.currentTimeMillis();
         Set<Point> set = new HashSet<>();
         int dx = Math.abs(toX - fromX);
         int dy = Math.abs(toY - fromY);
@@ -31,7 +30,6 @@ public class PixelUtils {
                 fromY += sy;
             }
         }
-        System.out.println("Time: " + (System.currentTimeMillis() - timeNow));
         return set;
     }
 

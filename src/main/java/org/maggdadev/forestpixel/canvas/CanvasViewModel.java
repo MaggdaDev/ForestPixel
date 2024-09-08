@@ -9,6 +9,7 @@ import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
+import org.maggdadev.forestpixel.canvas.layersbar.LayersBarViewModel;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
@@ -25,6 +26,8 @@ public class CanvasViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
 
     private final ToolbarViewModel toolBarViewModel;
+
+    private final LayersBarViewModel layersBarViewModel;
     private final CanvasZoomHandler canvasZoomHandler;
 
     private final DoubleProperty zoomHValue = new SimpleDoubleProperty(0);
@@ -81,6 +84,9 @@ public class CanvasViewModel {
             int botExtra = (getSourceStartIndexY() + canvasHeightToIdx()) < getModelHeightPixels() ? 1 : 0;
             return Math.round((float) ((canvasHeightToIdx() + topExtra + botExtra) * getZoomScaleFactor()));
         }, zoomScaleFactor, modelHeight, sourceStartIndexY));
+
+        // Layers
+        layersBarViewModel = new LayersBarViewModel();
     }
 
 
@@ -364,4 +370,7 @@ public class CanvasViewModel {
     }
 
 
+    public LayersBarViewModel getLayersBarViewModel() {
+        return layersBarViewModel;
+    }
 }
