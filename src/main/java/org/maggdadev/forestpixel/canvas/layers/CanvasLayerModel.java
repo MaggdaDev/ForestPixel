@@ -15,9 +15,9 @@ public class CanvasLayerModel {
     private final int width, height;
     private final WritableImage image;
 
-    private final int layerId;
+    private final String layerId;
 
-    public CanvasLayerModel(int width, int height, int layerId) {
+    public CanvasLayerModel(int width, int height, String layerId) {
         this.width = width;
         this.height = height;
         this.layerId = layerId;
@@ -73,7 +73,7 @@ public class CanvasLayerModel {
         return image.getPixelReader();
     }
 
-    public int getLayerId() {
+    public String getLayerId() {
         return layerId;
     }
 }

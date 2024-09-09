@@ -14,7 +14,7 @@ public class CanvasLayerViewModel {
         return model.getImage();
     }
 
-    public int getLayerId() {
+    public String getLayerId() {
         return model.getLayerId();
     }
 }

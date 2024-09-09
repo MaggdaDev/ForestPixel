@@ -43,7 +43,9 @@ public class CanvasLayerView extends Canvas {
 
     public void redraw(CanvasContext canvasContext) {
         getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
-        if (canvasContext.getPreviewImage() != null && canvasContext.getPreviewImage().hasDeletedPoints()) {
+        if (canvasContext.getPreviewImage() != null
+                && canvasContext.getActiveLayerId().equals(getLayerId())
+                && canvasContext.getPreviewImage().hasDeletedPoints()) {    // deleted points MUST be included in drawn image to avoid jfx auto smoothing
             workingImage = new WritableImage(viewModel.getDrawableImage().getPixelReader(), (int) viewModel.getDrawableImage().getWidth(), (int) viewModel.getDrawableImage().getHeight());
             canvasContext.getPreviewImage().getDeletedPoints().forEach(point -> {
                 if (point.x >= 0 && point.x < workingImage.getWidth() && point.y >= 0 && point.y < workingImage.getHeight()) {
@@ -68,7 +70,7 @@ public class CanvasLayerView extends Canvas {
         return (int) canvasViewModel.getZoomScaleFactor() * (y - canvasViewModel.getSourceStartIndexY());
     }
 
-    public int getLayerId() {
+    public String getLayerId() {
         return viewModel.getLayerId();
     }
 

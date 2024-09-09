@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -13,12 +14,14 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.layers.CanvasLayerView;
+import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersStackPane;
 import org.maggdadev.forestpixel.canvas.layersbar.LayersBarView;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 
 public class CanvasView extends BorderPane {
@@ -46,10 +49,6 @@ public class CanvasView extends BorderPane {
         placeHolderPane.setPickOnBounds(true);
         placeHolderPane.setPadding(Insets.EMPTY);
         placeHolderPane.setMouseTransparent(false);
-
-        CanvasLayerView layerView = new CanvasLayerView(viewModel.addLayer(), viewModel);
-        layersStackPane.add(layerView);
-
         toolBarView = new ToolbarView(viewModel.getToolBarViewModel());
         leftSideBar.getChildren().add(toolBarView);
 
@@ -60,10 +59,10 @@ public class CanvasView extends BorderPane {
 
         placeHolderPane.getChildren().addAll(toolBarView.getAdditionalToolNodesOnCanvas()); // keep children updated according to additional nodes on canvas
         toolBarView.getAdditionalToolNodesOnCanvas().addListener((ListChangeListener<? super Node>) (listChange) -> {
-            while(listChange.next()) {
-                if(listChange.wasAdded()) {
+            while (listChange.next()) {
+                if (listChange.wasAdded()) {
                     placeHolderPane.getChildren().addAll(listChange.getAddedSubList());
-                } else if(listChange.wasRemoved()) {
+                } else if (listChange.wasRemoved()) {
                     placeHolderPane.getChildren().removeAll(listChange.getRemoved());
                 }
             }
@@ -114,20 +113,29 @@ public class CanvasView extends BorderPane {
         });
 
 
-        canvasScrollPane.hvalueProperty().addListener( (obs, oldVal, newVal) -> {
+        canvasScrollPane.hvalueProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
         });
 
-        canvasScrollPane.vvalueProperty().addListener( (obs, oldVal, newVal) -> {
+        canvasScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
+        });
+
+        viewModel.getLayers().addListener((MapChangeListener<? super String, ? super CanvasLayerViewModel>) (mapChange) -> {
+            if (mapChange.wasAdded()) {
+                layersStackPane.add(new CanvasLayerView(mapChange.getValueAdded(), viewModel));
+            }
+            if (mapChange.wasRemoved()) {
+                layersStackPane.remove(mapChange.getKey());
+            }
         });
 
     }
 
     public void redrawAll() {
-        layersStackPane.getLayers().forEach((layer) -> {
+        layersStackPane.getLayers().forEach((key, layer) -> {
             layer.redraw(viewModel.getCanvasContext());
-            if (viewModel.getPreviewImage() != null && viewModel.getCanvasContext().getActiveLayerId() == layer.getLayerId()) {
+            if (viewModel.getPreviewImage() != null && Objects.equals(viewModel.getCanvasContext().getActiveLayerId(), key)) {
                 layer.drawPreviewImage(viewModel.getPreviewImage());
             }
         });
@@ -141,7 +149,7 @@ public class CanvasView extends BorderPane {
         placeHolderPane.setOnMouseDragged(viewModel.getOnCanvasMouseDragged());
 
         setOnKeyPressed((KeyEvent e) -> {
-            if(e.isControlDown()) {
+            if (e.isControlDown()) {
                 switch (e.getCode()) {
                     case Z:
                         viewModel.undo();

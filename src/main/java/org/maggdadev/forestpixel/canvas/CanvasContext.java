@@ -17,7 +17,7 @@ public class CanvasContext {
 
     private final BooleanProperty mouseInSelectArea = new SimpleBooleanProperty(false);
 
-    private final IntegerProperty activeLayerIndex = new SimpleIntegerProperty(0);
+    private final StringProperty activeLayerId = new SimpleStringProperty("-1");
 
     /**
      * @param previewImage can be Null!
@@ -124,16 +124,16 @@ public class CanvasContext {
         return mouseInSelectArea.get();
     }
 
-    public int getActiveLayerId() {
-        return activeLayerIndex.get();
+    public String getActiveLayerId() {
+        return activeLayerId.get();
     }
 
-    public IntegerProperty activeLayerIndexProperty() {
-        return activeLayerIndex;
+    public StringProperty activeLayerIdProperty() {
+        return activeLayerId;
     }
 
-    public void setActiveLayerIndex(int activeLayerIndex) {
-        this.activeLayerIndex.set(activeLayerIndex);
+    public void setActiveLayerId(String activeLayerId) {
+        this.activeLayerId.set(activeLayerId);
     }
 
     public void moveCanvasBy(int moveX, int moveY) {

@@ -49,6 +49,11 @@ public class LayersBarView extends VBox {
         addLayerButton.visibleProperty().bind(viewModel.isExpandedProperty());
         addLayerButton.managedProperty().bind(viewModel.isExpandedProperty());
         toggleButton.textProperty().bind(viewModel.isExpandedProperty().map(expanded -> expanded ? "-" : "+"));
+        layersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                viewModel.setActiveLayer(newValue.getId());
+            }
+        });
     }
 
 

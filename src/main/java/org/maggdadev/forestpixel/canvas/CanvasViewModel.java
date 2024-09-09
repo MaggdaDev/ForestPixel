@@ -2,6 +2,9 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -9,6 +12,7 @@ import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
+import org.maggdadev.forestpixel.canvas.layersbar.LayersBarItemViewModel;
 import org.maggdadev.forestpixel.canvas.layersbar.LayersBarViewModel;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
@@ -19,6 +23,8 @@ public class CanvasViewModel {
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
 
     private final IntegerProperty previewImageViewportStartX = new SimpleIntegerProperty(0), previewImageViewPortStartY = new SimpleIntegerProperty(0);
+
+    private final ObservableMap<String, CanvasLayerViewModel> layers = FXCollections.observableHashMap();
 
     private final CanvasContext canvasContext;
 
@@ -88,6 +94,23 @@ public class CanvasViewModel {
 
         // Layers
         layersBarViewModel = new LayersBarViewModel();
+        layersBarViewModel.getLayers().addListener(this::layersChangedListener);
+        canvasContext.activeLayerIdProperty().bind(layersBarViewModel.activeLayerIdProperty());
+    }
+
+    private void layersChangedListener(ListChangeListener.Change<? extends LayersBarItemViewModel> change) {
+        while (change.next()) {
+            if (change.wasAdded()) {
+                change.getAddedSubList().forEach(item -> {
+                    addLayer(item.getId());
+                });
+            }
+            if (change.wasRemoved()) {
+                change.getRemoved().forEach(item -> {
+                    removeLayer(item.getId());
+                });
+            }
+        }
     }
 
 
@@ -216,6 +239,7 @@ public class CanvasViewModel {
             }
         };
     }
+
 
 
 // START: Calculations/conversions
@@ -375,7 +399,19 @@ public class CanvasViewModel {
         return canvasContext;
     }
 
-    public CanvasLayerViewModel addLayer() {
-        return new CanvasLayerViewModel(model.addLayer(0));
+    public void addLayer(String layerId) {
+        layers.put(layerId, new CanvasLayerViewModel(model.addLayer(layerId)));
     }
+
+    public void removeLayer(String layerId) {
+        layers.remove(layerId);
+        model.removeLayer(layerId);
+    }
+
+    public ObservableMap<String, CanvasLayerViewModel> getLayers() {
+        return layers;
+    }
+
+
+
 }
