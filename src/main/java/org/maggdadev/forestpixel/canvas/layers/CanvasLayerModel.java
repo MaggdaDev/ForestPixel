@@ -13,22 +13,15 @@ import java.util.List;
 
 public class CanvasLayerModel {
     private final int width, height;
-    private final Color transparentColor;
     private final WritableImage image;
 
     private final int layerId;
 
-    public CanvasLayerModel(int width, int height, Color transparentColor, int layerId) {
+    public CanvasLayerModel(int width, int height, int layerId) {
         this.width = width;
         this.height = height;
-        this.transparentColor = transparentColor;
         this.layerId = layerId;
         image = new WritableImage(width, height);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                image.getPixelWriter().setColor(x, y, transparentColor);
-            }
-        }
     }
 
     public MultiPixelChange previewImageToMultiPixelChange(PreviewImage previewImage) {
@@ -45,10 +38,17 @@ public class CanvasLayerModel {
                 }
             }
         }
+        previewImage.getDeletedPoints().forEach(point -> {
+            points.add(point);
+            colors.add(Color.TRANSPARENT);
+        });
         return new MultiPixelChange(this, points, colors);
     }
 
     public Color getColorAt(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return Color.TRANSPARENT;
+        }
         return image.getPixelReader().getColor(x, y);
     }
 
@@ -64,9 +64,6 @@ public class CanvasLayerModel {
         return height;
     }
 
-    public Color getTransparentColor() {
-        return transparentColor;
-    }
 
     public Image getImage() {
         return image;

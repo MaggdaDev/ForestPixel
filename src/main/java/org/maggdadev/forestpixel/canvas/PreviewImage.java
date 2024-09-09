@@ -8,11 +8,17 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Stream;
+
 public class PreviewImage {
     private final WritableImage image;
 
     private final PixelWriter pixelWriter;
     private final int sourceWidth, sourceHeight;
+
+    private final Collection<Point> deletedPoints;
 
     private int minDrawnPosXOnPreviewImage = 0, minDrawnPosYOnPreviewImage = 0, maxDrawnPosXOnPreviewImage = 0, maxDrawnPosYOnPreviewImage = 0;
 
@@ -21,6 +27,7 @@ public class PreviewImage {
     private final IntegerProperty lineWidth;
 
     public PreviewImage(int sourceWidth, int sourceHeight, IntegerProperty lineWidth) {
+        deletedPoints = new HashSet<>();
         this.lineWidth = lineWidth;
         image = new WritableImage(3*sourceWidth, 3*sourceHeight);
         pixelWriter = image.getPixelWriter();
@@ -34,6 +41,19 @@ public class PreviewImage {
     public PreviewImage setColor(int xIdx, int yIdx, Color color) {
         pixelWriter.setColor(sourceXToPreview(xIdx), sourceYToPreview(yIdx), color);
         updateMinMaxPos(xIdx, yIdx);
+        return this;
+    }
+
+    public PreviewImage deleteColor(int xIdx, int yIdx) {
+        setColor(xIdx, yIdx, Color.TRANSPARENT);
+        deletedPoints.add(new Point(sourceXToPreview(xIdx), sourceYToPreview(yIdx)));
+        return this;
+    }
+
+    public PreviewImage deleteColors(Iterable<Point> points) {
+        for (Point point : points) {
+            deleteColor(point.x, point.y);
+        }
         return this;
     }
 
@@ -53,6 +73,7 @@ public class PreviewImage {
     }
 
     public PreviewImage clear() {
+        deletedPoints.clear();
         PixelWriter pixelWriter = image.getPixelWriter();
         for (int x = Math.max(0, minDrawnPosXOnPreviewImage - lineWidth.get()); x < Math.min(image.getWidth(), maxDrawnPosXOnPreviewImage + lineWidth.get()); x++) {
             for (int y = Math.max(0, minDrawnPosYOnPreviewImage - lineWidth.get()); y < Math.min(image.getHeight(), maxDrawnPosYOnPreviewImage + lineWidth.get()); y++) {
@@ -66,6 +87,11 @@ public class PreviewImage {
     // End: DRAWING
 
 
+    public Stream<Point> getDeletedPoints() {
+        // return deleted points but converted back to source coordinates using previewToSource methods
+        return deletedPoints.stream().map(point -> new Point(previewXToSource(point.x), previewYToSource(point.y)));
+
+    }
 
     public Color getColor(int xIdx, int yIdx) {
         return image.getPixelReader().getColor(sourceXToPreview(xIdx), sourceYToPreview(yIdx));
@@ -98,6 +124,14 @@ public class PreviewImage {
         return sourceY + sourceHeight - yOffset.get();
     }
 
+    private int previewXToSource(int previewX) {
+        return previewX + xOffset.get() - sourceWidth;
+    }
+
+    private int previewYToSource(int sourceY) {
+        return sourceY + yOffset.get() - sourceHeight;
+    }
+
 
     public IntegerProperty xOffsetProperty() {
         return xOffset;
@@ -114,5 +148,9 @@ public class PreviewImage {
 
     public int getSourceHeight() {
         return sourceHeight;
+    }
+
+    public boolean hasDeletedPoints() {
+        return !deletedPoints.isEmpty();
     }
 }

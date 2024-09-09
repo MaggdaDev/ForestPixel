@@ -40,10 +40,10 @@ public class ToolbarViewModel {
         });
 
         toolViewModelList = List.of(
-                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasContext.getColor()), ToolType.PENCIL), // pencil
+                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel(false), ToolType.PENCIL), // pencil
                 new BucketViewModel(new BucketModel()),
                 new PipetViewModel(new PipetModel(), this),
-                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel((canvasModel, canvasContext) -> canvasModel.getTransparentColor()), ToolType.RUBBER),  // rubber
+                new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel(true), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel(), context.mouseInSelectAreaProperty(), moveCanvasFunction),
                 new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty(), context.mouseInSelectAreaProperty()),
                 new LineViewModel(new LineModel())

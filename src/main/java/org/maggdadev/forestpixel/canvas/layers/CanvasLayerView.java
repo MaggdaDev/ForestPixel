@@ -2,6 +2,9 @@ package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 import org.maggdadev.forestpixel.canvas.PreviewImage;
 
@@ -9,6 +12,8 @@ public class CanvasLayerView extends Canvas {
 
     private final CanvasViewModel canvasViewModel;
     private final CanvasLayerViewModel viewModel;
+
+    private WritableImage workingImage;
 
     public CanvasLayerView(CanvasLayerViewModel viewModel, CanvasViewModel canvasViewModel) {
         this.canvasViewModel = canvasViewModel;
@@ -36,13 +41,31 @@ public class CanvasLayerView extends Canvas {
                 ((double) canvasViewModel.getExtendedCanvasPixelHeight()) * canvasViewModel.getZoomScaleFactor());
     }
 
-    public void redraw() {
+    public void redraw(CanvasContext canvasContext) {
         getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
-        drawImage(viewModel.getDrawableImage());
+        if (canvasContext.getPreviewImage() != null && canvasContext.getPreviewImage().hasDeletedPoints()) {
+            workingImage = new WritableImage(viewModel.getDrawableImage().getPixelReader(), (int) viewModel.getDrawableImage().getWidth(), (int) viewModel.getDrawableImage().getHeight());
+            canvasContext.getPreviewImage().getDeletedPoints().forEach(point -> {
+                if (point.x >= 0 && point.x < workingImage.getWidth() && point.y >= 0 && point.y < workingImage.getHeight()) {
+                    workingImage.getPixelWriter().setColor(point.x, point.y, Color.TRANSPARENT);
+                }
+            });
+            drawImage(workingImage);
+        } else {
+            drawImage(viewModel.getDrawableImage());
+        }
     }
 
     public void drawPreviewImage(PreviewImage previewImage) {
         drawImage(previewImage.getDrawableImage());
+    }
+
+    private int xIdxToCanvasPos(int x) {
+        return (int) canvasViewModel.getZoomScaleFactor() * (x - canvasViewModel.getSourceStartIndexX());
+    }
+
+    private int yIdxToCanvasPos(int y) {
+        return (int) canvasViewModel.getZoomScaleFactor() * (y - canvasViewModel.getSourceStartIndexY());
     }
 
     public int getLayerId() {

@@ -14,7 +14,6 @@ import java.util.List;
 public class CanvasModel {
 
     private final HashMap<Integer, CanvasLayerModel> layers = new HashMap<>();
-    private Color transparentColor = Color.PURPLE;
     private int widthPixels = 0, heightPixels = 0;
 
     private final HistoryModel historyModel;
@@ -29,7 +28,7 @@ public class CanvasModel {
         if (layers.containsKey(layerId)) {
             throw new IllegalArgumentException("Layer with id " + layerId + " already exists!");
         }
-        CanvasLayerModel layer = new CanvasLayerModel(widthPixels, heightPixels, transparentColor, layerId);
+        CanvasLayerModel layer = new CanvasLayerModel(widthPixels, heightPixels, layerId);
         layers.put(layerId, layer);
         return layer;
     }
@@ -82,14 +81,6 @@ public class CanvasModel {
     }
 
 
-    public Color getTransparentColor() {
-        return transparentColor;
-    }
-
-    public void setTransparentColor(Color transparentColor) {
-        this.transparentColor = transparentColor;
-    }
-
     public void eraseAreaForSelection(int xStart, int yStart, int width, int height, int layerId) {
         List<Point> points = new ArrayList<>();
         for(int i = xStart; i < xStart + width; i++) {
@@ -97,7 +88,7 @@ public class CanvasModel {
                 points.add(new Point(i, j));
             }
         }
-        historyModel.applyNewChange(new SingleColorMultiPixelChange(layers.get(layerId), points, transparentColor));
+        historyModel.applyNewChange(new SingleColorMultiPixelChange(layers.get(layerId), points, Color.TRANSPARENT));
     }
 
     public PixelReader getPixelReaderForLayer(int layerId) {

@@ -126,7 +126,7 @@ public class CanvasView extends BorderPane {
 
     public void redrawAll() {
         layersStackPane.getLayers().forEach((layer) -> {
-            layer.redraw();
+            layer.redraw(viewModel.getCanvasContext());
             if (viewModel.getPreviewImage() != null && viewModel.getCanvasContext().getActiveLayerId() == layer.getLayerId()) {
                 layer.drawPreviewImage(viewModel.getPreviewImage());
             }
