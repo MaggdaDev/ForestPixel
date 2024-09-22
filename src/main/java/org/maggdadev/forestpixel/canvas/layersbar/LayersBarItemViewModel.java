@@ -1,33 +1,23 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
+import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
 public class LayersBarItemViewModel {
     private static int idCounter = 0;
     private final StringProperty name = new SimpleStringProperty("");
 
+    private final IntegerProperty order = new SimpleIntegerProperty(0);
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
     private final String id;
 
     private boolean requestFocusPending = false;
 
-    public LayersBarItemViewModel(String name) {
+    public LayersBarItemViewModel(String name, SwappableObservableArrayList<LayersBarItemViewModel> layers) {
         this.name.set(name);
         this.id = String.valueOf(idCounter++);
-    }
-
-
-    public void swapOrderWith(ObservableList<LayersBarItemViewModel> items, String otherID) {
-        int thisIndex = items.indexOf(this);
-        int otherIndex = items.indexOf(items.stream().filter(item -> item.id.equals(otherID)).findFirst().orElse(null));
-        if (thisIndex == -1 || otherIndex == -1) {
-            return;
-        }
-        items.set(thisIndex, items.set(otherIndex, items.get(thisIndex)));
+        order.bind(Bindings.createIntegerBinding(() -> layers.indexOf(this), layers));
     }
 
     public String getId() {
@@ -68,5 +58,13 @@ public class LayersBarItemViewModel {
 
     public void setRequestFocusPending(boolean requestFocusPending) {
         this.requestFocusPending = requestFocusPending;
+    }
+
+    public int getOrder() {
+        return order.get();
+    }
+
+    public IntegerProperty orderProperty() {
+        return order;
     }
 }

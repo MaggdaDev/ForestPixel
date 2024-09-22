@@ -30,7 +30,10 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
     private Subscription subscriptionOnViewModelSelected;
     private ChangeListener<Boolean> listenerOnThisSelected;
 
-    public LayersBarItemView(ListView<LayersBarItemViewModel> listView) {
+    private final LayersBarViewModel barViewModel;
+
+    public LayersBarItemView(ListView<LayersBarItemViewModel> listView, LayersBarViewModel barViewModel) {
+        this.barViewModel = barViewModel;
         radioButton.setMouseTransparent(true);
         HBox content = new HBox(radioButton, textField);
         content.setSpacing(5);
@@ -83,7 +86,8 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
                     event.acceptTransferModes(TransferMode.ANY);
                 } else {
                     event.acceptTransferModes(TransferMode.MOVE);
-                    viewModel.swapOrderWith(getListView().getItems(), event.getDragboard().getString());
+                    barViewModel.swapLayers(getItem().getOrder(),
+                            barViewModel.getLayers().filtered(item -> item.getId().equals(event.getDragboard().getString())).get(0).getOrder());
                 }
 
             event.consume();

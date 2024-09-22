@@ -25,6 +25,7 @@ public class CanvasLayerView extends Canvas {
         getGraphicsContext2D().setImageSmoothing(false);
         setMouseTransparent(true);
         setManaged(false);
+        viewOrderProperty().bind(viewModel.orderProperty().multiply(-1));
     }
 
     private void drawImage(Image image) {

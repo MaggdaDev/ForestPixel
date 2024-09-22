@@ -27,7 +27,7 @@ public class LayersBarView extends VBox {
         // ListView
         layersListView = new ListView<>(viewModel.getLayers());
         layersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        layersListView.setCellFactory(LayersBarItemView::new);
+        layersListView.setCellFactory((lv) -> new LayersBarItemView(lv, viewModel));
         layersListView.setFixedCellSize(30);
         layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> layersListView.getFixedCellSize() * viewModel.getLayers().size() + 5, viewModel.getLayers(), layersListView.fixedCellSizeProperty()));
 

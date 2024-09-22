@@ -102,7 +102,7 @@ public class CanvasViewModel {
         while (change.next()) {
             if (change.wasAdded()) {
                 change.getAddedSubList().forEach(item -> {
-                    addLayer(item.getId());
+                    addLayer(item.getId(), item.orderProperty());
                 });
             }
             if (change.wasRemoved()) {
@@ -399,8 +399,8 @@ public class CanvasViewModel {
         return canvasContext;
     }
 
-    public void addLayer(String layerId) {
-        layers.put(layerId, new CanvasLayerViewModel(model.addLayer(layerId)));
+    public void addLayer(String layerId, IntegerProperty orderProperty) {
+        layers.put(layerId, new CanvasLayerViewModel(model.addLayer(layerId), orderProperty));
     }
 
     public void removeLayer(String layerId) {

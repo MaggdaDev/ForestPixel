@@ -17,6 +17,8 @@ public class CanvasLayerModel {
 
     private final String layerId;
 
+    private int order;
+
     public CanvasLayerModel(int width, int height, String layerId) {
         this.width = width;
         this.height = height;
@@ -75,5 +77,9 @@ public class CanvasLayerModel {
 
     public String getLayerId() {
         return layerId;
+    }
+
+    public void setOrder(int i) {
+        order = i;
     }
 }

@@ -5,18 +5,18 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
 public class LayersBarViewModel {
     private final BooleanProperty isExpanded = new SimpleBooleanProperty(true);
-    private final ObservableList<LayersBarItemViewModel> layers = FXCollections.observableArrayList();
+    private final SwappableObservableArrayList<LayersBarItemViewModel> layers = new SwappableObservableArrayList<>();
 
     private final StringProperty activeLayerProperty = new SimpleStringProperty("-1");
 
 
     public void addLayer() {
-        LayersBarItemViewModel newLayer = new LayersBarItemViewModel("New layer");
+        LayersBarItemViewModel newLayer = new LayersBarItemViewModel("New layer", layers);
         newLayer.setRequestFocusPending(true);
         layers.add(newLayer);
     }
@@ -41,5 +41,9 @@ public class LayersBarViewModel {
 
     public void setActiveLayer(String id) {
         activeLayerProperty.set(id);
+    }
+
+    public void swapLayers(int index1, int index2) {
+        layers.swap(index1, index2);
     }
 }
