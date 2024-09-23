@@ -1,9 +1,7 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
@@ -13,6 +11,14 @@ public class LayersBarViewModel {
     private final SwappableObservableArrayList<LayersBarItemViewModel> layers = new SwappableObservableArrayList<>();
 
     private final StringProperty activeLayerProperty = new SimpleStringProperty("-1");
+
+    private final DoubleProperty upperLayersOpacity = new SimpleDoubleProperty(1.0), lowerLayersOpacity = new SimpleDoubleProperty(1.0);
+
+    private final BooleanProperty moreThanOneLayer = new SimpleBooleanProperty(false);
+
+    public LayersBarViewModel() {
+        moreThanOneLayer.bind(Bindings.createIntegerBinding(layers::size, layers).greaterThan(1));
+    }
 
 
     public void addLayer() {
@@ -45,5 +51,29 @@ public class LayersBarViewModel {
 
     public void swapLayers(int index1, int index2) {
         layers.swap(index1, index2);
+    }
+
+    public double getUpperLayersOpacity() {
+        return upperLayersOpacity.get();
+    }
+
+    public DoubleProperty upperLayersOpacityProperty() {
+        return upperLayersOpacity;
+    }
+
+    public double getLowerLayersOpacity() {
+        return lowerLayersOpacity.get();
+    }
+
+    public DoubleProperty lowerLayersOpacityProperty() {
+        return lowerLayersOpacity;
+    }
+
+    public boolean isMoreThanOneLayer() {
+        return moreThanOneLayer.get();
+    }
+
+    public BooleanProperty moreThanOneLayerProperty() {
+        return moreThanOneLayer;
     }
 }

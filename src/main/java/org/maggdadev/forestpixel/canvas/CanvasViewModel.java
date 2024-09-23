@@ -26,6 +26,8 @@ public class CanvasViewModel {
 
     private final ObservableMap<String, CanvasLayerViewModel> layers = FXCollections.observableHashMap();
 
+    private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(0);
+
     private final CanvasContext canvasContext;
 
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
@@ -96,6 +98,9 @@ public class CanvasViewModel {
         layersBarViewModel = new LayersBarViewModel();
         layersBarViewModel.getLayers().addListener(this::layersChangedListener);
         canvasContext.activeLayerIdProperty().bind(layersBarViewModel.activeLayerIdProperty());
+        activeLayerOrder.bind(Bindings.createIntegerBinding(() ->
+                layers.get(canvasContext.getActiveLayerId()) != null ? layers.get(canvasContext.getActiveLayerId()).orderProperty().get() : -1, canvasContext.activeLayerIdProperty(), layers));
+
     }
 
     private void layersChangedListener(ListChangeListener.Change<? extends LayersBarItemViewModel> change) {
@@ -400,7 +405,9 @@ public class CanvasViewModel {
     }
 
     public void addLayer(String layerId, IntegerProperty orderProperty) {
-        layers.put(layerId, new CanvasLayerViewModel(model.addLayer(layerId), orderProperty));
+        CanvasLayerViewModel addViewModel = new CanvasLayerViewModel(model.addLayer(layerId), orderProperty);
+        addViewModel.bindOpacity(activeLayerOrder, layersBarViewModel.upperLayersOpacityProperty(), layersBarViewModel.lowerLayersOpacityProperty());
+        layers.put(layerId, addViewModel);
     }
 
     public void removeLayer(String layerId) {

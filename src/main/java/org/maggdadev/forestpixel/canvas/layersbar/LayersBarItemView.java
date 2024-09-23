@@ -1,11 +1,9 @@
 package org.maggdadev.forestpixel.canvas.layersbar;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
@@ -32,7 +30,7 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
 
     private final LayersBarViewModel barViewModel;
 
-    public LayersBarItemView(ListView<LayersBarItemViewModel> listView, LayersBarViewModel barViewModel) {
+    public LayersBarItemView(LayersBarViewModel barViewModel) {
         this.barViewModel = barViewModel;
         radioButton.setMouseTransparent(true);
         HBox content = new HBox(radioButton, textField);
@@ -41,7 +39,7 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
         graphic.setLeft(content);
         graphic.setRight(deleteButton);
         deleteButton.setOnAction(this::delete);
-        deleteButton.visibleProperty().bind(Bindings.createBooleanBinding(() -> listView.getItems().size() > 1, listView.getItems()));
+        deleteButton.visibleProperty().bind(barViewModel.moreThanOneLayerProperty());
 
         setConverter(new StringConverter<>() {
             @Override

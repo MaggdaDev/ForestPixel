@@ -22,6 +22,7 @@ public class CanvasLayerView extends Canvas {
         heightProperty().bind(canvasViewModel.extendedCanvasPixelHeightProperty());
         layoutXProperty().bind(canvasViewModel.quantizedViewportXProperty());
         layoutYProperty().bind(canvasViewModel.quantizedViewportYProperty());
+        opacityProperty().bind(viewModel.opacityProperty());
         getGraphicsContext2D().setImageSmoothing(false);
         setMouseTransparent(true);
         setManaged(false);
