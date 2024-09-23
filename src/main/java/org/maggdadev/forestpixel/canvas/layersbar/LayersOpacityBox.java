@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 public class LayersOpacityBox extends VBox {
-    private final Slider opacitySlider = new Slider(0, 1, 100);
+    private final Slider opacitySlider = new Slider(0, 1, 1);
 
     public LayersOpacityBox(String text) {
         setAlignment(Pos.CENTER);
