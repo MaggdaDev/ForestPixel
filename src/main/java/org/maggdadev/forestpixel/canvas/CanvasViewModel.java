@@ -172,11 +172,17 @@ public class CanvasViewModel {
     }
 
     public void copy() {
-        copyPasteManager.copy(model, canvasContext);
+        copyPasteManager.copy(canvasContext);
     }
 
     public void paste() {
         copyPasteManager.paste(model, canvasContext);
+        update();
+    }
+
+    public void cut() {
+        copyPasteManager.cut(canvasContext);
+        cancelSelection(canvasContext, model);
         update();
     }
 

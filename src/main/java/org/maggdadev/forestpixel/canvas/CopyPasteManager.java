@@ -21,12 +21,29 @@ public class CopyPasteManager {
 
     }
 
-    public void copy(CanvasModel canvasModel, CanvasContext canvasContext) {
+    public void copy(CanvasContext canvasContext) {
+        if (_copy(canvasContext)) {
+            selectViewModel.notifyCopy();
+        }
+    }
+
+    public void cut(CanvasContext canvasContext) {
+        if (_copy(canvasContext)) {
+            selectViewModel.eraseSelection(canvasContext);
+            selectViewModel.notifyCut();
+        }
+    }
+
+    /**
+     * @param canvasContext context
+     * @return whether the copy was successful
+     */
+    private boolean _copy(CanvasContext canvasContext) {
         System.out.println("copy");
         if (!canvasContext.getActiveLayerId().equals("-1") && canvasContext.getState().equals(CanvasState.SELECTED)) {
             Image selectedAreaAsImage = selectViewModel.getSelectedAreaAsImage(canvasContext);
             if (selectedAreaAsImage == null) {
-                return; // no selection
+                return false; // no selection
             }
             // Add image to clipboard using dataformat
             ClipboardContent content = new ClipboardContent();
@@ -35,9 +52,9 @@ public class CopyPasteManager {
             content.putImage(selectedAreaAsImage);
 
             clipboard.setContent(content);
-            selectViewModel.notifyCopy();
-
+            return true;
         }
+        return false;
     }
 
     public void paste(CanvasModel canvasModel, CanvasContext canvasContext) {

@@ -29,7 +29,7 @@ public class SelectViewModel extends ToolViewModel {
 
     private final BooleanProperty isMouseInSelectArea;
 
-    private final ObjectProperty<Runnable> onCopy = new SimpleObjectProperty<>(), onPaste = new SimpleObjectProperty<>();
+    private final ObjectProperty<Runnable> onCopy = new SimpleObjectProperty<>(), onPaste = new SimpleObjectProperty<>(), onCut = new SimpleObjectProperty<>();
 
     public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY, ReadOnlyDoubleProperty zoomFactor, BooleanProperty isMouseInSelectArea) {
         super(ToolType.SELECT);
@@ -113,7 +113,10 @@ public class SelectViewModel extends ToolViewModel {
     private void resetSelection(CanvasContext context) {
         selectState.set(SelectState.IDLE);
         model.resetSelection();
-        loadFromModel(context);
+        gestureStartX.set(gestureStartX.get() + offsetX.get() * context.getZoomFactor()); // set to temp values not in accordance with model such that area indicator stays temporarily at same place
+        gestureStartY.set(gestureStartY.get() + offsetY.get() * context.getZoomFactor());
+        gestureEndX.set(gestureEndX.get() + offsetX.get() * context.getZoomFactor());
+        gestureEndY.set(gestureEndY.get() + offsetY.get() * context.getZoomFactor());
     }
 
     private void loadFromModel(CanvasContext context) {
@@ -121,6 +124,12 @@ public class SelectViewModel extends ToolViewModel {
         gestureStartY.set(idxToY(model.getSelectionStartIdxY(), context));
         gestureEndX.set(idxToX(model.getSelectionEndIdxX(), context));
         gestureEndY.set(idxToY(model.getSelectionEndIdxY(), context));
+    }
+
+    public void eraseSelection(CanvasContext canvasContext) {
+        if (selectState.get().equals(SelectState.SELECTED)) {
+            model.eraseAreaFromPreview(canvasContext, model.getTopLeftXWithOffset(offsetX.get()), model.getTopLeftYWithOffset(offsetY.get()), model.getWidth(), model.getHeight(), canvasContext.getActiveLayerId());
+        }
     }
 
     private void writeStartIdxToModel(double x, double y, CanvasContext context) {
@@ -271,11 +280,19 @@ public class SelectViewModel extends ToolViewModel {
         this.onPaste.set(onPaste);
     }
 
+    public void setOnCut(Runnable onCut) {
+        this.onCut.set(onCut);
+    }
+
     public void notifyCopy() {
         onCopy.get().run();
     }
 
     public void notifyPaste() {
         onPaste.get().run();
+    }
+
+    public void notifyCut() {
+        onCut.get().run();
     }
 }

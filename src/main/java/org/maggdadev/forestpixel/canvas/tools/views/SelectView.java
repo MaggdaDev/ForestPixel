@@ -1,8 +1,10 @@
 package org.maggdadev.forestpixel.canvas.tools.views;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanBinding;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
@@ -21,7 +23,6 @@ public class SelectView extends ToolView{
         mouseAreaRectangle.yProperty().bind(viewModel.areaStartYProperty());
         mouseAreaRectangle.widthProperty().bind(viewModel.widthProperty());
         mouseAreaRectangle.heightProperty().bind(viewModel.heightProperty());
-        mouseAreaRectangle.visibleProperty().bind(viewModel.mouseAreaIndicatorVisibleProperty());
 
         mouseAreaRectangle.setFill(Color.TRANSPARENT);
         mouseAreaRectangle.setStroke(Color.GREY);
@@ -32,18 +33,31 @@ public class SelectView extends ToolView{
         viewModel.isMouseInSelectAreaProperty().bind(mouseAreaRectangle.hoverProperty().and(mouseAreaRectangle.visibleProperty()));
 
 
-        Timeline copyPulseTimeline = createColorPulseTimeLine(COPY_COLOR);
-        Timeline pastePulseTimeline = createColorPulseTimeLine(PASTE_COLOR);
+        Timeline copyPulseTimeline = createColorPulseTimeLine(COPY_COLOR, false);
+        Timeline pastePulseTimeline = createColorPulseTimeLine(PASTE_COLOR, false);
+        Timeline cutPulseTimeline = createColorPulseTimeLine(Color.RED, true);
         viewModel.setOnCopy(copyPulseTimeline::play);
         viewModel.setOnPaste(pastePulseTimeline::play);
+        viewModel.setOnCut(cutPulseTimeline::play);
+        mouseAreaRectangle.visibleProperty().bind(viewModel.mouseAreaIndicatorVisibleProperty()
+                .or(isTimelineRunning(copyPulseTimeline))
+                .or(isTimelineRunning(pastePulseTimeline))
+                .or(isTimelineRunning(cutPulseTimeline)));
     }
 
-    private Timeline createColorPulseTimeLine(Color color) {
+    private BooleanBinding isTimelineRunning(Timeline timeline) {
+        return timeline.statusProperty().isEqualTo(Animation.Status.RUNNING);
+    }
+
+    private Timeline createColorPulseTimeLine(Color color, boolean fadeOut) {
         Timeline timeline = new Timeline();
         timeline.getKeyFrames().addAll(
-                new KeyFrame(Duration.ZERO, new KeyValue(mouseAreaRectangle.strokeProperty(), color)),
-                new KeyFrame(Duration.seconds(0.2), new KeyValue(mouseAreaRectangle.strokeProperty(), BASE_COLOR))
+                new KeyFrame(Duration.ZERO, new KeyValue(mouseAreaRectangle.strokeProperty(), color), fadeOut ? new KeyValue(mouseAreaRectangle.opacityProperty(), 1) : null),
+                new KeyFrame(Duration.seconds(fadeOut ? 0.15 : 0.2), new KeyValue(mouseAreaRectangle.strokeProperty(), BASE_COLOR), fadeOut ? new KeyValue(mouseAreaRectangle.opacityProperty(), 0) : null)
         );
+        if (fadeOut) {
+            timeline.setOnFinished(e -> mouseAreaRectangle.setOpacity(1));
+        }
         return timeline;
     }
 

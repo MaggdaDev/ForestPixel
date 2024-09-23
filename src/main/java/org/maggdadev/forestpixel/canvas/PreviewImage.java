@@ -58,6 +58,14 @@ public class PreviewImage {
         return this;
     }
 
+    public void deleteColors(int topLeftXWithOffset, int topLeftYWithOffset, int width, int height) {
+        for (int x = topLeftXWithOffset; x < topLeftXWithOffset + width; x++) {
+            for (int y = topLeftYWithOffset; y < topLeftYWithOffset + height; y++) {
+                deleteColor(x, y);
+            }
+        }
+    }
+
     public PreviewImage setColor(Iterable<Point> points, Color color) {
         for (Point point : points) {
             setColor(point.x, point.y, color);

@@ -34,6 +34,10 @@ public class SelectModel extends ToolModel {
         return selectionStartIdxX == -1 || selectionStartIdxY == -1 || selectionEndIdxX == -1 || selectionEndIdxY == -1;
     }
 
+    public void eraseAreaFromPreview(CanvasContext context, int topLeftXWithOffset, int topLeftYWithOffset, int width, int height, String activeLayerId) {
+        context.getPreviewImage().deleteColors(topLeftXWithOffset, topLeftYWithOffset, width, height);
+    }
+
     // GET/SET
 
     public int getTopLeftXWithOffset(int offsetX) {
