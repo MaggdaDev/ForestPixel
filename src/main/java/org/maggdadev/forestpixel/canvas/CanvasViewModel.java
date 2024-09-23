@@ -8,8 +8,8 @@ import javafx.collections.ObservableMap;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
 import org.maggdadev.forestpixel.canvas.layersbar.LayersBarItemViewModel;
@@ -21,42 +21,29 @@ public class CanvasViewModel {
 
     private final CanvasModel model;
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
-
-    private final IntegerProperty previewImageViewportStartX = new SimpleIntegerProperty(0), previewImageViewPortStartY = new SimpleIntegerProperty(0);
-
     private final ObservableMap<String, CanvasLayerViewModel> layers = FXCollections.observableHashMap();
-
     private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(0);
-
     private final CanvasContext canvasContext;
-
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
-
     private final ToolbarViewModel toolBarViewModel;
-
     private final LayersBarViewModel layersBarViewModel;
     private final CanvasZoomHandler canvasZoomHandler;
-
     private final DoubleProperty zoomHValue = new SimpleDoubleProperty(0);
     private final DoubleProperty zoomVValue = new SimpleDoubleProperty(0);
-
     private final DoubleProperty modelWidth = new SimpleDoubleProperty(0);
-
     private final DoubleProperty modelHeight = new SimpleDoubleProperty(0);
     private final DoubleProperty zoomScaleFactor = new SimpleDoubleProperty(1);
     private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
-
     private final DoubleProperty viewportPosX = new SimpleDoubleProperty();
     private final DoubleProperty viewportPosY = new SimpleDoubleProperty();
-
     private final DoubleProperty quantizedViewportX = new SimpleDoubleProperty();
     private final DoubleProperty quantizedViewportY = new SimpleDoubleProperty();
     private final IntegerProperty sourceStartIndexX = new SimpleIntegerProperty();
     private final IntegerProperty sourceStartIndexY = new SimpleIntegerProperty();
-
     private final IntegerProperty extendedCanvasPixelWidth = new SimpleIntegerProperty();
     private final IntegerProperty extendedCanvasPixelHeight = new SimpleIntegerProperty();
 
+    private final CopyPasteManager copyPasteManager;
 
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
@@ -101,6 +88,9 @@ public class CanvasViewModel {
         activeLayerOrder.bind(Bindings.createIntegerBinding(() ->
                 layers.get(canvasContext.getActiveLayerId()) != null ? layers.get(canvasContext.getActiveLayerId()).orderProperty().get() : -1, canvasContext.activeLayerIdProperty(), layers));
 
+        // Copy paste
+        copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
+
     }
 
     private void layersChangedListener(ListChangeListener.Change<? extends LayersBarItemViewModel> change) {
@@ -122,28 +112,25 @@ public class CanvasViewModel {
     private void handleCanvasMouseEvent(CanvasMouseEvent event) {
         if (activeToolViewModel.get() != null &&
                 (!getCanvasState().equals(CanvasState.SELECTED) || activeToolViewModel.get().isRequestMouseEventsEvenIfSelected())) {
-            activeToolViewModel.get().notifyCanvasMouseEvent(event);
+            activeToolViewModel.get().notifyCanvasEvent(event);
 
         } else if (event.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && getCanvasState().equals(CanvasState.SELECTED)) {
-            toolBarViewModel.notifyAllToolsSelectionCancelled(event);
-            handleClickWhileSelected(event);
+            cancelSelection(event.canvasContext(), event.canvasModel());
         }
 
         update();
     }
 
+    public void cancelSelection(CanvasContext canvasContext, CanvasModel canvasModel) {
+        toolBarViewModel.notifyAllToolsCanvasEvent(new CanvasSelectionCancelEvent(canvasContext, canvasModel, CanvasSelectionCancelEvent.CancelState.ON_CANCEL));
+        toolBarViewModel.notifyAllToolsCanvasEvent(new CanvasSelectionCancelEvent(canvasContext, canvasModel, CanvasSelectionCancelEvent.CancelState.AFTER_CANCEL));
+        canvasContext.setState(CanvasState.IDLE);
+    }
+
     private void handleZoomEvent(CanvasZoomEvent event) {
-        toolBarViewModel.notifyAllToolsZoom(event);
+        toolBarViewModel.notifyAllToolsCanvasEvent(event);
     }
 
-
-    private void handleClickWhileSelected(CanvasEvent event) {
-        if (event instanceof CanvasMouseEvent mouseEvent) {
-            if (mouseEvent.actionType().equals(CanvasMouseEvent.ActionType.PRESSED) && mouseEvent.buttonType().equals(CanvasMouseEvent.ButtonType.PRIMARY)) {
-                canvasContext.setState(CanvasState.IDLE);
-            }
-        }
-    }
 
     void update() {/*
         if (model.getImage() == null) {
@@ -172,6 +159,8 @@ public class CanvasViewModel {
         setViewNeedsUpdate(true);
     }
 
+    // commands
+
     public void undo() {
         model.undo();
         update();
@@ -181,6 +170,16 @@ public class CanvasViewModel {
         model.redo();
         update();
     }
+
+    public void copy() {
+        copyPasteManager.copy(model, canvasContext);
+    }
+
+    public void paste() {
+        copyPasteManager.paste(model, canvasContext);
+        update();
+    }
+
 
 
     ToolbarViewModel getToolBarViewModel() {

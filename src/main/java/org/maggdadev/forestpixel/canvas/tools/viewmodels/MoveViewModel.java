@@ -4,6 +4,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.MoveModel;
 
@@ -71,9 +72,9 @@ public class MoveViewModel extends ToolViewModel {
     }
 
     @Override
-    protected void afterSelectionCancelled(CanvasMouseEvent e) {
+    protected void afterSelectionCancelled(CanvasSelectionCancelEvent e) {
         super.onSelectionCancelled(e);
-        model.resetAll(e.canvasContext());
+        model.resetAll(e.context());
     }
 
 

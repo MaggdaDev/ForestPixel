@@ -30,20 +30,27 @@ public class SelectModel extends ToolModel {
     }
 
 
-    @Override
-    public void applyToCanvas(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
-        super.applyToCanvas(canvasModel, canvasContext, xIdx, yIdx);
-        if (canvasContext.getPreviewImage() != null) {
-            canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete(), canvasContext.getActiveLayerId());
-        }
-    }
-
     private boolean isSelectionInvalid() {
         return selectionStartIdxX == -1 || selectionStartIdxY == -1 || selectionEndIdxX == -1 || selectionEndIdxY == -1;
     }
 
     // GET/SET
 
+    public int getTopLeftXWithOffset(int offsetX) {
+        return Math.min(selectionStartIdxX, selectionEndIdxX) + offsetX;
+    }
+
+    public int getTopLeftYWithOffset(int offsetY) {
+        return Math.min(selectionStartIdxY, selectionEndIdxY) + offsetY;
+    }
+
+    public int getWidth() {
+        return Math.abs(selectionStartIdxX - selectionEndIdxX);
+    }
+
+    public int getHeight() {
+        return Math.abs(selectionStartIdxY - selectionEndIdxY);
+    }
 
     public int getSelectionStartIdxX() {
         return selectionStartIdxX;

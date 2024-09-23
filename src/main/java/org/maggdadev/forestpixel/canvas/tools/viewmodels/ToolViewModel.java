@@ -1,8 +1,8 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 
@@ -21,15 +21,17 @@ public abstract class ToolViewModel {
         this.requestMouseEventsEvenIfSelected = requestMouseEventsEvenIfSelected;
     }
 
-    public final void notifyCanvasMouseEvent(CanvasMouseEvent e) {
-        if (e.actionType().equals(CanvasMouseEvent.ActionType.SELECTION_CANCELLED)) {
-            onSelectionCancelled(e);
-            return;
+    public final void notifyCanvasEvent(CanvasEvent e) {
+        if (e instanceof CanvasMouseEvent mouseEvent) {
+            notifyCanvasMouseEvent(mouseEvent);
+        } else if (e instanceof CanvasSelectionCancelEvent cancelEvent) {
+            notifyCanvasCancelEvent(cancelEvent);
+        } else if (e instanceof CanvasZoomEvent zoomEvent) {
+            onZoomEvent(zoomEvent);
         }
-        if (e.actionType().equals(CanvasMouseEvent.ActionType.AFTER_SELECTION_CANCELLED)) {
-            afterSelectionCancelled(e);
-            return;
-        }
+    }
+
+    private void notifyCanvasMouseEvent(CanvasMouseEvent e) {
         switch (e.buttonType()) {
             case PRIMARY:
                 switch (e.actionType()) {
@@ -48,9 +50,14 @@ public abstract class ToolViewModel {
                 }
                 break;
         }
-
     }
 
+    private void notifyCanvasCancelEvent(CanvasSelectionCancelEvent e) {
+        switch (e.type()) {
+            case ON_CANCEL -> onSelectionCancelled(e);
+            case AFTER_CANCEL -> afterSelectionCancelled(e);
+        }
+    }
 
 
     public ToolType getToolType() {
@@ -60,10 +67,11 @@ public abstract class ToolViewModel {
     public boolean isRequestMouseEventsEvenIfSelected() {
         return requestMouseEventsEvenIfSelected;
     }
-    protected void onSelectionCancelled(CanvasMouseEvent e) {
+
+    protected void onSelectionCancelled(CanvasSelectionCancelEvent e) {
     }
 
-    protected void afterSelectionCancelled(CanvasMouseEvent e) {
+    protected void afterSelectionCancelled(CanvasSelectionCancelEvent e) {
     }
 
     protected void onPrimaryButtonPressed(CanvasMouseEvent e) {
@@ -92,4 +100,5 @@ public abstract class ToolViewModel {
 
     public void onZoomEvent(CanvasZoomEvent event) {
     }
+
 }

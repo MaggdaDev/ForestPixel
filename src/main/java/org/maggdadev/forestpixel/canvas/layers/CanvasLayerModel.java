@@ -32,11 +32,16 @@ public class CanvasLayerModel {
         PixelReader previewReader = previewImage.getDrawableImage().getPixelReader();
         List<Color> colors = new ArrayList<>();
         List<Point> points = new ArrayList<>();
+        Color addColor;
         for (int i = 0; i < image.getWidth(); i++) {
             for (int j = 0; j < image.getHeight(); j++) {
                 if (!getColorAt(i, j).equals(previewReader.getColor(i, j)) && !previewReader.getColor(i, j).equals(Color.TRANSPARENT)) {
                     points.add(new Point(i, j));
-                    colors.add(previewReader.getColor(i, j));
+                    addColor = previewImage.getColor(i, j);
+                    if (!addColor.equals(Color.TRANSPARENT) && addColor.getOpacity() == 0) {
+                        addColor = new Color(addColor.getRed(), addColor.getGreen(), addColor.getBlue(), 1);
+                    }
+                    colors.add(addColor);
                 }
             }
         }

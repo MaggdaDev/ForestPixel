@@ -2,9 +2,12 @@ package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.scene.image.Image;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
+import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.CanvasState;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.SelectModel;
@@ -25,6 +28,8 @@ public class SelectViewModel extends ToolViewModel {
     private final BooleanProperty mouseAreaIndicatorVisible = new SimpleBooleanProperty(false);
 
     private final BooleanProperty isMouseInSelectArea;
+
+    private final ObjectProperty<Runnable> onCopy = new SimpleObjectProperty<>(), onPaste = new SimpleObjectProperty<>();
 
     public SelectViewModel(SelectModel model, IntegerProperty offsetX, IntegerProperty offsetY, ReadOnlyDoubleProperty zoomFactor, BooleanProperty isMouseInSelectArea) {
         super(ToolType.SELECT);
@@ -63,10 +68,10 @@ public class SelectViewModel extends ToolViewModel {
     }
 
     @Override
-    protected void onSelectionCancelled(CanvasMouseEvent e) {
+    protected void onSelectionCancelled(CanvasSelectionCancelEvent e) {
         super.onSelectionCancelled(e);
-        model.applyToCanvas(e.canvasModel(), e.canvasContext(), e.xIdx(), e.yIdx());
-        resetSelection(e.canvasContext());
+        model.applyToCanvas(e.model(), e.context(), 0, 0);
+        resetSelection(e.context());
     }
 
     @Override
@@ -75,9 +80,33 @@ public class SelectViewModel extends ToolViewModel {
         loadFromModel(event.canvasContext());
     }
 
+
+    public void selectOnPreviewImage(int xIdx, int yIdx, int width, int height, CanvasContext canvasContext, CanvasModel canvasModel) {
+        if (!selectState.get().equals(SelectState.IDLE)) {
+            throw new RuntimeException("SelectViewModel: selectOnPreviewImage called while not IDLE");
+        }
+        startSelection(canvasContext, idxToX(xIdx, canvasContext), idxToY(yIdx, canvasContext));
+        writeEndIdxToModel(idxToX(xIdx + width, canvasContext), idxToY(yIdx + height, canvasContext), canvasContext);
+        selectState.set(SelectState.SELECTED);
+        canvasContext.setState(CanvasState.SELECTED);
+        loadFromModel(canvasContext);
+
+    }
+
+    public Image getSelectedAreaAsImage(CanvasContext canvasContext) {
+        if (!selectState.get().equals(SelectState.SELECTED)) {
+            return null;
+        }
+        return canvasContext.getPreviewImage().getAreaAsImage(model.getTopLeftXWithOffset(offsetX.get()), model.getTopLeftYWithOffset(offsetY.get()), model.getWidth(), model.getHeight());
+    }
+
     private void startSelection(CanvasMouseEvent e) {
-        resetSelection(e.canvasContext());
-        writeStartIdxToModel(e.pixelXPos(), e.pixelYPos(), e.canvasContext());
+        startSelection(e.canvasContext(), e.pixelXPos(), e.pixelYPos());
+    }
+
+    private void startSelection(CanvasContext canvasContext, double pixelXPos, double pixelYPos) {
+        resetSelection(canvasContext);
+        writeStartIdxToModel(pixelXPos, pixelYPos, canvasContext);
         selectState.set(SelectState.SELECTING);
     }
 
@@ -126,6 +155,14 @@ public class SelectViewModel extends ToolViewModel {
 
     private double idxToY(int yIdx, CanvasContext context) {
         return yIdx * context.getZoomFactor();
+    }
+
+    public int getTopLeftIdxXWithOffset() {
+        return model.getTopLeftXWithOffset(offsetX.get());
+    }
+
+    public int getTopLeftIdxYWithOffset() {
+        return model.getTopLeftYWithOffset(offsetY.get());
     }
 
     public enum SelectState {
@@ -224,5 +261,21 @@ public class SelectViewModel extends ToolViewModel {
 
     public BooleanProperty isMouseInSelectAreaProperty() {
         return isMouseInSelectArea;
+    }
+
+    public void setOnCopy(Runnable onCopy) {
+        this.onCopy.set(onCopy);
+    }
+
+    public void setOnPaste(Runnable onPaste) {
+        this.onPaste.set(onPaste);
+    }
+
+    public void notifyCopy() {
+        onCopy.get().run();
+    }
+
+    public void notifyPaste() {
+        onPaste.get().run();
     }
 }

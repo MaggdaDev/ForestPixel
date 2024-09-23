@@ -157,6 +157,12 @@ public class CanvasView extends BorderPane {
                     case Y:
                         viewModel.redo();
                         break;
+                    case V:
+                        viewModel.paste();
+                        break;
+                    case C:
+                        viewModel.copy();
+                        break;
                 }
             }
         });

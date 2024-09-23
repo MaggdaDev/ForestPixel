@@ -2,6 +2,7 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -85,6 +86,10 @@ public class PreviewImage {
     }
 
     // End: DRAWING
+
+    public Image getAreaAsImage(int xStart, int yStart, int width, int height) {
+        return new WritableImage(image.getPixelReader(), sourceXToPreview(xStart), sourceYToPreview(yStart), width, height);
+    }
 
 
     public Stream<Point> getDeletedPoints() {

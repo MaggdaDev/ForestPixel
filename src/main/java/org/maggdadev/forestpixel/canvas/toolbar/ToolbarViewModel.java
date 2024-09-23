@@ -4,8 +4,7 @@ import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
-import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
-import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
+import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.models.*;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.*;
@@ -22,6 +21,7 @@ public class ToolbarViewModel {
     private final IntegerProperty lineWidth = new SimpleIntegerProperty(1);
 
     private final List<ToolViewModel> toolViewModelList;
+    private final SelectViewModel selectViewModel;
 
     public ToolbarViewModel(CanvasContext context, BiConsumer<Double, Double> moveCanvasFunction) {
         color.bindBidirectional(context.colorProperty());
@@ -39,32 +39,22 @@ public class ToolbarViewModel {
             }
         });
 
+        selectViewModel = new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty(), context.mouseInSelectAreaProperty());
         toolViewModelList = List.of(
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel(false), ToolType.PENCIL), // pencil
                 new BucketViewModel(new BucketModel()),
                 new PipetViewModel(new PipetModel(), this),
                 new FreeHandDrawingToolViewModel(new FreeHandDrawingToolModel(true), ToolType.RUBBER),  // rubber
                 new MoveViewModel(new MoveModel(), context.mouseInSelectAreaProperty(), moveCanvasFunction),
-                new SelectViewModel(new SelectModel(), context.previewOffsetXProperty(), context.previewOffsetYProperty(), context.zoomFactorProperty(), context.mouseInSelectAreaProperty()),
+                selectViewModel,
                 new LineViewModel(new LineModel())
                 );
 
     }
 
-    public void notifyAllToolsSelectionCancelled(CanvasMouseEvent event) {
-        CanvasMouseEvent cancelEvent = new CanvasMouseEvent(event.canvasModel(), event.pixelXPos(), event.pixelYPos(),  event.xIdx(), event.yIdx(), CanvasMouseEvent.ActionType.SELECTION_CANCELLED, event.buttonType(), event.canvasContext());
+    public void notifyAllToolsCanvasEvent(CanvasEvent e) {
         for(ToolViewModel toolViewModel : toolViewModelList) {
-            toolViewModel.notifyCanvasMouseEvent(cancelEvent);
-        }
-        CanvasMouseEvent afterCancelEvent = new CanvasMouseEvent(event.canvasModel(), event.pixelXPos(), event.pixelYPos(),  event.xIdx(), event.yIdx(), CanvasMouseEvent.ActionType.AFTER_SELECTION_CANCELLED, event.buttonType(), event.canvasContext());
-        for(ToolViewModel toolViewModel : toolViewModelList) {
-            toolViewModel.notifyCanvasMouseEvent(afterCancelEvent);
-        }
-    }
-
-    public void notifyAllToolsZoom(CanvasZoomEvent event) {
-        for(ToolViewModel toolViewModel : toolViewModelList) {
-            toolViewModel.onZoomEvent(event);
+            toolViewModel.notifyCanvasEvent(e);
         }
     }
 
@@ -112,5 +102,9 @@ public class ToolbarViewModel {
 
     public BooleanProperty lineWidthPickerVisibleProperty() {
         return lineWidthPickerVisible;
+    }
+
+    public SelectViewModel getSelectViewModel() {
+        return selectViewModel;
     }
 }
