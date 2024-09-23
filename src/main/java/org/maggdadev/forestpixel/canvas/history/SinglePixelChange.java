@@ -1,7 +1,7 @@
 package org.maggdadev.forestpixel.canvas.history;
 
 import javafx.scene.paint.Color;
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
 public class SinglePixelChange extends CanvasChange {
@@ -11,7 +11,7 @@ public class SinglePixelChange extends CanvasChange {
 
     private final boolean isEmpty;
 
-    public SinglePixelChange(CanvasLayerModel model, Point point, Color color) {
+    public SinglePixelChange(LayerModel model, Point point, Color color) {
         super(model);
         this.point = point;
         this.newColor = color;

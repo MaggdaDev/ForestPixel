@@ -1,4 +1,4 @@
-package org.maggdadev.forestpixel.canvas.layersbar;
+package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Button;
@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 
 public class LayersBarView extends MinimizableVBox {
     private final Button addLayerButton = new Button("Add layer");
-    private final ListView<LayersBarItemViewModel> layersListView;
+    private final ListView<LayerViewModel> layersListView;
     private final LayersBarViewModel viewModel;
     private final LayersOpacityBox aboveLayersOpacityBox;
     private final LayersOpacityBox belowLayersOpacityBox;
@@ -18,14 +18,15 @@ public class LayersBarView extends MinimizableVBox {
         super("Layers");
         this.viewModel = viewModel;
         // ListView
-        layersListView = new ListView<>(viewModel.getLayers());
+        layersListView = new ListView<>(viewModel.getLayersViewModels().getLayersUnmodifiable());
         layersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         layersListView.setCellFactory((lv) -> new LayersBarItemView(viewModel));
         layersListView.setFixedCellSize(30);
-        layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> layersListView.getFixedCellSize() * viewModel.getLayers().size() + 5, viewModel.getLayers(), layersListView.fixedCellSizeProperty()));
+        layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
+                layersListView.getFixedCellSize() * viewModel.getLayersViewModels().getLayersUnmodifiable().size() + 5, viewModel.getLayersViewModels().getLayersUnmodifiable(), layersListView.fixedCellSizeProperty()));
 
         // Add layer
-        addLayerButton.setOnAction(e -> viewModel.addLayer());
+        addLayerButton.setOnAction(e -> viewModel.getLayersViewModels().addNewLayer());
         VBox addLayerBox = new VBox(addLayerButton);
         addLayerBox.setAlignment(javafx.geometry.Pos.CENTER);
         getContent().getChildren().addAll(layersListView, addLayerBox);

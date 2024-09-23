@@ -1,4 +1,4 @@
-package org.maggdadev.forestpixel.canvas.layersbar;
+package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;

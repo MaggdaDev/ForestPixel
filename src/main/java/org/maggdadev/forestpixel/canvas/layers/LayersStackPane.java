@@ -8,7 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 public class LayersStackPane extends StackPane {
-    private final ObservableMap<String, CanvasLayerView> layers = FXCollections.observableHashMap();
+    private final ObservableMap<String, LayerView> layers = FXCollections.observableHashMap();
 
     public LayersStackPane() {
         setMouseTransparent(true);
@@ -16,7 +16,7 @@ public class LayersStackPane extends StackPane {
             while (change.next()) {
                 if (change.wasAdded()) {
                     change.getAddedSubList().forEach(node -> {
-                        if (node instanceof CanvasLayerView canvasLayerView) {
+                        if (node instanceof LayerView canvasLayerView) {
                             layers.put(canvasLayerView.getLayerId(), canvasLayerView);
                         } else {
                             throw new RuntimeException("Only CanvasLayerView instances are allowed in LayersStackPane");
@@ -25,7 +25,7 @@ public class LayersStackPane extends StackPane {
                 }
                 if (change.wasRemoved()) {
                     for (Node node : change.getRemoved()) {
-                        if (node instanceof CanvasLayerView canvasLayerView) {
+                        if (node instanceof LayerView canvasLayerView) {
                             layers.remove(canvasLayerView.getLayerId());
                         } else {
                             throw new RuntimeException("Only CanvasLayerView instances are allowed in LayersStackPane");
@@ -34,7 +34,7 @@ public class LayersStackPane extends StackPane {
                 }
             }
         });
-        layers.addListener((MapChangeListener<? super String, ? super CanvasLayerView>) (change) -> {
+        layers.addListener((MapChangeListener<? super String, ? super LayerView>) (change) -> {
             if (change.wasAdded()) {
                 if (!getChildren().contains(change.getValueAdded())) {
                     getChildren().add(change.getValueAdded());
@@ -53,11 +53,11 @@ public class LayersStackPane extends StackPane {
         });
     }
 
-    public ObservableMap<String, CanvasLayerView> getLayers() {
+    public ObservableMap<String, LayerView> getLayers() {
         return layers;
     }
 
-    public void add(CanvasLayerView layer) {
+    public void add(LayerView layer) {
         layers.put(layer.getLayerId(), layer);
     }
 

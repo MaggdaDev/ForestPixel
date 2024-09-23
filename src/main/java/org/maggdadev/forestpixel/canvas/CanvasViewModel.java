@@ -2,27 +2,25 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableMap;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
-import org.maggdadev.forestpixel.canvas.layersbar.LayersBarItemViewModel;
-import org.maggdadev.forestpixel.canvas.layersbar.LayersBarViewModel;
+import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
+import org.maggdadev.forestpixel.canvas.layers.LayersBarViewModel;
+import org.maggdadev.forestpixel.canvas.layers.LayersViewModels;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 public class CanvasViewModel {
 
     private final CanvasModel model;
+
+    private final LayersViewModels layerViewModels;
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
-    private final ObservableMap<String, CanvasLayerViewModel> layers = FXCollections.observableHashMap();
-    private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(0);
     private final CanvasContext canvasContext;
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
     private final ToolbarViewModel toolBarViewModel;
@@ -49,9 +47,13 @@ public class CanvasViewModel {
         this.model = model;
         this.modelWidth.set(model.getWidthPixels());
         this.modelHeight.set(model.getHeightPixels());
+
+        flushModelToViewModel();
+
         canvasContext = new CanvasContext(previewImage, zoomScaleFactor);
         canvasZoomHandler = new CanvasZoomHandler(this);
-        this.toolBarViewModel = new ToolbarViewModel(canvasContext, canvasZoomHandler::moveCanvasBy);
+        toolBarViewModel = new ToolbarViewModel(canvasContext, canvasZoomHandler::moveCanvasBy);
+        layerViewModels = new LayersViewModels(model, canvasContext);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
 
@@ -82,32 +84,22 @@ public class CanvasViewModel {
         }, zoomScaleFactor, modelHeight, sourceStartIndexY));
 
         // Layers
-        layersBarViewModel = new LayersBarViewModel();
-        layersBarViewModel.getLayers().addListener(this::layersChangedListener);
+        layersBarViewModel = new LayersBarViewModel(layerViewModels);
         canvasContext.activeLayerIdProperty().bind(layersBarViewModel.activeLayerIdProperty());
-        activeLayerOrder.bind(Bindings.createIntegerBinding(() ->
-                layers.get(canvasContext.getActiveLayerId()) != null ? layers.get(canvasContext.getActiveLayerId()).orderProperty().get() : -1, canvasContext.activeLayerIdProperty(), layers));
+        canvasContext.activeLayerOrderProperty().bind(layerViewModels.activeLayerOrderProperty());
+        canvasContext.lowerLayersOpacityProperty().bind(layersBarViewModel.lowerLayersOpacityProperty());
+        canvasContext.upperLayersOpacityProperty().bind(layersBarViewModel.upperLayersOpacityProperty());
 
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
 
     }
 
-    private void layersChangedListener(ListChangeListener.Change<? extends LayersBarItemViewModel> change) {
-        while (change.next()) {
-            if (change.wasAdded()) {
-                change.getAddedSubList().forEach(item -> {
-                    addLayer(item.getId(), item.orderProperty());
-                });
-            }
-            if (change.wasRemoved()) {
-                change.getRemoved().forEach(item -> {
-                    removeLayer(item.getId());
-                });
-            }
-        }
+    private void flushModelToViewModel() {/*
+        model.forEachLayer(layer -> {
+            addLayer(layer.getLayerId(), new SimpleIntegerProperty(0));
+        });*/
     }
-
 
     private void handleCanvasMouseEvent(CanvasMouseEvent event) {
         if (activeToolViewModel.get() != null &&
@@ -409,21 +401,8 @@ public class CanvasViewModel {
         return canvasContext;
     }
 
-    public void addLayer(String layerId, IntegerProperty orderProperty) {
-        CanvasLayerViewModel addViewModel = new CanvasLayerViewModel(model.addLayer(layerId), orderProperty);
-        addViewModel.bindOpacity(activeLayerOrder, layersBarViewModel.upperLayersOpacityProperty(), layersBarViewModel.lowerLayersOpacityProperty());
-        layers.put(layerId, addViewModel);
+    public ObservableList<LayerViewModel> getLayersUnmodifiable() {
+        return layerViewModels.getLayersUnmodifiable();
     }
-
-    public void removeLayer(String layerId) {
-        layers.remove(layerId);
-        model.removeLayer(layerId);
-    }
-
-    public ObservableMap<String, CanvasLayerViewModel> getLayers() {
-        return layers;
-    }
-
-
 
 }

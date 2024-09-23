@@ -1,12 +1,12 @@
 package org.maggdadev.forestpixel.canvas.history;
 
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 
 public abstract class CanvasChange {
 
-    protected final CanvasLayerModel model;
+    protected final LayerModel model;
 
-    protected CanvasChange(CanvasLayerModel model) {
+    protected CanvasChange(LayerModel model) {
         this.model = model;
     }
 

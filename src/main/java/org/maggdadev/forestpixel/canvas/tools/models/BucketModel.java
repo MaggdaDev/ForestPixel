@@ -11,7 +11,7 @@ public class BucketModel extends ToolModel {
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
-        if (!canvasModel.hasLayers()) {
+        if (!canvasModel.hasLayers() || canvasContext.noLayerSelected()) {
             return;
         }
         WritableImage workingImage = new WritableImage(canvasModel.getPixelReaderForLayer(canvasContext.getActiveLayerId()), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());

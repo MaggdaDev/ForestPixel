@@ -11,7 +11,9 @@ import org.maggdadev.forestpixel.canvas.utils.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CanvasLayerModel {
+public class LayerModel {
+
+    private static int currentId = 0;
     private final int width, height;
     private final WritableImage image;
 
@@ -19,10 +21,10 @@ public class CanvasLayerModel {
 
     private int order;
 
-    public CanvasLayerModel(int width, int height, String layerId) {
+    public LayerModel(int width, int height) {
         this.width = width;
         this.height = height;
-        this.layerId = layerId;
+        this.layerId = String.valueOf(currentId++);
         image = new WritableImage(width, height);
     }
 

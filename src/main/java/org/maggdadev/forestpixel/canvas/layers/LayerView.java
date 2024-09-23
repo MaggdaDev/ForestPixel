@@ -8,14 +8,14 @@ import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 import org.maggdadev.forestpixel.canvas.PreviewImage;
 
-public class CanvasLayerView extends Canvas {
+public class LayerView extends Canvas {
 
     private final CanvasViewModel canvasViewModel;
-    private final CanvasLayerViewModel viewModel;
+    private final LayerViewModel viewModel;
 
     private WritableImage workingImage;
 
-    public CanvasLayerView(CanvasLayerViewModel viewModel, CanvasViewModel canvasViewModel) {
+    public LayerView(LayerViewModel viewModel, CanvasViewModel canvasViewModel) {
         this.canvasViewModel = canvasViewModel;
         this.viewModel = viewModel;
         widthProperty().bind(canvasViewModel.extendedCanvasPixelWidthProperty());
@@ -73,7 +73,7 @@ public class CanvasLayerView extends Canvas {
     }
 
     public String getLayerId() {
-        return viewModel.getLayerId();
+        return viewModel.getId();
     }
 
 

@@ -1,14 +1,12 @@
-package org.maggdadev.forestpixel.canvas.layersbar;
+package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
 public class LayersBarViewModel {
     private final BooleanProperty isExpanded = new SimpleBooleanProperty(true);
-    private final SwappableObservableArrayList<LayersBarItemViewModel> layers = new SwappableObservableArrayList<>();
+    private final LayersViewModels layersViewModels;
 
     private final StringProperty activeLayerProperty = new SimpleStringProperty("-1");
 
@@ -16,18 +14,10 @@ public class LayersBarViewModel {
 
     private final BooleanProperty moreThanOneLayer = new SimpleBooleanProperty(false);
 
-    public LayersBarViewModel() {
-        moreThanOneLayer.bind(Bindings.createIntegerBinding(layers::size, layers).greaterThan(1));
+    public LayersBarViewModel(LayersViewModels canvasLayerViewModels) {
+        this.layersViewModels = canvasLayerViewModels;
+        moreThanOneLayer.bind(Bindings.createIntegerBinding(() -> layersViewModels.getLayersUnmodifiable().size(), layersViewModels.getLayersUnmodifiable()).greaterThan(1));
     }
-
-
-    public void addLayer() {
-        LayersBarItemViewModel newLayer = new LayersBarItemViewModel("New layer", layers);
-        newLayer.setRequestFocusPending(true);
-        layers.add(newLayer);
-    }
-
-
     public void toggleExpanded() {
         isExpanded.set(!isExpanded.get());
     }
@@ -37,8 +27,8 @@ public class LayersBarViewModel {
         return isExpanded;
     }
 
-    public ObservableList<LayersBarItemViewModel> getLayers() {
-        return layers;
+    public LayersViewModels getLayersViewModels() {
+        return layersViewModels;
     }
 
     public ObservableValue<String> activeLayerIdProperty() {
@@ -49,8 +39,8 @@ public class LayersBarViewModel {
         activeLayerProperty.set(id);
     }
 
-    public void swapLayers(int index1, int index2) {
-        layers.swap(index1, index2);
+    public void swapLayers(String id1, String id2) {
+        layersViewModels.swap(id1, id2);
     }
 
     public double getUpperLayersOpacity() {

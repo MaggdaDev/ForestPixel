@@ -3,7 +3,6 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -13,10 +12,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerView;
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerViewModel;
+import org.maggdadev.forestpixel.canvas.layers.LayerView;
+import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
+import org.maggdadev.forestpixel.canvas.layers.LayersBarView;
 import org.maggdadev.forestpixel.canvas.layers.LayersStackPane;
-import org.maggdadev.forestpixel.canvas.layersbar.LayersBarView;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
@@ -121,14 +120,21 @@ public class CanvasView extends BorderPane {
             redrawAll();
         });
 
-        viewModel.getLayers().addListener((MapChangeListener<? super String, ? super CanvasLayerViewModel>) (mapChange) -> {
-            if (mapChange.wasAdded()) {
-                layersStackPane.add(new CanvasLayerView(mapChange.getValueAdded(), viewModel));
+        viewModel.getLayersUnmodifiable().addListener((ListChangeListener<? super LayerViewModel>) ((listChange) -> {
+            while (listChange.next()) {
+                if (listChange.wasAdded()) {
+                    listChange.getAddedSubList().forEach((layer) -> {
+                        layersStackPane.add(new LayerView(layer, viewModel));
+                    });
+                }
+                if (listChange.wasRemoved()) {
+                    for (LayerViewModel layer : listChange.getRemoved()) {
+                        layersStackPane.remove(layer.getId());
+                    }
+                }
             }
-            if (mapChange.wasRemoved()) {
-                layersStackPane.remove(mapChange.getKey());
-            }
-        });
+
+        }));
 
     }
 

@@ -1,4 +1,4 @@
-package org.maggdadev.forestpixel.canvas.layersbar;
+package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -16,7 +16,7 @@ import javafx.util.StringConverter;
 import javafx.util.Subscription;
 
 
-public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel> {
+public class LayersBarItemView extends TextFieldListCell<LayerViewModel> {
 
     private final RadioButton radioButton = new RadioButton();
 
@@ -30,6 +30,7 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
 
     private final LayersBarViewModel barViewModel;
 
+    private boolean isRequestFocusPending = false;
     public LayersBarItemView(LayersBarViewModel barViewModel) {
         this.barViewModel = barViewModel;
         radioButton.setMouseTransparent(true);
@@ -43,19 +44,19 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
 
         setConverter(new StringConverter<>() {
             @Override
-            public String toString(LayersBarItemViewModel object) {
+            public String toString(LayerViewModel object) {
                 return "";
             }
 
             @Override
-            public LayersBarItemViewModel fromString(String string) {
+            public LayerViewModel fromString(String string) {
                 return null;
             }
         });
     }
 
     @Override
-    public void updateItem(LayersBarItemViewModel viewModel, boolean empty) {
+    public void updateItem(LayerViewModel viewModel, boolean empty) {
         if (getItem() != null) {
             clearAll(getItem());
         }
@@ -84,17 +85,16 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
                     event.acceptTransferModes(TransferMode.ANY);
                 } else {
                     event.acceptTransferModes(TransferMode.MOVE);
-                    barViewModel.swapLayers(getItem().getOrder(),
-                            barViewModel.getLayers().filtered(item -> item.getId().equals(event.getDragboard().getString())).get(0).getOrder());
+                    barViewModel.swapLayers(getItem().getId(), event.getDragboard().getString());
                 }
 
             event.consume();
         });
 
-        if (viewModel.isRequestFocusPending()) {
+        if (isRequestFocusPending) {
             textField.requestFocus();
             textField.selectAll();
-            viewModel.setRequestFocusPending(false);
+            isRequestFocusPending = false;
         }
 
         textField.setOnAction(event -> {
@@ -104,10 +104,10 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
     }
 
     private void delete(ActionEvent e) {
-        getListView().getItems().remove(getItem());
+        barViewModel.getLayersViewModels().remove(getItem().getId());
     }
 
-    private void clearAll(LayersBarItemViewModel viewModel) {
+    private void clearAll(LayerViewModel viewModel) {
         textField.textProperty().unbindBidirectional(viewModel.nameProperty());
         radioButton.selectedProperty().unbind();
         setGraphic(null);
@@ -124,8 +124,8 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
         }
     }
 
-    private void refreshSelectedBinding(LayersBarItemViewModel viewModel) {
-        subscriptionOnViewModelSelected = viewModel.selectedProperty().subscribe(
+    private void refreshSelectedBinding(LayerViewModel viewModel) {
+        subscriptionOnViewModelSelected = viewModel.activeProperty().subscribe(
                 (newValue) -> {
                     if (newValue) {
                         getListView().getSelectionModel().select(viewModel);
@@ -136,10 +136,10 @@ public class LayersBarItemView extends TextFieldListCell<LayersBarItemViewModel>
                     }
                 });
         selectedProperty().addListener(listenerOnThisSelected =
-                (observable, oldValue, newValue) -> viewModel.setSelected(newValue));
+                (observable, oldValue, newValue) -> viewModel.setActive(newValue));
 
 
-        radioButton.selectedProperty().bind(viewModel.selectedProperty());
+        radioButton.selectedProperty().bind(viewModel.activeProperty());
     }
 
 

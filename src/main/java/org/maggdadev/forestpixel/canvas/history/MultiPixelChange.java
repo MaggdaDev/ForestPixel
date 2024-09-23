@@ -1,7 +1,7 @@
 package org.maggdadev.forestpixel.canvas.history;
 
 import javafx.scene.paint.Color;
-import org.maggdadev.forestpixel.canvas.layers.CanvasLayerModel;
+import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class MultiPixelChange extends CanvasChange {
     private final SinglePixelChange[] subChanges;
     private boolean isChange = false;
 
-    public MultiPixelChange(CanvasLayerModel model, List<Point> points, List<Color> colors) {
+    public MultiPixelChange(LayerModel model, List<Point> points, List<Color> colors) {
         super(model);
         if(colors.size() != points.size()) {
             throw new IllegalArgumentException("Points (" + points.size() + ") must be of same length as colors (" + colors.size() + ")!");
