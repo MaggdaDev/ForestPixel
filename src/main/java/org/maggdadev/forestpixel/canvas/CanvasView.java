@@ -120,6 +120,9 @@ public class CanvasView extends BorderPane {
             redrawAll();
         });
 
+        for (LayerViewModel layerViewModel : viewModel.getLayersUnmodifiable()) {
+            layersStackPane.add(new LayerView(layerViewModel, viewModel));
+        }
         viewModel.getLayersUnmodifiable().addListener((ListChangeListener<? super LayerViewModel>) ((listChange) -> {
             while (listChange.next()) {
                 if (listChange.wasAdded()) {
