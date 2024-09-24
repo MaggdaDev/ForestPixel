@@ -1,10 +1,7 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.*;
 import javafx.scene.input.ScrollEvent;
 
 public class ZoomManager {
@@ -18,6 +15,8 @@ public class ZoomManager {
     private final IntegerProperty drawSourceWidth = new SimpleIntegerProperty(), drawSourceHeight = new SimpleIntegerProperty();
     private final DoubleProperty drawDestinationX = new SimpleDoubleProperty(), drawDestinationY = new SimpleDoubleProperty();
     private final DoubleProperty drawDestinationWidth = new SimpleDoubleProperty(), drawDestinationHeight = new SimpleDoubleProperty();
+
+    private final BooleanProperty xAllVisible = new SimpleBooleanProperty(true), yAllVisible = new SimpleBooleanProperty(true);
 
     public ZoomManager(CanvasViewModel viewModel) {
         this.viewModel = viewModel;
@@ -45,6 +44,13 @@ public class ZoomManager {
 
         drawDestinationWidth.bind(drawSourceWidth.multiply(zoomScaleFactor));
         drawDestinationHeight.bind(drawSourceHeight.multiply(zoomScaleFactor));
+
+        xAllVisible.bind(Bindings.createBooleanBinding(
+                () -> viewModel.getModelWidth() <= sceneToIdx(viewModel.getAvailableViewportWidth()),
+                viewModel.modelWidthProperty(), viewModel.availableViewportWidthProperty(), zoomScaleFactor));
+        yAllVisible.bind(Bindings.createBooleanBinding(
+                () -> viewModel.getModelHeight() <= sceneToIdx(viewModel.getAvailableViewportHeight()),
+                viewModel.modelHeightProperty(), viewModel.availableViewportHeightProperty(), zoomScaleFactor));
     }
 
     public void handleZoomEvent(ScrollEvent e) {
@@ -68,12 +74,8 @@ public class ZoomManager {
         double newHVal = (modelEventX * deltaZoom + oldHVal * oldEffWidth) / newEffWidth;
         double newVVal = (modelEventY * deltaZoom + oldVVal * oldEffHeight) / newEffHeight;
 
-
-        newHVal = Math.max(0, Math.min(1, newHVal));
-        newVVal = Math.max(0, Math.min(1, newVVal));
-
-        zoomHValue.set(viewModel.getModelWidth() > sceneToIdx(viewModel.getAvailableViewportWidth()) ? newHVal : 0);
-        zoomVValue.set(viewModel.getModelHeight() > sceneToIdx(viewModel.getAvailableViewportHeight()) ? newVVal : 0);
+        zoomHValue.set(xAllVisible.get() ? 0 : restrictZoomValue(newHVal));
+        zoomVValue.set(yAllVisible.get() ? 0 : restrictZoomValue(newVVal));
     }
 
     private double calculateEffectiveDimension(double modelDimension, double zoomFactor, double canvasDimension) {
@@ -81,8 +83,16 @@ public class ZoomManager {
     }
 
     public void moveCanvasBy(double deltaX, double deltaY) {
-        zoomHValue.set(zoomHValue.get() - getZoomScaleFactor() * deltaX / calculateEffectiveDimension(viewModel.getModelWidth(), getZoomScaleFactor(), CanvasView.CANVAS_WIDTH));
-        zoomVValue.set(zoomVValue.get() - getZoomScaleFactor() * deltaY / calculateEffectiveDimension(viewModel.getModelHeight(), getZoomScaleFactor(), CanvasView.CANVAS_HEIGHT));
+        if (!xAllVisible.get()) {
+            zoomHValue.set(restrictZoomValue(zoomHValue.get() - getZoomScaleFactor() * deltaX / calculateEffectiveDimension(viewModel.getModelWidth(), getZoomScaleFactor(), CanvasView.CANVAS_WIDTH)));
+        }
+        if (!yAllVisible.get()) {
+            zoomVValue.set(restrictZoomValue(zoomVValue.get() - getZoomScaleFactor() * deltaY / calculateEffectiveDimension(viewModel.getModelHeight(), getZoomScaleFactor(), CanvasView.CANVAS_HEIGHT)));
+        }
+    }
+
+    private double restrictZoomValue(double zoomValue) {
+        return Math.max(0.0, Math.min(zoomValue, 1.0));
     }
 
     public int sceneToIdx(double s) {
