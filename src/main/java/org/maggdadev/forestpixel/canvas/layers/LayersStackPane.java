@@ -5,12 +5,14 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.scene.Node;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
-public class LayersStackPane extends StackPane {
+public class LayersStackPane extends Pane {
     private final ObservableMap<String, LayerView> layers = FXCollections.observableHashMap();
 
     public LayersStackPane() {
+        setBorder(new Border(new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         setMouseTransparent(true);
         getChildren().addListener((ListChangeListener.Change<? extends Node> change) -> {
             while (change.next()) {

@@ -1,6 +1,5 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -16,31 +15,17 @@ import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 public class CanvasViewModel {
-
     private final CanvasModel model;
-
+    private final DoubleProperty availableViewportWidth = new SimpleDoubleProperty(0), availableViewportHeight = new SimpleDoubleProperty(0);
     private final LayersViewModels layerViewModels;
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
     private final CanvasContext canvasContext;
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
     private final ToolbarViewModel toolBarViewModel;
     private final LayersBarViewModel layersBarViewModel;
-    private final CanvasZoomHandler canvasZoomHandler;
-    private final DoubleProperty zoomHValue = new SimpleDoubleProperty(0);
-    private final DoubleProperty zoomVValue = new SimpleDoubleProperty(0);
-    private final DoubleProperty modelWidth = new SimpleDoubleProperty(0);
-    private final DoubleProperty modelHeight = new SimpleDoubleProperty(0);
-    private final DoubleProperty zoomScaleFactor = new SimpleDoubleProperty(1);
+    private final IntegerProperty modelWidth = new SimpleIntegerProperty(0), modelHeight = new SimpleIntegerProperty(0);
     private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
-    private final DoubleProperty viewportPosX = new SimpleDoubleProperty();
-    private final DoubleProperty viewportPosY = new SimpleDoubleProperty();
-    private final DoubleProperty quantizedViewportX = new SimpleDoubleProperty();
-    private final DoubleProperty quantizedViewportY = new SimpleDoubleProperty();
-    private final IntegerProperty sourceStartIndexX = new SimpleIntegerProperty();
-    private final IntegerProperty sourceStartIndexY = new SimpleIntegerProperty();
-    private final IntegerProperty extendedCanvasPixelWidth = new SimpleIntegerProperty();
-    private final IntegerProperty extendedCanvasPixelHeight = new SimpleIntegerProperty();
-
+    private final ZoomManager zoomManager;
     private final CopyPasteManager copyPasteManager;
 
     public CanvasViewModel(CanvasModel model) {
@@ -48,40 +33,12 @@ public class CanvasViewModel {
         this.modelWidth.set(model.getWidthPixels());
         this.modelHeight.set(model.getHeightPixels());
 
-        flushModelToViewModel();
-
-        canvasContext = new CanvasContext(previewImage, zoomScaleFactor);
-        canvasZoomHandler = new CanvasZoomHandler(this);
-        toolBarViewModel = new ToolbarViewModel(canvasContext, canvasZoomHandler::moveCanvasBy);
+        zoomManager = new ZoomManager(this);
+        canvasContext = new CanvasContext(previewImage, zoomManager.zoomScaleFactorProperty());
+        toolBarViewModel = new ToolbarViewModel(canvasContext, zoomManager::moveCanvasBy);
         layerViewModels = new LayersViewModels(model, canvasContext);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
-
-        viewportPosX.bind(Bindings.multiply(zoomHValueProperty(), Bindings.subtract(Bindings.multiply(zoomScaleFactorProperty(), modelWidth), CanvasView.CANVAS_WIDTH)));           // effective width and height
-        viewportPosY.bind(Bindings.multiply(zoomVValueProperty(), Bindings.subtract(Bindings.multiply(zoomScaleFactorProperty(), modelHeight), CanvasView.CANVAS_HEIGHT)));
-
-        sourceStartIndexX.bind(Bindings.createIntegerBinding(() -> {
-            int leftExtra = sceneToIdx(getViewportPosX()) > 0 ? 1 : 0;
-            return sceneToIdx(getViewportPosX() - leftExtra);
-        }, modelWidth, zoomScaleFactor, viewportPosX));
-        sourceStartIndexY.bind(Bindings.createIntegerBinding(() -> {
-            int topExtra = sceneToIdx(getViewportPosY()) > 0 ? 1 : 0;
-            return sceneToIdx(getViewportPosY() - topExtra);
-        }, modelHeight, zoomScaleFactor, viewportPosY));
-        quantizedViewportX.bind(Bindings.multiply(zoomScaleFactor, sourceStartIndexX));
-        quantizedViewportY.bind(Bindings.multiply(zoomScaleFactor, sourceStartIndexY));
-
-        extendedCanvasPixelWidth.bind(Bindings.createIntegerBinding(() -> {
-            int leftExtra = sceneToIdx(getViewportPosX()) > 0 ? 1 : 0;
-            int rightExtra = (getSourceStartIndexX() + canvasWidthToIdx()) < getModelWidthPixels() ? 1 : 0;
-            return Math.round((float) ((canvasWidthToIdx() + leftExtra + rightExtra) * getZoomScaleFactor()));
-        }, zoomScaleFactor, modelWidth, sourceStartIndexX));
-
-        extendedCanvasPixelHeight.bind(Bindings.createIntegerBinding(() -> {
-            int topExtra = sceneToIdx(getViewportPosY()) > 0 ? 1 : 0;
-            int botExtra = (getSourceStartIndexY() + canvasHeightToIdx()) < getModelHeightPixels() ? 1 : 0;
-            return Math.round((float) ((canvasHeightToIdx() + topExtra + botExtra) * getZoomScaleFactor()));
-        }, zoomScaleFactor, modelHeight, sourceStartIndexY));
 
         // Layers
         layersBarViewModel = new LayersBarViewModel(layerViewModels);
@@ -93,12 +50,6 @@ public class CanvasViewModel {
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
 
-    }
-
-    private void flushModelToViewModel() {/*
-        model.forEachLayer(layer -> {
-            addLayer(layer.getLayerId(), new SimpleIntegerProperty(0));
-        });*/
     }
 
     private void handleCanvasMouseEvent(CanvasMouseEvent event) {
@@ -179,7 +130,6 @@ public class CanvasViewModel {
     }
 
 
-
     ToolbarViewModel getToolBarViewModel() {
         return toolBarViewModel;
     }
@@ -229,110 +179,46 @@ public class CanvasViewModel {
     }
 
     private void sendFireCanvasEvent(MouseEvent e, CanvasMouseEvent.ActionType aType, CanvasMouseEvent.ButtonType bType) {
-        handleCanvasMouseEvent(new CanvasMouseEvent(model, e.getX(), e.getY(), xPosToIdx(e.getX()), yPosToIdx(e.getY()), aType, bType, canvasContext));
+        handleCanvasMouseEvent(new CanvasMouseEvent(model, e.getX(), e.getY(), zoomManager.sceneToIdx(e.getX()), zoomManager.sceneToIdx(e.getY()), aType, bType, canvasContext));
     }
 
     public EventHandler<ScrollEvent> getOnCanvasZoom() {
         return (ScrollEvent e) -> {
             if (e.isControlDown()) {
-                canvasZoomHandler.handleZoomEvent(e);
+                zoomManager.handleZoomEvent(e);
                 handleZoomEvent(new CanvasZoomEvent(canvasContext));
                 e.consume();
             }
         };
     }
 
-
-
-// START: Calculations/conversions
-
-    public int xPosToIdx(double xPos) {
-        return (int) (xPos / getZoomScaleFactor());
-    }
-
-    public int yPosToIdx(double yPos) {
-        return (int) (yPos / getZoomScaleFactor());
-    }
-
-    public int sceneToIdx(double s) {
-        return (int) (s / getZoomScaleFactor());
-    }
-
-    private int canvasWidthToIdx() {
-        return Math.round((float) (CanvasView.CANVAS_WIDTH / getZoomScaleFactor()));
-    }
-
-    private int canvasHeightToIdx() {
-        return Math.round((float) (CanvasView.CANVAS_HEIGHT / getZoomScaleFactor()));
-    }
-
-    public int getModelWidthPixels() {
-        return Math.round((float) (getModelWidth() / getZoomScaleFactor()));
-    }
-
-    public int getModelHeightPixels() {
-        return Math.round((float) (getModelHeight() / getZoomScaleFactor()));
-    }
-
-// END: CALCULATIONS/conversions
-
-
-// start: get/set
-
-    public ObjectProperty<CanvasState> canvasStateProperty() {
-        return canvasContext.stateProperty();
-    }
-
+    // start: get/set
     public CanvasState getCanvasState() {
         return canvasContext.getState();
     }
 
-    public DoubleProperty zoomHValueProperty() {
-        return zoomHValue;
-    }
-
-    public DoubleProperty zoomVValueProperty() {
-        return zoomVValue;
-    }
-
     public DoubleProperty zoomScaleFactorProperty() {
-        return zoomScaleFactor;
+        return zoomManager.zoomScaleFactorProperty();
     }
 
-    public double getModelWidth() {
+    public int getModelWidth() {
         return modelWidth.get();
     }
 
-    public DoubleProperty modelWidthProperty() {
+    public IntegerProperty modelWidthProperty() {
         return modelWidth;
     }
 
-    public double getModelHeight() {
+    public int getModelHeight() {
         return modelHeight.get();
     }
 
-    public DoubleProperty modelHeightProperty() {
+    public IntegerProperty modelHeightProperty() {
         return modelHeight;
     }
 
     public double getZoomScaleFactor() {
-        return zoomScaleFactor.get();
-    }
-
-    public double getZoomHValue() {
-        return zoomHValue.get();
-    }
-
-    public double getZoomVValue() {
-        return zoomVValue.get();
-    }
-
-    public void setZoomHValue(double zoomHValue) {
-        this.zoomHValue.set(zoomHValue);
-    }
-
-    public void setZoomVValue(double zoomVValue) {
-        this.zoomVValue.set(zoomVValue);
+        return zoomManager.getZoomScaleFactor();
     }
 
     public BooleanProperty viewNeedsUpdateProperty() {
@@ -343,55 +229,18 @@ public class CanvasViewModel {
         this.viewNeedsUpdate.set(viewNeedsUpdate);
     }
 
-    public double getViewportPosX() {
-        return viewportPosX.get();
-    }
-
-    public double getViewportPosY() {
-        return viewportPosY.get();
-    }
-
-    public DoubleProperty quantizedViewportXProperty() {
-        return quantizedViewportX;
-    }
-
-    public DoubleProperty quantizedViewportYProperty() {
-        return quantizedViewportY;
-    }
-
     public int getSourceStartIndexX() {
-        return sourceStartIndexX.get();
+        return zoomManager.getSourceStartIndexX();
     }
 
 
     public int getSourceStartIndexY() {
-        return sourceStartIndexY.get();
-    }
-
-    public int getExtendedCanvasPixelWidth() {
-        return extendedCanvasPixelWidth.get();
-    }
-
-    public IntegerProperty extendedCanvasPixelWidthProperty() {
-        return extendedCanvasPixelWidth;
-    }
-
-    public int getExtendedCanvasPixelHeight() {
-        return extendedCanvasPixelHeight.get();
-    }
-
-    public IntegerProperty extendedCanvasPixelHeightProperty() {
-        return extendedCanvasPixelHeight;
+        return zoomManager.getSourceStartIndexY();
     }
 
     public PreviewImage getPreviewImage() {
         return previewImage.get();
     }
-
-    public ObjectProperty<PreviewImage> previewImageProperty() {
-        return previewImage;
-    }
-
 
     public LayersBarViewModel getLayersBarViewModel() {
         return layersBarViewModel;
@@ -404,5 +253,34 @@ public class CanvasViewModel {
     public ObservableList<LayerViewModel> getLayersUnmodifiable() {
         return layerViewModels.getLayersUnmodifiable();
     }
+
+    public double getAvailableViewportWidth() {
+        return availableViewportWidth.get();
+    }
+
+    public DoubleProperty availableViewportWidthProperty() {
+        return availableViewportWidth;
+    }
+
+    public double getAvailableViewportHeight() {
+        return availableViewportHeight.get();
+    }
+
+    public DoubleProperty availableViewportHeightProperty() {
+        return availableViewportHeight;
+    }
+
+    public DoubleProperty zoomHValueProperty() {
+        return zoomManager.zoomHValueProperty();
+    }
+
+    public DoubleProperty zoomVValueProperty() {
+        return zoomManager.zoomVValueProperty();
+    }
+
+    public ZoomManager getCanvasZoomHandler() {
+        return zoomManager;
+    }
+
 
 }

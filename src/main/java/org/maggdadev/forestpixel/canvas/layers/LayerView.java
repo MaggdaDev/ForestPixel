@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 import org.maggdadev.forestpixel.canvas.PreviewImage;
+import org.maggdadev.forestpixel.canvas.ZoomManager;
 
 public class LayerView extends Canvas {
 
@@ -18,10 +19,26 @@ public class LayerView extends Canvas {
     public LayerView(LayerViewModel viewModel, CanvasViewModel canvasViewModel) {
         this.canvasViewModel = canvasViewModel;
         this.viewModel = viewModel;
-        widthProperty().bind(canvasViewModel.extendedCanvasPixelWidthProperty());
-        heightProperty().bind(canvasViewModel.extendedCanvasPixelHeightProperty());
-        layoutXProperty().bind(canvasViewModel.quantizedViewportXProperty());
-        layoutYProperty().bind(canvasViewModel.quantizedViewportYProperty());
+//        widthProperty().bind(canvasViewModel.extendedCanvasPixelWidthProperty());
+//        heightProperty().bind(canvasViewModel.extendedCanvasPixelHeightProperty());
+        widthProperty().bind(canvasViewModel.availableViewportWidthProperty());
+        heightProperty().bind(canvasViewModel.availableViewportHeightProperty());
+//        layoutXProperty().bind(canvasViewModel.quantizedViewportXProperty());
+//        layoutYProperty().bind(canvasViewModel.quantizedViewportYProperty());
+        // add change listeners to print width, height and layoutX, layoutY
+        widthProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("width changed from " + oldValue + " to " + newValue);
+        });
+        heightProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("height changed from " + oldValue + " to " + newValue);
+        });
+        layoutXProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("layoutX changed from " + oldValue + " to " + newValue);
+        });
+        layoutYProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("layoutY changed from " + oldValue + " to " + newValue);
+        });
+
         opacityProperty().bind(viewModel.opacityProperty());
         getGraphicsContext2D().setImageSmoothing(false);
         setMouseTransparent(true);
@@ -32,15 +49,26 @@ public class LayerView extends Canvas {
     private void drawImage(Image image) {
         int leftExtra = canvasViewModel.getSourceStartIndexX() > 0 ? 1 : 0;
         int topExtra = canvasViewModel.getSourceStartIndexY() > 0 ? 1 : 0;
+        ZoomManager zh = canvasViewModel.getCanvasZoomHandler();
         getGraphicsContext2D().drawImage(image,
+                zh.getDrawSourceX(),
+                zh.getDrawSourceY(),
+                zh.getDrawSourceWidth(),
+                zh.getDrawSourceHeight(),
+                zh.getDrawDestinationX(),
+                zh.getDrawDestinationY(),
+                zh.getDrawDestinationWidth(),
+                zh.getDrawDestinationHeight());
+
+                /*
                 canvasViewModel.getSourceStartIndexX() - 1,
                 canvasViewModel.getSourceStartIndexY() - 1,
                 canvasViewModel.getExtendedCanvasPixelWidth(),
                 canvasViewModel.getExtendedCanvasPixelHeight(),
-                -leftExtra * canvasViewModel.getZoomScaleFactor(),
-                -topExtra * canvasViewModel.getZoomScaleFactor(),
+                -canvasViewModel.getZoomScaleFactor(),
+                -canvasViewModel.getZoomScaleFactor(),
                 ((double) canvasViewModel.getExtendedCanvasPixelWidth()) * canvasViewModel.getZoomScaleFactor(),
-                ((double) canvasViewModel.getExtendedCanvasPixelHeight()) * canvasViewModel.getZoomScaleFactor());
+                ((double) canvasViewModel.getExtendedCanvasPixelHeight()) * canvasViewModel.getZoomScaleFactor());*/
     }
 
     public void redraw(CanvasContext canvasContext) {
@@ -58,6 +86,8 @@ public class LayerView extends Canvas {
         } else {
             drawImage(viewModel.getDrawableImage());
         }
+        getGraphicsContext2D().setFill(Color.RED);
+        getGraphicsContext2D().fillRect(-10, -10, 20, 20);
     }
 
     public void drawPreviewImage(PreviewImage previewImage) {

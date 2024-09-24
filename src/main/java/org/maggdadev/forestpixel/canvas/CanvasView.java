@@ -17,7 +17,6 @@ import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarView;
 import org.maggdadev.forestpixel.canvas.layers.LayersStackPane;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
-import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -26,35 +25,26 @@ import java.util.Objects;
 public class CanvasView extends BorderPane {
     public final static double CANVAS_WIDTH = 1000;
     public final static double CANVAS_HEIGHT = 300;
-    private final ToolbarView toolBarView;
-
-    private final LayersBarView layersBarView;
-    private final VBox leftSideBar, rightSideBar;
-
-    private ToolViewModel activeToolViewModel;
     private final CanvasViewModel viewModel;
-
     private final Pane placeHolderPane;
     private final ScrollPane canvasScrollPane;
-
     private final LayersStackPane layersStackPane = new LayersStackPane();
 
     public CanvasView(CanvasViewModel viewModel) {
         this.viewModel = viewModel;
-        leftSideBar = new VBox();
-        rightSideBar = new VBox();
+        VBox leftSideBar = new VBox();
+        VBox rightSideBar = new VBox();
 
         placeHolderPane = new Pane();
         placeHolderPane.setPickOnBounds(true);
         placeHolderPane.setPadding(Insets.EMPTY);
         placeHolderPane.setMouseTransparent(false);
-        toolBarView = new ToolbarView(viewModel.getToolBarViewModel());
+        placeHolderPane.setBorder(new Border(new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
+        ToolbarView toolBarView = new ToolbarView(viewModel.getToolBarViewModel());
         leftSideBar.getChildren().add(toolBarView);
 
-        layersBarView = new LayersBarView(viewModel.getLayersBarViewModel());
+        LayersBarView layersBarView = new LayersBarView(viewModel.getLayersBarViewModel());
         rightSideBar.getChildren().add(layersBarView);
-
-        StackPane canvasStack = new StackPane(layersStackPane, placeHolderPane);
 
         placeHolderPane.getChildren().addAll(toolBarView.getAdditionalToolNodesOnCanvas()); // keep children updated according to additional nodes on canvas
         toolBarView.getAdditionalToolNodesOnCanvas().addListener((ListChangeListener<? super Node>) (listChange) -> {
@@ -67,18 +57,13 @@ public class CanvasView extends BorderPane {
             }
         });
 
-        canvasScrollPane = new ScrollPane(canvasStack);
+        canvasScrollPane = new ScrollPane(placeHolderPane);
         canvasScrollPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         canvasScrollPane.setPickOnBounds(true);
-        placeHolderPane.setOnMousePressed((e) -> {
-            System.out.println("Your mom");
-        });
-        placeHolderPane.widthProperty().subscribe((newVal) -> {
-            System.out.println("Width: " + newVal);
-        });
 
         setLeft(leftSideBar);
-        setCenter(canvasScrollPane);
+        setCenter(new StackPane(canvasScrollPane, layersStackPane));
+
         setRight(rightSideBar);
         setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         HBox.setHgrow(leftSideBar, Priority.NEVER);
@@ -88,8 +73,6 @@ public class CanvasView extends BorderPane {
         createBindings();
 
         viewModel.update();
-
-
     }
 
 
@@ -99,6 +82,8 @@ public class CanvasView extends BorderPane {
 
         canvasScrollPane.hvalueProperty().bindBidirectional(viewModel.zoomHValueProperty());
         canvasScrollPane.vvalueProperty().bindBidirectional(viewModel.zoomVValueProperty());
+        viewModel.availableViewportHeightProperty().bind(canvasScrollPane.viewportBoundsProperty().map(Bounds::getHeight));
+        viewModel.availableViewportWidthProperty().bind(canvasScrollPane.viewportBoundsProperty().map(Bounds::getWidth));
 
         viewModel.zoomScaleFactorProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
