@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
@@ -72,6 +73,10 @@ public class CanvasViewModel {
 
     private void handleZoomEvent(CanvasZoomEvent event) {
         toolBarViewModel.notifyAllToolsCanvasEvent(event);
+    }
+
+    public void notifyKeyPressed(KeyCode code) {
+        toolBarViewModel.notifyKeyPressed(code);
     }
 
 

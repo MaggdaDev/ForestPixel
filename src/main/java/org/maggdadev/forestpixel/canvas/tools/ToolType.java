@@ -1,22 +1,27 @@
 package org.maggdadev.forestpixel.canvas.tools;
 
+import javafx.scene.input.KeyCode;
+
 public enum ToolType {
-    PENCIL(true, true),
-    BUCKET(true),
-    LINE(true, true),
-    MOVE(false),
-    PIPET(true),
-    RUBBER(false, true),
-    SELECT(false);
+    PENCIL(KeyCode.D, true, true),
+    BUCKET(KeyCode.F, true),
+    LINE(KeyCode.L, true, true),
+    MOVE(KeyCode.M, false),
+    PIPET(KeyCode.P, true),
+    RUBBER(KeyCode.R, false, true),
+    SELECT(KeyCode.S, false);
 
     public final boolean USES_COLOR, USES_LINE_WIDTH;
 
-    ToolType(boolean usesColor, boolean usesLineWidth) {
+    public final KeyCode DEFAULT_SHORTCUT;
+
+    ToolType(KeyCode defaultShortCut, boolean usesColor, boolean usesLineWidth) {
+        DEFAULT_SHORTCUT = defaultShortCut;
         USES_COLOR = usesColor;
         USES_LINE_WIDTH = usesLineWidth;
     }
 
-    ToolType(boolean usesColor) {
-        this(usesColor, false);
+    ToolType(KeyCode defaultShortCut, boolean usesColor) {
+        this(defaultShortCut, usesColor, false);
     }
 }

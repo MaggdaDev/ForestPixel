@@ -1,5 +1,8 @@
 package org.maggdadev.forestpixel.canvas.tools.viewmodels;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.input.KeyCode;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
@@ -11,12 +14,14 @@ public abstract class ToolViewModel {
     private final ToolType toolType;
     private final boolean requestMouseEventsEvenIfSelected;
 
+    private final ObjectProperty<KeyCode> shortcutKey = new SimpleObjectProperty<>();
 
     ToolViewModel(ToolType toolType) {
         this(toolType, false);
     }
 
     ToolViewModel(ToolType toolType, boolean requestMouseEventsEvenIfSelected) {
+        shortcutKey.set(toolType.DEFAULT_SHORTCUT);
         this.toolType = toolType;
         this.requestMouseEventsEvenIfSelected = requestMouseEventsEvenIfSelected;
     }
@@ -101,4 +106,11 @@ public abstract class ToolViewModel {
     public void onZoomEvent(CanvasZoomEvent event) {
     }
 
+    public KeyCode getShortcutKey() {
+        return shortcutKey.get();
+    }
+
+    public ObjectProperty<KeyCode> shortcutKeyProperty() {
+        return shortcutKey;
+    }
 }

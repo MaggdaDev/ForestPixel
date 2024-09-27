@@ -161,6 +161,8 @@ public class CanvasView extends BorderPane {
                         viewModel.cut();
                         break;
                 }
+            } else {
+                viewModel.notifyKeyPressed(e.getCode());
             }
         });
 

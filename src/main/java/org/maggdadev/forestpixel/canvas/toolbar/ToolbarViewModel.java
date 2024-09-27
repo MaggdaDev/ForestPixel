@@ -2,6 +2,7 @@ package org.maggdadev.forestpixel.canvas.toolbar;
 
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.events.CanvasEvent;
@@ -50,6 +51,15 @@ public class ToolbarViewModel {
                 new LineViewModel(new LineModel())
                 );
 
+    }
+
+    public void notifyKeyPressed(KeyCode code) {
+        for (ToolViewModel toolViewModel : toolViewModelList) {
+            if (toolViewModel.getShortcutKey() == code) {
+                setActiveToolViewModel(toolViewModel);
+                break;
+            }
+        }
     }
 
     public void notifyAllToolsCanvasEvent(CanvasEvent e) {

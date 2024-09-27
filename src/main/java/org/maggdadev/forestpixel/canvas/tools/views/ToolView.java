@@ -1,9 +1,12 @@
 package org.maggdadev.forestpixel.canvas.tools.views;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import org.maggdadev.forestpixel.canvas.tools.ToolType;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 import org.maggdadev.forestpixel.io.Images;
@@ -27,6 +30,10 @@ public class ToolView extends ToggleButton {
 
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(BUTTON_SIZE);
+
+        setTooltip(new Tooltip(null));
+        getTooltip().textProperty().bind(Bindings.createStringBinding(() -> "Shortcut: " + viewModel.getShortcutKey().getName(), viewModel.shortcutKeyProperty()));
+        getTooltip().setShowDelay(Duration.seconds(0.3));
 
         setGraphic(imageView);
         setPrefSize(BUTTON_SIZE, BUTTON_SIZE);
