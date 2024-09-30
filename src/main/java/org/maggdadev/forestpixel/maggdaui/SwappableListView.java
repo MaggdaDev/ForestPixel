@@ -17,14 +17,12 @@ import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 public class SwappableListView<T extends Selectable> extends ListView<T> {
     private final Callback<T, Node> contentFactory;
     private final SwappableObservableArrayList<T> items;
-
     public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory) {
         super(items);
         this.contentFactory = contentFactory;
         this.items = items;
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setCellFactory(param -> new SwappableListCell());
-
     }
 
     private void swapLayers(String id1, String id2) {
@@ -56,7 +54,6 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
         private final RadioButton radioButton = new RadioButton();
 
         private Subscription subscriptionOnItemSelected = null;
-        private Subscription subscriptionOnCellCelected = null;
 
         public SwappableListCell() {
             radioButton.setMouseTransparent(true);
@@ -80,20 +77,21 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                     remove(getItem().getId());
                 }
             });
+            getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && getItem() != null) {
+                    getItem().selectedProperty().set(getItem().getId().equals(newValue.getId()));
+                }
+            });
         }
 
         @Override
         public void updateItem(T item, boolean empty) {
             super.updateItem(item, empty);
+            if (subscriptionOnItemSelected != null) {
+                subscriptionOnItemSelected.unsubscribe();
+                subscriptionOnItemSelected = null;
+            }
             if (empty) {
-                if (subscriptionOnItemSelected != null) {
-                    subscriptionOnItemSelected.unsubscribe();
-                    subscriptionOnItemSelected = null;
-                }
-                if (subscriptionOnCellCelected != null) {
-                    subscriptionOnCellCelected.unsubscribe();
-                    subscriptionOnCellCelected = null;
-                }
                 setGraphic(null);
                 return;
             }
@@ -110,9 +108,6 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                         getSelectionModel().clearSelection();
                     }
                 }
-            });
-            subscriptionOnCellCelected = selectedProperty().subscribe((newValue) -> {
-                item.selectedProperty().set(newValue);
             });
             setOnDragDetected(event -> {
                 if (isEmpty()) {
