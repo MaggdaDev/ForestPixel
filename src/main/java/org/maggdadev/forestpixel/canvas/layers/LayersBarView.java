@@ -2,13 +2,13 @@ package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import org.maggdadev.forestpixel.maggdaui.SwappableListView;
 
 public class LayersBarView extends MinimizableVBox {
     private final Button addLayerButton = new Button("Add layer");
-    private final ListView<LayerViewModel> layersListView;
+    private final SwappableListView<LayerViewModel> layersListView;
     private final LayersBarViewModel viewModel;
     private final LayersOpacityBox aboveLayersOpacityBox;
     private final LayersOpacityBox belowLayersOpacityBox;
@@ -18,9 +18,12 @@ public class LayersBarView extends MinimizableVBox {
         super("Layers");
         this.viewModel = viewModel;
         // ListView
-        layersListView = new ListView<>(viewModel.getLayersViewModels().getLayersUnmodifiable());
-        layersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        layersListView.setCellFactory((lv) -> new LayersBarItemView(viewModel));
+        layersListView = new SwappableListView<>(viewModel.getLayersViewModels().getLayers(), (v) -> {
+            TextField textField = new TextField();
+            textField.textProperty().bindBidirectional(v.nameProperty());
+            textField.setOnAction(e -> textField.getParent().requestFocus());
+            return textField;
+        });
         layersListView.setFixedCellSize(30);
         layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
                 layersListView.getFixedCellSize() * viewModel.getLayersViewModels().getLayersUnmodifiable().size() + 5, viewModel.getLayersViewModels().getLayersUnmodifiable(), layersListView.fixedCellSizeProperty()));

@@ -5,14 +5,15 @@ import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.*;
 import javafx.scene.image.Image;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
+import org.maggdadev.forestpixel.canvas.utils.Selectable;
 
-public class LayerViewModel {
+public class LayerViewModel implements Selectable {
 
     private final LayerModel model;
     private final IntegerProperty order = new SimpleIntegerProperty(0);
     private final StringProperty name = new SimpleStringProperty("new layer");
     private final DoubleProperty opacity = new SimpleDoubleProperty(1.0);
-    private final BooleanProperty active = new SimpleBooleanProperty(false);
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
     public LayerViewModel(LayerModel model) {
         this.model = model;
@@ -39,6 +40,7 @@ public class LayerViewModel {
         return model.getImage();
     }
 
+    @Override
     public String getId() {
         return model.getLayerId();
     }
@@ -67,16 +69,17 @@ public class LayerViewModel {
         this.name.set(name);
     }
 
-    public boolean isActive() {
-        return active.get();
+    public boolean getSelected() {
+        return selected.get();
     }
 
-    public BooleanProperty activeProperty() {
-        return active;
+    @Override
+    public BooleanProperty selectedProperty() {
+        return selected;
     }
 
-    public void setActive(boolean active) {
-        this.active.set(active);
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
     }
 
     public int getOrder() {

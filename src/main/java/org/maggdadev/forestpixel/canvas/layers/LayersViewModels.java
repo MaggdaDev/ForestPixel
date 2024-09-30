@@ -29,7 +29,17 @@ public class LayersViewModels {
                 if (change.wasAdded() || change.wasRemoved()) {
                     refreshBindings();
                     if (activeLayerOrder.get() == -1 && !layers.isEmpty()) {
-                        layers.getFirst().setActive(true);
+                        layers.getFirst().setSelected(true);
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (LayerViewModel layer : change.getRemoved()) {
+                        cleanup(layer.getId());
+                    }
+                }
+                if (change.wasAdded()) {
+                    for (LayerViewModel newLayer : change.getAddedSubList()) {
+                        newLayer.createBindings(context, Bindings.createIntegerBinding(() -> layers.indexOf(newLayer), layers));
                     }
                 }
             }
@@ -42,11 +52,11 @@ public class LayersViewModels {
         activeLayerOrder.unbind();
         BooleanProperty[] layersSelectedProperties = new BooleanProperty[layers.size()];
         for (int i = 0; i < layers.size(); i++) {
-            layersSelectedProperties[i] = layers.get(i).activeProperty();
+            layersSelectedProperties[i] = layers.get(i).selectedProperty();
         }
         activeLayerId.bind(Bindings.createStringBinding(() -> {
             for (LayerViewModel layer : layers) {
-                if (layer.isActive()) {
+                if (layer.getSelected()) {
                     return layer.getId();
                 }
             }
@@ -72,7 +82,6 @@ public class LayersViewModels {
 
     public void addExistingLayer(LayerModel existingModel) {
         LayerViewModel newLayer = new LayerViewModel(existingModel);
-        newLayer.createBindings(context, Bindings.createIntegerBinding(() -> layers.indexOf(newLayer), layers));
         layers.add(newLayer);
     }
 
@@ -97,6 +106,10 @@ public class LayersViewModels {
         return layersUnmodifiable;
     }
 
+    public SwappableObservableArrayList<LayerViewModel> getLayers() {
+        return layers;
+    }
+
     public int getActiveLayerOrder() {
         return activeLayerOrder.get();
     }
@@ -114,14 +127,21 @@ public class LayersViewModels {
     }
 
     public void setActiveLayerId(String activeLayerId) {
-        getById(activeLayerId).setActive(true);
+        getById(activeLayerId).setSelected(true);
     }
 
     public void remove(String id) {
-        if (getById(id).isActive()) {
-            getById(id).setActive(false);
-        }
         layers.remove(getById(id));
+    }
+
+    private void cleanup(String id) {
+        if (getById(id) == null) {
+            return;
+        }
+        if (getById(id).getSelected()) {
+            getById(id).setSelected(false);
+        }
+        ;
         canvasModel.removeLayer(id);
     }
 }
