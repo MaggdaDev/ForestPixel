@@ -35,7 +35,7 @@ public class FramePane extends StackPane {
         });
     }
 
-    public LayersStackPane getActiveLayersStackPane() {
+    public LayersStackPane getActiveLayersStackPane() {//
         return (LayersStackPane) getChildren().stream().filter((Node node) -> ((LayersStackPane) node).isVisible()).findFirst().orElse(null);
     }
 
