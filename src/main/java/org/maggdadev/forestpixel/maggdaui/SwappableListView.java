@@ -60,16 +60,14 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
             orientationProperty().subscribe((newValue) -> {
                 graphic.getChildren().clear();
                 if (newValue == Orientation.HORIZONTAL) {
-                    graphic.setTop(deleteButton);
-                    graphic.setBottom(radioButton);
-                    BorderPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
-                    BorderPane.setAlignment(radioButton, Pos.BOTTOM_CENTER);
+                    graphic.setTop(radioButton);
+                    graphic.setBottom(deleteButton);
                 } else {
                     graphic.setRight(deleteButton);
                     graphic.setLeft(radioButton);
-                    BorderPane.setAlignment(deleteButton, Pos.CENTER);
-                    BorderPane.setAlignment(radioButton, Pos.CENTER);
                 }
+                BorderPane.setAlignment(deleteButton, Pos.CENTER);
+                BorderPane.setAlignment(radioButton, Pos.CENTER);
             });
             deleteButton.visibleProperty().bind(Bindings.size(items).greaterThan(1));
             deleteButton.setOnAction(event -> {

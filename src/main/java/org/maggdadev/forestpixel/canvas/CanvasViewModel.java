@@ -9,6 +9,10 @@ import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
+import org.maggdadev.forestpixel.canvas.frames.FrameModel;
+import org.maggdadev.forestpixel.canvas.frames.FrameViewModel;
+import org.maggdadev.forestpixel.canvas.frames.FrameViewModels;
+import org.maggdadev.forestpixel.canvas.frames.FramesBarViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersViewModels;
@@ -24,6 +28,8 @@ public class CanvasViewModel {
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
     private final ToolbarViewModel toolBarViewModel;
     private final LayersBarViewModel layersBarViewModel;
+    private final FramesBarViewModel framesBarViewModel;
+    private final FrameViewModels frameViewModels;
     private final IntegerProperty modelWidth = new SimpleIntegerProperty(0), modelHeight = new SimpleIntegerProperty(0);
     private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
     private final ZoomManager zoomManager;
@@ -37,16 +43,21 @@ public class CanvasViewModel {
         zoomManager = new ZoomManager(this);
         canvasContext = new CanvasContext(previewImage, zoomManager.zoomScaleFactorProperty());
         toolBarViewModel = new ToolbarViewModel(canvasContext, zoomManager::moveCanvasBy);
-        layerViewModels = new LayersViewModels(model, canvasContext);
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
 
         // Layers
+        layerViewModels = new LayersViewModels(model, canvasContext);
         layersBarViewModel = new LayersBarViewModel(layerViewModels);
         canvasContext.activeLayerIdProperty().bind(layersBarViewModel.activeLayerIdProperty());
         canvasContext.activeLayerOrderProperty().bind(layerViewModels.activeLayerOrderProperty());
         canvasContext.lowerLayersOpacityProperty().bind(layersBarViewModel.lowerLayersOpacityProperty());
         canvasContext.upperLayersOpacityProperty().bind(layersBarViewModel.upperLayersOpacityProperty());
+
+        // Frames
+        frameViewModels = new FrameViewModels(model, canvasContext);
+        framesBarViewModel = new FramesBarViewModel(frameViewModels);
+        frameViewModels.getFrames().addAll(new FrameViewModel(new FrameModel()), new FrameViewModel(new FrameModel()));
 
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
@@ -249,6 +260,10 @@ public class CanvasViewModel {
 
     public LayersBarViewModel getLayersBarViewModel() {
         return layersBarViewModel;
+    }
+
+    public FramesBarViewModel getFramesBarViewModel() {
+        return framesBarViewModel;
     }
 
     public CanvasContext getCanvasContext() {

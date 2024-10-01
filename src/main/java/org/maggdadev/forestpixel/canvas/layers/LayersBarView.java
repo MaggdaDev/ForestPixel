@@ -4,15 +4,16 @@ import javafx.beans.binding.Bindings;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import org.maggdadev.forestpixel.maggdaui.MinimizableBox;
 import org.maggdadev.forestpixel.maggdaui.SwappableListView;
 
-public class LayersBarView extends MinimizableVBox {
+public class LayersBarView extends MinimizableBox {
     private final Button addLayerButton = new Button("Add layer");
     private final SwappableListView<LayerViewModel> layersListView;
     private final LayersBarViewModel viewModel;
     private final LayersOpacityBox aboveLayersOpacityBox;
     private final LayersOpacityBox belowLayersOpacityBox;
-    private final MinimizableVBox opacityBox;
+    private final MinimizableBox opacityBox;
 
     public LayersBarView(LayersBarViewModel viewModel) {
         super("Layers");
@@ -38,7 +39,7 @@ public class LayersBarView extends MinimizableVBox {
         aboveLayersOpacityBox = new LayersOpacityBox("Upper layers");
         belowLayersOpacityBox = new LayersOpacityBox("Lower layers");
 
-        opacityBox = new MinimizableVBox("Opacity of non-active layers");
+        opacityBox = new MinimizableBox("Opacity of non-active layers");
         opacityBox.addSeparatorAbove();
         opacityBox.getContent().getChildren().addAll(aboveLayersOpacityBox, belowLayersOpacityBox);
         getContent().getChildren().add(opacityBox);

@@ -2,6 +2,7 @@ package org.maggdadev.forestpixel.canvas;
 
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.frames.FrameModel;
 import org.maggdadev.forestpixel.canvas.history.HistoryModel;
 import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
 
 public class CanvasModel {
 
+    private final List<FrameModel> frames = new ArrayList<>();
     private final List<LayerModel> layers = new ArrayList<>();
     private int widthPixels = 0, heightPixels = 0;
 
@@ -105,5 +107,9 @@ public class CanvasModel {
 
     public void forEachLayer(Consumer<LayerModel> consumer) {
         layers.forEach(consumer);
+    }
+
+    public List<FrameModel> getFrames() {
+        return frames;
     }
 }

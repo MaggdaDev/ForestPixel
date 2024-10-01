@@ -12,6 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.frames.FramesBarView;
 import org.maggdadev.forestpixel.canvas.layers.LayerView;
 import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarView;
@@ -34,6 +35,7 @@ public class CanvasView extends BorderPane {
         this.viewModel = viewModel;
         VBox leftSideBar = new VBox();
         VBox rightSideBar = new VBox();
+        HBox bottomBar = new HBox();
 
         placeHolderPane = new Pane();
         placeHolderPane.setPickOnBounds(true);
@@ -45,6 +47,9 @@ public class CanvasView extends BorderPane {
 
         LayersBarView layersBarView = new LayersBarView(viewModel.getLayersBarViewModel());
         rightSideBar.getChildren().add(layersBarView);
+
+        FramesBarView framesBarView = new FramesBarView(viewModel.getFramesBarViewModel());
+        bottomBar.getChildren().add(framesBarView);
 
         placeHolderPane.getChildren().addAll(toolBarView.getAdditionalToolNodesOnCanvas()); // keep children updated according to additional nodes on canvas
         toolBarView.getAdditionalToolNodesOnCanvas().addListener((ListChangeListener<? super Node>) (listChange) -> {
@@ -63,8 +68,9 @@ public class CanvasView extends BorderPane {
 
         setLeft(leftSideBar);
         setCenter(new StackPane(canvasScrollPane, layersStackPane));
-
         setRight(rightSideBar);
+        setBottom(bottomBar);
+
         setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(1))));
         HBox.setHgrow(leftSideBar, Priority.NEVER);
 
