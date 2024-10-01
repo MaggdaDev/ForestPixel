@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
-import org.maggdadev.forestpixel.canvas.CanvasModel;
+import org.maggdadev.forestpixel.canvas.frames.FrameModel;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
 public class LayersViewModels {
@@ -17,13 +17,15 @@ public class LayersViewModels {
     private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(-1);
     private final StringProperty activeLayerId = new SimpleStringProperty("-1");
 
-    private final CanvasModel canvasModel;
+    private final FrameModel frameModel;
 
     private final CanvasContext context;
 
-    public LayersViewModels(CanvasModel canvasModel, CanvasContext context) {
-        this.canvasModel = canvasModel;
+    public LayersViewModels(FrameModel frameModel, CanvasContext context) {
+        this.frameModel = frameModel;
         this.context = context;
+
+        // Bindings, cleanup, and listeners
         layers.addListener((ListChangeListener<? super LayerViewModel>) (change) -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
@@ -44,7 +46,8 @@ public class LayersViewModels {
                 }
             }
         });
-        canvasModel.forEachLayer(this::addExistingLayer);
+        // Load from model
+        frameModel.getLayers().forEach(this::addExistingLayer);
     }
 
     private void refreshBindings() {
@@ -77,7 +80,7 @@ public class LayersViewModels {
      * Creates new LayerModel, adds it to canvas model, and adds a new CanvasLayerViewModel corresponding to it
      */
     public void addNewLayer() {
-        addExistingLayer(canvasModel.addLayer());
+        addExistingLayer(frameModel.addLayer());
     }
 
     public void addExistingLayer(LayerModel existingModel) {
@@ -142,6 +145,6 @@ public class LayersViewModels {
             getById(id).setSelected(false);
         }
         ;
-        canvasModel.removeLayer(id);
+        frameModel.removeLayer(id);
     }
 }

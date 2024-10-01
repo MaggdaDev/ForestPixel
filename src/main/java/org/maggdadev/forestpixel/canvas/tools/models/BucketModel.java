@@ -11,12 +11,12 @@ public class BucketModel extends ToolModel {
     @Override
     public void applyToPreview(CanvasModel canvasModel, CanvasContext canvasContext, int xIdx, int yIdx) {
         super.applyToPreview(canvasModel, canvasContext, xIdx, yIdx);
-        if (!canvasModel.hasLayers() || canvasContext.noLayerSelected()) {
+        if (!canvasModel.layerExists(canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId())) {
             return;
         }
-        WritableImage workingImage = new WritableImage(canvasModel.getPixelReaderForLayer(canvasContext.getActiveLayerId()), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());
+        WritableImage workingImage = new WritableImage(canvasModel.getPixelReaderForLayer(canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId()), canvasModel.getWidthPixels(), canvasModel.getHeightPixels());
 
-        Color startColor = canvasModel.getPixelColor(xIdx, yIdx, canvasContext.getActiveLayerId());
+        Color startColor = canvasModel.getPixelColor(xIdx, yIdx, canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId());
         Color fillColor = canvasContext.getColor();
         if ((!canvasModel.isOnCanvas(xIdx, yIdx)) || startColor.equals(fillColor))
             return;

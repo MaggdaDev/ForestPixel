@@ -19,6 +19,8 @@ public class CanvasContext {
 
     private final StringProperty activeLayerId = new SimpleStringProperty("-1");
 
+    private final StringProperty activeFrameId = new SimpleStringProperty("-1");
+
     private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(-1);
 
     private final DoubleProperty upperLayersOpacity = new SimpleDoubleProperty(1.0), lowerLayersOpacity = new SimpleDoubleProperty(1.0);
@@ -164,7 +166,15 @@ public class CanvasContext {
         return lowerLayersOpacity;
     }
 
-    public boolean noLayerSelected() {
-        return activeLayerId.get().equals("-1");
+    public String getActiveFrameId() {
+        return activeFrameId.get();
+    }
+
+    public StringProperty activeFrameIdProperty() {
+        return activeFrameId;
+    }
+
+    public void setActiveFrameId(String activeFrameId) {
+        this.activeFrameId.set(activeFrameId);
     }
 }

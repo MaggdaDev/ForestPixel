@@ -14,7 +14,7 @@ public abstract class ToolModel {
         if (canvasContext.getPreviewImage() == null) {
             return;
         }
-        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete(), canvasContext.getActiveLayerId());
+        canvasModel.applyPreviewImage(canvasContext.getPreviewImageAndDelete(), canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId());
     }
 
     protected void createPreviewImageIfNull(CanvasModel canvasModel, CanvasContext canvasContext) {

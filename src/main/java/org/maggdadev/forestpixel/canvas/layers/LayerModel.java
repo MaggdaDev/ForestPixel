@@ -17,14 +17,14 @@ public class LayerModel {
     private final int width, height;
     private final WritableImage image;
 
-    private final String layerId;
+    private final String id;
 
     private int order;
 
     public LayerModel(int width, int height) {
         this.width = width;
         this.height = height;
-        this.layerId = String.valueOf(currentId++);
+        this.id = String.valueOf(currentId++);
         image = new WritableImage(width, height);
     }
 
@@ -82,8 +82,8 @@ public class LayerModel {
         return image.getPixelReader();
     }
 
-    public String getLayerId() {
-        return layerId;
+    public String getId() {
+        return id;
     }
 
     public void setOrder(int i) {

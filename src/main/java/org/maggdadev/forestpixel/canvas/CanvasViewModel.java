@@ -1,7 +1,6 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.property.*;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -11,25 +10,22 @@ import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
 import org.maggdadev.forestpixel.canvas.frames.FrameModel;
 import org.maggdadev.forestpixel.canvas.frames.FrameViewModel;
-import org.maggdadev.forestpixel.canvas.frames.FrameViewModels;
 import org.maggdadev.forestpixel.canvas.frames.FramesBarViewModel;
-import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
+import org.maggdadev.forestpixel.canvas.frames.FramesViewModels;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarViewModel;
-import org.maggdadev.forestpixel.canvas.layers.LayersViewModels;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
 public class CanvasViewModel {
     private final CanvasModel model;
     private final DoubleProperty availableViewportWidth = new SimpleDoubleProperty(0), availableViewportHeight = new SimpleDoubleProperty(0);
-    private final LayersViewModels layerViewModels;
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
     private final CanvasContext canvasContext;
     private final ObjectProperty<ToolViewModel> activeToolViewModel = new SimpleObjectProperty<>();
     private final ToolbarViewModel toolBarViewModel;
     private final LayersBarViewModel layersBarViewModel;
     private final FramesBarViewModel framesBarViewModel;
-    private final FrameViewModels frameViewModels;
+    private final FramesViewModels framesViewModels;
     private final IntegerProperty modelWidth = new SimpleIntegerProperty(0), modelHeight = new SimpleIntegerProperty(0);
     private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
     private final ZoomManager zoomManager;
@@ -46,18 +42,28 @@ public class CanvasViewModel {
 
         activeToolViewModel.bind(toolBarViewModel.activeToolViewModelProperty());
 
+
+        // Frames
+        framesViewModels = new FramesViewModels(model, canvasContext);
+        framesBarViewModel = new FramesBarViewModel(framesViewModels);
+        framesViewModels.getFrames().addAll(new FrameViewModel(new FrameModel(getModelWidth(), getModelHeight()), canvasContext), new FrameViewModel(new FrameModel(getModelWidth(), getModelHeight()), canvasContext));
+
         // Layers
-        layerViewModels = new LayersViewModels(model, canvasContext);
-        layersBarViewModel = new LayersBarViewModel(layerViewModels);
-        canvasContext.activeLayerIdProperty().bind(layersBarViewModel.activeLayerIdProperty());
-        canvasContext.activeLayerOrderProperty().bind(layerViewModels.activeLayerOrderProperty());
+        layersBarViewModel = new LayersBarViewModel(framesViewModels);
+        layersBarViewModel.activeFrameIdProperty().bind(canvasContext.activeFrameIdProperty());
         canvasContext.lowerLayersOpacityProperty().bind(layersBarViewModel.lowerLayersOpacityProperty());
         canvasContext.upperLayersOpacityProperty().bind(layersBarViewModel.upperLayersOpacityProperty());
 
-        // Frames
-        frameViewModels = new FrameViewModels(model, canvasContext);
-        framesBarViewModel = new FramesBarViewModel(frameViewModels);
-        frameViewModels.getFrames().addAll(new FrameViewModel(new FrameModel()), new FrameViewModel(new FrameModel()));
+        canvasContext.activeLayerIdProperty().bind(framesViewModels.activeLayerIdProperty());
+        canvasContext.activeLayerOrderProperty().bind(framesViewModels.activeLayerOrderProperty());
+        canvasContext.activeFrameIdProperty().bind(framesViewModels.activeFrameIdProperty());
+
+        canvasContext.activeFrameIdProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Active frame id changed from " + oldValue + " to " + newValue);
+        });
+        canvasContext.activeLayerIdProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Active layer id changed from " + oldValue + " to " + newValue);
+        });
 
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
@@ -270,10 +276,6 @@ public class CanvasViewModel {
         return canvasContext;
     }
 
-    public ObservableList<LayerViewModel> getLayersUnmodifiable() {
-        return layerViewModels.getLayersUnmodifiable();
-    }
-
     public double getAvailableViewportWidth() {
         return availableViewportWidth.get();
     }
@@ -300,6 +302,10 @@ public class CanvasViewModel {
 
     public ZoomManager getCanvasZoomHandler() {
         return zoomManager;
+    }
+
+    public FramesViewModels getFramesViewModels() {
+        return framesViewModels;
     }
 
 

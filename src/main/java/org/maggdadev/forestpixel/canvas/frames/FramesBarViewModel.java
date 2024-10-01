@@ -3,17 +3,17 @@ package org.maggdadev.forestpixel.canvas.frames;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
 public class FramesBarViewModel {
-    private final FrameViewModels frameViewModels;
+    private final FramesViewModels framesViewModels;
 
-    public FramesBarViewModel(FrameViewModels frameViewModels) {
-        this.frameViewModels = frameViewModels;
+    public FramesBarViewModel(FramesViewModels framesViewModels) {
+        this.framesViewModels = framesViewModels;
     }
 
     public SwappableObservableArrayList<FrameViewModel> getFrames() {
-        return frameViewModels.getFrames();
+        return framesViewModels.getFrames();
     }
 
     public void addFrame() {
-        frameViewModels.addFrame();
+        framesViewModels.addFrame();
     }
 }

@@ -25,8 +25,8 @@ public class SelectModel extends ToolModel {
         int yEnd = Math.max(selectionStartIdxY, selectionEndIdxY);
         int width = xEnd - xStart;
         int height = yEnd - yStart;
-        canvasContext.getPreviewImage().setPixels(xStart, yStart, width, height, canvasModel.getPixelReaderForLayer(canvasContext.getActiveLayerId()), xStart, yStart);
-        canvasModel.eraseAreaForSelection(xStart, yStart, width, height, canvasContext.getActiveLayerId());
+        canvasContext.getPreviewImage().setPixels(xStart, yStart, width, height, canvasModel.getPixelReaderForLayer(canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId()), xStart, yStart);
+        canvasModel.eraseAreaForSelection(xStart, yStart, width, height, canvasContext.getActiveFrameId(), canvasContext.getActiveLayerId());
     }
 
 

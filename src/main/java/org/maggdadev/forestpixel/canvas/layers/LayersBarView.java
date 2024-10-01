@@ -8,7 +8,6 @@ import org.maggdadev.forestpixel.maggdaui.MinimizableBox;
 import org.maggdadev.forestpixel.maggdaui.SwappableListView;
 
 public class LayersBarView extends MinimizableBox {
-    private final Button addLayerButton = new Button("Add layer");
     private final SwappableListView<LayerViewModel> layersListView;
     private final LayersBarViewModel viewModel;
     private final LayersOpacityBox aboveLayersOpacityBox;
@@ -19,18 +18,21 @@ public class LayersBarView extends MinimizableBox {
         super("Layers");
         this.viewModel = viewModel;
         // ListView
-        layersListView = new SwappableListView<>(viewModel.getLayersViewModels().getLayers(), (v) -> {
+        layersListView = new SwappableListView<>(viewModel.getCurrentLayers(), (v) -> {
             TextField textField = new TextField();
             textField.textProperty().bindBidirectional(v.nameProperty());
             textField.setOnAction(e -> textField.getParent().requestFocus());
             return textField;
         });
+        layersListView.setRemoveFunction(viewModel::removeLayer);
+        layersListView.setSwapFunction(viewModel::swapLayers);
         layersListView.setFixedCellSize(30);
         layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
-                layersListView.getFixedCellSize() * viewModel.getLayersViewModels().getLayersUnmodifiable().size() + 5, viewModel.getLayersViewModels().getLayersUnmodifiable(), layersListView.fixedCellSizeProperty()));
+                layersListView.getFixedCellSize() * viewModel.getCurrentLayers().size() + 5, viewModel.getCurrentLayers(), layersListView.fixedCellSizeProperty()));
 
         // Add layer
-        addLayerButton.setOnAction(e -> viewModel.getLayersViewModels().addNewLayer());
+        Button addLayerButton = new Button("Add layer");
+        addLayerButton.setOnAction(e -> viewModel.addNewLayer());
         VBox addLayerBox = new VBox(addLayerButton);
         addLayerBox.setAlignment(javafx.geometry.Pos.CENTER);
         getContent().getChildren().addAll(layersListView, addLayerBox);
@@ -49,10 +51,6 @@ public class LayersBarView extends MinimizableBox {
 
 
     private void createBindings() {
-        layersListView.visibleProperty().bind(viewModel.isExpandedProperty());
-        layersListView.managedProperty().bind(viewModel.isExpandedProperty());
-        addLayerButton.visibleProperty().bind(viewModel.isExpandedProperty());
-        addLayerButton.managedProperty().bind(viewModel.isExpandedProperty());
         layersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 viewModel.setActiveLayer(newValue.getId());

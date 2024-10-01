@@ -14,18 +14,37 @@ import javafx.util.Subscription;
 import org.maggdadev.forestpixel.canvas.utils.Selectable;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 public class SwappableListView<T extends Selectable> extends ListView<T> {
     private final Callback<T, Node> contentFactory;
     private final SwappableObservableArrayList<T> items;
-    public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory) {
+
+    private BiConsumer<String, String> swapFunction;
+    private Consumer<String> removeFunction;
+
+    public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory, BiConsumer<String, String> swapFunction, Consumer<String> removeFunction) {
         super(items);
+        if (swapFunction == null) {
+            swapFunction = this::defaultSwap;
+        }
+        if (removeFunction == null) {
+            removeFunction = this::defaultRemove;
+        }
+        this.swapFunction = swapFunction;
+        this.removeFunction = removeFunction;
         this.contentFactory = contentFactory;
         this.items = items;
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setCellFactory(param -> new SwappableListCell());
     }
 
-    private void swapLayers(String id1, String id2) {
+    public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory) {
+        this(items, contentFactory, null, null);
+    }
+
+    private void defaultSwap(String id1, String id2) {
         int idx1 = -1, idx2 = -1;
         int counter = 0;
         while (idx1 == -1 || idx2 == -1) {
@@ -43,7 +62,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
         return items.stream().filter(item -> item.getId().equals(id)).findFirst().orElse(null);
     }
 
-    private void remove(String id) {
+    private void defaultRemove(String id) {
         items.removeIf(item -> item.getId().equals(id));
     }
 
@@ -72,7 +91,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
             deleteButton.visibleProperty().bind(Bindings.size(items).greaterThan(1));
             deleteButton.setOnAction(event -> {
                 if (getItem() != null && getItems().size() > 1) {
-                    remove(getItem().getId());
+                    removeFunction.accept(getItem().getId());
                 }
             });
             getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -123,11 +142,19 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                         event.acceptTransferModes(TransferMode.ANY);
                     } else {
                         event.acceptTransferModes(TransferMode.MOVE);
-                        swapLayers(getItem().getId(), event.getDragboard().getString());
+                        swapFunction.accept(getItem().getId(), event.getDragboard().getString());
                     }
 
                 event.consume();
             });
         }
+    }
+
+    public void setSwapFunction(BiConsumer<String, String> swapFunction) {
+        this.swapFunction = swapFunction;
+    }
+
+    public void setRemoveFunction(Consumer<String> removeFunction) {
+        this.removeFunction = removeFunction;
     }
 }

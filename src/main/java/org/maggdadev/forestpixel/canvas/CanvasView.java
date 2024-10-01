@@ -12,11 +12,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.maggdadev.forestpixel.canvas.frames.FramePane;
 import org.maggdadev.forestpixel.canvas.frames.FramesBarView;
 import org.maggdadev.forestpixel.canvas.layers.LayerView;
-import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarView;
-import org.maggdadev.forestpixel.canvas.layers.LayersStackPane;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 
 import java.lang.reflect.Field;
@@ -29,7 +28,8 @@ public class CanvasView extends BorderPane {
     private final CanvasViewModel viewModel;
     private final Pane placeHolderPane;
     private final ScrollPane canvasScrollPane;
-    private final LayersStackPane layersStackPane = new LayersStackPane();
+
+    private final FramePane framePane;
 
     public CanvasView(CanvasViewModel viewModel) {
         this.viewModel = viewModel;
@@ -66,8 +66,10 @@ public class CanvasView extends BorderPane {
         canvasScrollPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         canvasScrollPane.setPickOnBounds(true);
 
+        framePane = new FramePane(viewModel);
+
         setLeft(leftSideBar);
-        setCenter(new StackPane(canvasScrollPane, layersStackPane));
+        setCenter(new StackPane(canvasScrollPane, framePane));
         setRight(rightSideBar);
         setBottom(bottomBar);
 
@@ -110,33 +112,21 @@ public class CanvasView extends BorderPane {
         canvasScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
         });
-
-        for (LayerViewModel layerViewModel : viewModel.getLayersUnmodifiable()) {
-            layersStackPane.add(new LayerView(layerViewModel, viewModel));
-        }
-        viewModel.getLayersUnmodifiable().addListener((ListChangeListener<? super LayerViewModel>) ((listChange) -> {
-            while (listChange.next()) {
-                if (listChange.wasAdded()) {
-                    listChange.getAddedSubList().forEach((layer) -> {
-                        layersStackPane.add(new LayerView(layer, viewModel));
-                    });
-                }
-                if (listChange.wasRemoved()) {
-                    for (LayerViewModel layer : listChange.getRemoved()) {
-                        layersStackPane.remove(layer.getId());
-                    }
-                }
-            }
-
-        }));
-
     }
 
     public void redrawAll() {
-        layersStackPane.getLayers().forEach((key, layer) -> {
-            layer.redraw(viewModel.getCanvasContext());
-            if (viewModel.getPreviewImage() != null && Objects.equals(viewModel.getCanvasContext().getActiveLayerId(), key)) {
-                layer.drawPreviewImage(viewModel.getPreviewImage());
+        if (framePane.getActiveLayersStackPane() == null) {
+            System.out.println("Trying to redraw but active layer stack pane cant be found!");
+            return;
+        }
+        framePane.getActiveLayersStackPane().getChildren().forEach((node) -> {
+            if (node instanceof LayerView layerView) {
+                layerView.redraw(viewModel.getCanvasContext());
+                if (viewModel.getPreviewImage() != null && Objects.equals(viewModel.getCanvasContext().getActiveLayerId(), layerView.getLayerId())) {
+                    layerView.drawPreviewImage(viewModel.getPreviewImage());
+                }
+            } else {
+                System.out.println("Node is not a layer view: " + node.toString());
             }
         });
     }

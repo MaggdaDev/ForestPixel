@@ -10,13 +10,12 @@ import org.maggdadev.forestpixel.canvas.utils.Point;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class CanvasModel {
 
     private final List<FrameModel> frames = new ArrayList<>();
-    private final List<LayerModel> layers = new ArrayList<>();
-    private int widthPixels = 0, heightPixels = 0;
+
+    private final int widthPixels, heightPixels;
 
     private final HistoryModel historyModel;
 
@@ -24,14 +23,13 @@ public class CanvasModel {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
         historyModel = new HistoryModel(this);
-        addLayer();
+        addFrame();
     }
 
-    public LayerModel addLayer() {
-        LayerModel layer = new LayerModel(widthPixels, heightPixels);
-        layers.add(layer);
-        return layer;
+    public void addFrame() {
+        frames.add(new FrameModel(widthPixels, heightPixels));
     }
+
 
     public void undo() {
         historyModel.undo();
@@ -46,9 +44,9 @@ public class CanvasModel {
      * @param y yIdx
      * @return returns the color at the position or null, if the position is out of range
      */
-    public Color getPixelColor(int x, int y, String layerId) {
+    public Color getPixelColor(int x, int y, String frameId, String layerId) {
         if (isOnCanvas(x, y)) {
-            return getLayer(layerId).getColorAt(x, y);
+            return getFrame(frameId).getLayer(layerId).getColorAt(x, y);
         } else {
             return null;
         }
@@ -66,48 +64,45 @@ public class CanvasModel {
         return heightPixels;
     }
 
-
-    public void applyPreviewImage(PreviewImage previewImage, String layerId) {
-        if (!layers.isEmpty() && !"-1".equals(layerId)) {
-            historyModel.applyNewChange(getLayer(layerId).previewImageToMultiPixelChange(previewImage));
+    public void applyPreviewImage(PreviewImage previewImage, String frameId, String layerId) {
+        if (!getFrame(frameId).getLayers().isEmpty() && !"-1".equals(layerId)) {
+            historyModel.applyNewChange(findLayer(frameId, layerId).previewImageToMultiPixelChange(previewImage));
         }
     }
 
+    private LayerModel findLayer(String frameId, String layerId) {
+        return getFrame(frameId).getLayer(layerId);
+    }
 
-    public void eraseAreaForSelection(int xStart, int yStart, int width, int height, String layerId) {
+    public void eraseAreaForSelection(int xStart, int yStart, int width, int height, String frameId, String layerId) {
         List<Point> points = new ArrayList<>();
         for (int i = xStart; i < xStart + width; i++) {
             for (int j = yStart; j < yStart + height; j++) {
                 points.add(new Point(i, j));
             }
         }
-        historyModel.applyNewChange(new SingleColorMultiPixelChange(getLayer(layerId), points, Color.TRANSPARENT));
+        historyModel.applyNewChange(new SingleColorMultiPixelChange(getFrame(frameId).getLayer(layerId), points, Color.TRANSPARENT));
     }
 
-    public PixelReader getPixelReaderForLayer(String layerId) {
-        return getLayer(layerId).getPixelReader();
+    public FrameModel getFrame(String frameId) {
+        return frames.stream()
+                .filter(frame -> frame.getId().equals(frameId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Frame with id " + frameId + " not found"));
     }
 
-    public boolean hasLayers() {
-        return !layers.isEmpty();
+    public PixelReader getPixelReaderForLayer(String frameId, String layerId) {
+        return findLayer(frameId, layerId).getPixelReader();
     }
 
-    private LayerModel getLayer(String layerId) {
-        for (LayerModel layer : layers) {
-            if (layer.getLayerId().equals(layerId)) {
-                return layer;
-            }
+    public boolean layerExists(String frameId, String layerId) {
+        if (frames.stream().noneMatch(frame -> frame.getId().equals(frameId))) {
+            return false;
         }
-        throw new IllegalArgumentException("Layer with id " + layerId + " not found");
+        return getFrame(frameId).getLayers().stream().anyMatch(layer -> layer.getId().equals(layerId));
     }
 
-    public void removeLayer(String id) {
-        layers.removeIf(layer -> layer.getLayerId().equals(id));
-    }
 
-    public void forEachLayer(Consumer<LayerModel> consumer) {
-        layers.forEach(consumer);
-    }
 
     public List<FrameModel> getFrames() {
         return frames;

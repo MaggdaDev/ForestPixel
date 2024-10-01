@@ -42,7 +42,7 @@ public class LayerViewModel implements Selectable {
 
     @Override
     public String getId() {
-        return model.getLayerId();
+        return model.getId();
     }
 
     public IntegerProperty orderProperty() {
@@ -87,4 +87,7 @@ public class LayerViewModel implements Selectable {
     }
 
 
+    public LayerModel getModel() {
+        return model;
+    }
 }
