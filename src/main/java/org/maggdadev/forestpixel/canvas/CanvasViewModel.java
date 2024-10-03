@@ -55,6 +55,12 @@ public class CanvasViewModel {
         canvasContext.activeLayerOrderProperty().bind(framesViewModels.activeLayerOrderProperty());
         canvasContext.activeFrameIdProperty().bind(framesViewModels.activeFrameIdProperty());
 
+        canvasContext.activeLayerIdProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.isEmpty() && !newValue.equals("-1")) {
+                update();
+            }
+        });
+
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
 
@@ -118,12 +124,18 @@ public class CanvasViewModel {
     // commands
 
     public void undo() {
-        model.undo();
+        if (canvasContext.noFrameSelected()) {
+            return;
+        }
+        model.undo(canvasContext.getActiveFrameId());
         update();
     }
 
     public void redo() {
-        model.redo();
+        if (canvasContext.noFrameSelected()) {
+            return;
+        }
+        model.redo(canvasContext.getActiveFrameId());
         update();
     }
 

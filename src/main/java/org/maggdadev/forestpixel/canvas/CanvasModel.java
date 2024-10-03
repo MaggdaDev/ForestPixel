@@ -3,7 +3,6 @@ package org.maggdadev.forestpixel.canvas;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.frames.FrameModel;
-import org.maggdadev.forestpixel.canvas.history.HistoryModel;
 import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import org.maggdadev.forestpixel.canvas.utils.Point;
@@ -17,12 +16,9 @@ public class CanvasModel {
 
     private final int widthPixels, heightPixels;
 
-    private final HistoryModel historyModel;
-
     public CanvasModel(int widthPixels, int heightPixels) {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-        historyModel = new HistoryModel(this);
         addNewFrame();
     }
 
@@ -37,12 +33,12 @@ public class CanvasModel {
     }
 
 
-    public void undo() {
-        historyModel.undo();
+    public void undo(String frameId) {
+        getFrame(frameId).undo();
     }
 
-    public void redo() {
-        historyModel.redo();
+    public void redo(String frameId) {
+        getFrame(frameId).redo();
     }
 
     /**
@@ -72,7 +68,7 @@ public class CanvasModel {
 
     public void applyPreviewImage(PreviewImage previewImage, String frameId, String layerId) {
         if (!getFrame(frameId).getLayers().isEmpty() && !"-1".equals(layerId)) {
-            historyModel.applyNewChange(findLayer(frameId, layerId).previewImageToMultiPixelChange(previewImage));
+            getFrame(frameId).applyNewChange(findLayer(frameId, layerId).previewImageToMultiPixelChange(previewImage));
         }
     }
 
@@ -87,7 +83,7 @@ public class CanvasModel {
                 points.add(new Point(i, j));
             }
         }
-        historyModel.applyNewChange(new SingleColorMultiPixelChange(getFrame(frameId).getLayer(layerId), points, Color.TRANSPARENT));
+        getFrame(frameId).applyNewChange(new SingleColorMultiPixelChange(getFrame(frameId).getLayer(layerId), points, Color.TRANSPARENT));
     }
 
     public FrameModel getFrame(String frameId) {
@@ -107,7 +103,6 @@ public class CanvasModel {
         }
         return getFrame(frameId).getLayers().stream().anyMatch(layer -> layer.getId().equals(layerId));
     }
-
 
 
     public List<FrameModel> getFrames() {

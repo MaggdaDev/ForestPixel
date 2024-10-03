@@ -1,5 +1,7 @@
 package org.maggdadev.forestpixel.canvas.frames;
 
+import org.maggdadev.forestpixel.canvas.history.CanvasChange;
+import org.maggdadev.forestpixel.canvas.history.HistoryModel;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 
 import java.util.ArrayList;
@@ -14,11 +16,18 @@ public class FrameModel {
 
     private final int widthPixels, heightPixels;
 
+    private final HistoryModel historyModel;
+
     public FrameModel(int widthPixels, int heightPixels) {
         id = String.valueOf(currentId++);
+        historyModel = new HistoryModel();
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
         addNewLayer();
+    }
+
+    public void applyNewChange(CanvasChange change) {
+        historyModel.applyNewChange(change);
     }
 
     public String getId() {
@@ -72,4 +81,15 @@ public class FrameModel {
     public void setName(String name) {
         this.name = name;
     }
+
+
+    public void undo() {
+        historyModel.undo();
+    }
+
+    public void redo() {
+        historyModel.redo();
+    }
+
+
 }

@@ -62,6 +62,10 @@ public class CanvasContext {
         return ret;
     }
 
+    public boolean noFrameSelected() {
+        return getActiveFrameId().equals("-1");
+    }
+
     public void setColor(Color color) {
         this.color.set(color);
     }
