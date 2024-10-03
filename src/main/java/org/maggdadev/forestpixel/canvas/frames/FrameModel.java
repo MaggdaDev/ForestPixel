@@ -16,21 +16,17 @@ public class FrameModel {
         id = String.valueOf(currentId++);
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-        addLayer();
+        addNewLayer();
     }
 
     public String getId() {
         return id;
     }
 
-    public LayerModel addLayer() {
+    public LayerModel addNewLayer() {
         LayerModel layer = new LayerModel(widthPixels, heightPixels);
-        addLayer(layer);
+        addNewLayer(layer);
         return layer;
-    }
-
-    public void addLayer(LayerModel layer) {
-        layers.add(layer);
     }
 
     public List<LayerModel> getLayers() {
@@ -48,5 +44,22 @@ public class FrameModel {
 
     public void removeLayer(String id) {
         layers.removeIf(layer -> layer.getId().equals(id));
+    }
+
+
+    public void addNewLayer(LayerModel layer) {
+        addExistingLayer(layer);
+    }
+
+    public void addExistingLayer(LayerModel model) {
+        layers.add(model);
+    }
+
+    public int getWidthPixels() {
+        return widthPixels;
+    }
+
+    public int getHeightPixels() {
+        return heightPixels;
     }
 }

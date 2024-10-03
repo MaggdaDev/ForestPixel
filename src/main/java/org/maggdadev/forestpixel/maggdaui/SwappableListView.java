@@ -95,7 +95,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                 }
             });
             getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null && getItem() != null) {
+                if (newValue != null && getItem() != null && getItems().contains(getItem())) {
                     getItem().selectedProperty().set(getItem().getId().equals(newValue.getId()));
                 }
             });

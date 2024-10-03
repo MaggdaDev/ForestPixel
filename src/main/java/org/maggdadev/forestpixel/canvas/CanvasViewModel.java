@@ -8,8 +8,6 @@ import javafx.scene.input.ScrollEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasMouseEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasSelectionCancelEvent;
 import org.maggdadev.forestpixel.canvas.events.CanvasZoomEvent;
-import org.maggdadev.forestpixel.canvas.frames.FrameModel;
-import org.maggdadev.forestpixel.canvas.frames.FrameViewModel;
 import org.maggdadev.forestpixel.canvas.frames.FramesBarViewModel;
 import org.maggdadev.forestpixel.canvas.frames.FramesViewModels;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarViewModel;
@@ -46,7 +44,6 @@ public class CanvasViewModel {
         // Frames
         framesViewModels = new FramesViewModels(model, canvasContext);
         framesBarViewModel = new FramesBarViewModel(framesViewModels);
-        framesViewModels.getFrames().addAll(new FrameViewModel(new FrameModel(getModelWidth(), getModelHeight()), canvasContext), new FrameViewModel(new FrameModel(getModelWidth(), getModelHeight()), canvasContext));
 
         // Layers
         layersBarViewModel = new LayersBarViewModel(framesViewModels);
@@ -57,13 +54,6 @@ public class CanvasViewModel {
         canvasContext.activeLayerIdProperty().bind(framesViewModels.activeLayerIdProperty());
         canvasContext.activeLayerOrderProperty().bind(framesViewModels.activeLayerOrderProperty());
         canvasContext.activeFrameIdProperty().bind(framesViewModels.activeFrameIdProperty());
-
-        canvasContext.activeFrameIdProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Active frame id changed from " + oldValue + " to " + newValue);
-        });
-        canvasContext.activeLayerIdProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Active layer id changed from " + oldValue + " to " + newValue);
-        });
 
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());

@@ -28,13 +28,6 @@ public class LayersBarViewModel {
 
 
     public LayersBarViewModel(FramesViewModels framesViewModels) {
-        layersViewModelsOfActiveFrame.bind(Bindings.createObjectBinding(() -> {
-            FrameViewModel activeFrame = framesViewModels.getActiveFrameViewModel();
-            if (activeFrame != null) {
-                return activeFrame.getLayersViewModels();
-            }
-            return null;
-        }, framesViewModels.activeFrameIdProperty()));
         layersViewModelsOfActiveFrame.subscribe((newValue) -> {
             if (newValue != null) {
                 moreThanOneLayer.unbind();
@@ -56,6 +49,13 @@ public class LayersBarViewModel {
                 currentLayers.clear();
             }
         });
+        layersViewModelsOfActiveFrame.bind(Bindings.createObjectBinding(() -> { // After change subscription such that it is initially called
+            FrameViewModel activeFrame = framesViewModels.getActiveFrameViewModel();
+            if (activeFrame != null) {
+                return activeFrame.getLayersViewModels();
+            }
+            return null;
+        }, framesViewModels.activeFrameIdProperty()));
     }
 
     public void addNewLayer() {

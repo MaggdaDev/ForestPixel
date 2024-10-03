@@ -48,4 +48,8 @@ public class FrameViewModel implements Selectable {
     public LayersViewModels getLayersViewModels() {
         return layersViewModels;
     }
+
+    public FrameModel getModel() {
+        return frameModel;
+    }
 }

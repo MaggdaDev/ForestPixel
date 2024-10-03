@@ -33,6 +33,10 @@ public class LayerViewModel implements Selectable {
                 return 1.0;
             }
         }, order, canvasContext.activeLayerOrderProperty(), canvasContext.upperLayersOpacityProperty(), canvasContext.lowerLayersOpacityProperty()));
+
+        selectedProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Layer with id " + getId() + " selected: " + newValue);
+        });
     }
 
 

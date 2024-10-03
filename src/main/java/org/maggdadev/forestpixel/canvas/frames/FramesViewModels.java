@@ -29,21 +29,23 @@ public class FramesViewModels {
                     if (activeFrameOrder.get() == -1 && !frames.isEmpty()) {
                         frames.getFirst().selectedProperty().set(true);
                     }
-                }
-                if (change.wasAdded()) {
-                    for (FrameViewModel frame : change.getAddedSubList()) {
-                        //
-                    }
-                }
-                if (change.wasAdded() || change.wasRemoved()) {
                     refreshBindings();
                 }
             }
         });
         model.getFrames().forEach(this::addFrame);
+        frames.addListener((ListChangeListener<? super FrameViewModel>) (change) -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    change.getAddedSubList().forEach(frameViewModel -> {
+                        model.addExistingFrame(frameViewModel.getModel());
+                    });
+                }
+            }
+        });
 
         activeFrameOrder.bind(Bindings.createIntegerBinding(() -> frames.indexOf(getActiveFrameViewModel()), frames, activeFrameId));
-        activeFrameId.addListener((observable, oldValue, newValue) -> {
+        activeFrameId.subscribe((newValue) -> {
             activeLayerId.unbind();
             activeLayerOrder.unbind();
             if (getActiveFrameViewModel() != null) {

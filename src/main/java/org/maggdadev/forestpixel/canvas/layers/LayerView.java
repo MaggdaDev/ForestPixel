@@ -19,25 +19,8 @@ public class LayerView extends Canvas {
     public LayerView(LayerViewModel viewModel, CanvasViewModel canvasViewModel) {
         this.canvasViewModel = canvasViewModel;
         this.viewModel = viewModel;
-//        widthProperty().bind(canvasViewModel.extendedCanvasPixelWidthProperty());
-//        heightProperty().bind(canvasViewModel.extendedCanvasPixelHeightProperty());
         widthProperty().bind(canvasViewModel.availableViewportWidthProperty());
         heightProperty().bind(canvasViewModel.availableViewportHeightProperty());
-//        layoutXProperty().bind(canvasViewModel.quantizedViewportXProperty());
-//        layoutYProperty().bind(canvasViewModel.quantizedViewportYProperty());
-        // add change listeners to print width, height and layoutX, layoutY
-        widthProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("width changed from " + oldValue + " to " + newValue);
-        });
-        heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("height changed from " + oldValue + " to " + newValue);
-        });
-        layoutXProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("layoutX changed from " + oldValue + " to " + newValue);
-        });
-        layoutYProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("layoutY changed from " + oldValue + " to " + newValue);
-        });
 
         opacityProperty().bind(viewModel.opacityProperty());
         getGraphicsContext2D().setImageSmoothing(false);
@@ -59,16 +42,6 @@ public class LayerView extends Canvas {
                 zh.getDrawDestinationY(),
                 zh.getDrawDestinationWidth(),
                 zh.getDrawDestinationHeight());
-
-                /*
-                canvasViewModel.getSourceStartIndexX() - 1,
-                canvasViewModel.getSourceStartIndexY() - 1,
-                canvasViewModel.getExtendedCanvasPixelWidth(),
-                canvasViewModel.getExtendedCanvasPixelHeight(),
-                -canvasViewModel.getZoomScaleFactor(),
-                -canvasViewModel.getZoomScaleFactor(),
-                ((double) canvasViewModel.getExtendedCanvasPixelWidth()) * canvasViewModel.getZoomScaleFactor(),
-                ((double) canvasViewModel.getExtendedCanvasPixelHeight()) * canvasViewModel.getZoomScaleFactor());*/
     }
 
     public void redraw(CanvasContext canvasContext) {

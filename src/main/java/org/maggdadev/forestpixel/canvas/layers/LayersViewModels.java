@@ -48,6 +48,21 @@ public class LayersViewModels {
         });
         // Load from model
         frameModel.getLayers().forEach(this::addExistingLayer);
+
+        layers.addListener((ListChangeListener<? super LayerViewModel>) (change) -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    change.getAddedSubList().forEach(layerViewModel -> {
+                        frameModel.addExistingLayer(layerViewModel.getModel());
+                    });
+                }
+                if (change.wasRemoved()) {
+                    change.getRemoved().forEach(layerViewModel -> {
+                        frameModel.removeLayer(layerViewModel.getId());
+                    });
+                }
+            }
+        });
     }
 
     private void refreshBindings() {
@@ -80,7 +95,7 @@ public class LayersViewModels {
      * Creates new LayerModel, adds it to canvas model, and adds a new CanvasLayerViewModel corresponding to it
      */
     public void addNewLayer() {
-        addExistingLayer(frameModel.addLayer());
+        layers.add(new LayerViewModel(new LayerModel(frameModel.getWidthPixels(), frameModel.getHeightPixels())));
     }
 
     public void addExistingLayer(LayerModel existingModel) {

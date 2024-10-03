@@ -23,11 +23,17 @@ public class CanvasModel {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
         historyModel = new HistoryModel(this);
-        addFrame();
+        addNewFrame();
     }
 
-    public void addFrame() {
-        frames.add(new FrameModel(widthPixels, heightPixels));
+    public FrameModel addNewFrame() {
+        FrameModel newModel = new FrameModel(widthPixels, heightPixels);
+        addExistingFrame(newModel);
+        return newModel;
+    }
+
+    public void addExistingFrame(FrameModel frameModel) {
+        frames.add(frameModel);
     }
 
 
