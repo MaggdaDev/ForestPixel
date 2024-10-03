@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.skin.ScrollPaneSkin;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
@@ -165,6 +166,13 @@ public class CanvasView extends BorderPane {
         canvasScrollPane.addEventFilter(ScrollEvent.SCROLL, (ScrollEvent e) -> { // prevent scroll pane usual scrolling when ctrl is down
             if (e.isControlDown()) {
                 viewModel.getOnCanvasZoom().handle(e);
+                e.consume();
+            }
+        });
+
+        canvasScrollPane.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
+            if (e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.UP || e.getCode() == KeyCode.DOWN) {
+                viewModel.notifyKeyPressed(e.getCode());
                 e.consume();
             }
         });

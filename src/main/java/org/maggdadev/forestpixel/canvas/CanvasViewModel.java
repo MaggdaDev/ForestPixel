@@ -84,6 +84,7 @@ public class CanvasViewModel {
 
     public void notifyKeyPressed(KeyCode code) {
         toolBarViewModel.notifyKeyPressed(code);
+        framesBarViewModel.notifyKeyPressed(code);
     }
 
 

@@ -111,4 +111,8 @@ public class FramesViewModels {
     public StringProperty activeLayerIdProperty() {
         return activeLayerId;
     }
+
+    public int getActiveFrameOrder() {
+        return activeFrameOrder.get();
+    }
 }

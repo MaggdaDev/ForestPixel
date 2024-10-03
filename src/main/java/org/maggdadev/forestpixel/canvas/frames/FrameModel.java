@@ -7,6 +7,8 @@ import java.util.List;
 
 public class FrameModel {
     private final String id;
+
+    private String name = "";
     private final List<LayerModel> layers = new ArrayList<>();
     private static int currentId = 0;
 
@@ -61,5 +63,13 @@ public class FrameModel {
 
     public int getHeightPixels() {
         return heightPixels;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -1,6 +1,7 @@
 package org.maggdadev.forestpixel.maggdaui;
 
 import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -99,6 +100,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                     getItem().selectedProperty().set(getItem().getId().equals(newValue.getId()));
                 }
             });
+            setPadding(new Insets(1));
         }
 
         @Override
