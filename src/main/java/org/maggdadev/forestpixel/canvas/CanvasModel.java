@@ -108,4 +108,8 @@ public class CanvasModel {
     public List<FrameModel> getFrames() {
         return frames;
     }
+
+    public void removeFrame(String id) {
+        frames.removeIf(frame -> frame.getId().equals(id));
+    }
 }

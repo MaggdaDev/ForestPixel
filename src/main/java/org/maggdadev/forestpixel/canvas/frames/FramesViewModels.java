@@ -41,6 +41,14 @@ public class FramesViewModels {
                         model.addExistingFrame(frameViewModel.getModel());
                     });
                 }
+                if (change.wasRemoved()) {
+                    change.getRemoved().forEach(frameViewModel -> {
+                        model.removeFrame(frameViewModel.getModel().getId());
+                    });
+                }
+                if (change.wasPermutated()) {
+                    SwappableObservableArrayList.applyPermutationsToList(model.getFrames(), change);
+                }
             }
         });
 

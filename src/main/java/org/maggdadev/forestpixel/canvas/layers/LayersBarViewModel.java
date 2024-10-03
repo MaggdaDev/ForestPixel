@@ -24,7 +24,7 @@ public class LayersBarViewModel {
 
     private final SwappableObservableArrayList<LayerViewModel> currentLayers = new SwappableObservableArrayList<>();
 
-    private ListChangeListener<LayerViewModel> currentListenerToViewModelLayers;
+    private ListChangeListener<? super LayerViewModel> currentListenerToViewModelLayers;
 
 
     public LayersBarViewModel(FramesViewModels framesViewModels) {
@@ -64,7 +64,7 @@ public class LayersBarViewModel {
         }
     }
 
-    private static ListChangeListener<LayerViewModel> createListChangeListener(SwappableObservableArrayList<LayerViewModel> listToUpdate) {
+    private static ListChangeListener<? super LayerViewModel> createListChangeListener(SwappableObservableArrayList<LayerViewModel> listToUpdate) {
         return (change) -> {
             while (change.next()) {
                 if (change.wasAdded()) {
@@ -76,18 +76,7 @@ public class LayersBarViewModel {
                     }
                 }
                 if (change.wasPermutated()) {
-                    int[] perm = new int[change.getTo() - change.getFrom()];
-                    for (int i = change.getFrom(); i < change.getTo(); i++) {
-                        perm[i - change.getFrom()] = change.getPermutation(i);
-                    }
-                    List<int[]> swaps = getSwaps(perm);
-                    for (int[] swap : swaps) {
-                        listToUpdate.swap(swap[0], swap[1]);
-                    }
-                    List<LayerViewModel> temp = new ArrayList<>(listToUpdate);
-                    for (int i = change.getFrom(); i < change.getTo(); i++) {
-                        listToUpdate.set(i, temp.get(change.getPermutation(i)));
-                    }
+                    listToUpdate.applyPermutations(change);
                 }
             }
         };

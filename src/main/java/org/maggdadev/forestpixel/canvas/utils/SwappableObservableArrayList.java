@@ -1,6 +1,7 @@
 package org.maggdadev.forestpixel.canvas.utils;
 
 import com.sun.javafx.collections.ObservableListWrapper;
+import javafx.collections.ListChangeListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,5 +34,21 @@ public class SwappableObservableArrayList<T> extends ObservableListWrapper<T> {
         }
         nextPermutation(0, size(), perm);
         endChange();
+    }
+
+    public void applyPermutations(ListChangeListener.Change<? extends T> change) {
+        beginChange();
+        applyPermutationsToList(source, change);
+        nextPermutation(0, 0, new int[0]);
+        endChange();
+    }
+
+    public static <T> void applyPermutationsToList(List<T> list, ListChangeListener.Change change) {
+        List<T> temp = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            temp.add(list.get(change.getPermutation(i)));
+        }
+        list.clear();
+        list.addAll(temp);
     }
 }

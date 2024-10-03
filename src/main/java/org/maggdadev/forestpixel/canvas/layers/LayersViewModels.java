@@ -61,6 +61,9 @@ public class LayersViewModels {
                         frameModel.removeLayer(layerViewModel.getId());
                     });
                 }
+                if (change.wasPermutated()) {
+                    SwappableObservableArrayList.applyPermutationsToList(frameModel.getLayers(), change);
+                }
             }
         });
     }
