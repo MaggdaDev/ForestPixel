@@ -88,6 +88,15 @@ public class FramesViewModels {
         frames.add(new FrameViewModel(frameModel, context));
     }
 
+    public void cloneSelectedFrame() {
+        if (isFrameSelected()) {
+            FrameModel clonedFrame = getActiveFrameViewModel().getModel().clone();
+            addFrame(clonedFrame);
+        }
+    }
+
+    // GET/SET
+
     public String getActiveFrameId() {
         return activeFrameId.get();
     }
@@ -115,4 +124,10 @@ public class FramesViewModels {
     public int getActiveFrameOrder() {
         return activeFrameOrder.get();
     }
+
+    public boolean isFrameSelected() {
+        return !getActiveFrameId().equals("-1");
+    }
+
+
 }

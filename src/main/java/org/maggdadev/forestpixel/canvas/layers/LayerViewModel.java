@@ -11,7 +11,7 @@ public class LayerViewModel implements Selectable {
 
     private final LayerModel model;
     private final IntegerProperty order = new SimpleIntegerProperty(0);
-    private final StringProperty name = new SimpleStringProperty("new layer");
+    private final StringProperty name = new SimpleStringProperty();
     private final DoubleProperty opacity = new SimpleDoubleProperty(1.0);
     private final BooleanProperty selected = new SimpleBooleanProperty(false);
 
@@ -21,9 +21,8 @@ public class LayerViewModel implements Selectable {
 
     public void createBindings(CanvasContext canvasContext, IntegerBinding orderBinding) {
         order.bind(orderBinding);
-        order.addListener((observable, oldValue, newValue) -> {
-            model.setOrder(newValue.intValue());
-        });
+        setName(model.getName());
+        name.subscribe(model::setName);
         opacity.bind(Bindings.createDoubleBinding(() -> {
             if (order.get() > canvasContext.getActiveLayerOrder()) {
                 return canvasContext.getUpperLayersOpacity();
@@ -34,9 +33,6 @@ public class LayerViewModel implements Selectable {
             }
         }, order, canvasContext.activeLayerOrderProperty(), canvasContext.upperLayersOpacityProperty(), canvasContext.lowerLayersOpacityProperty()));
 
-        selectedProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Layer with id " + getId() + " selected: " + newValue);
-        });
     }
 
 

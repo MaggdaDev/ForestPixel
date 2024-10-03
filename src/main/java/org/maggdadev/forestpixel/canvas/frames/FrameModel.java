@@ -7,23 +7,31 @@ import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FrameModel {
+public class FrameModel implements Cloneable {
+    private static int currentId = 0;
     private final String id;
 
-    private String name = "";
+    private String name;
     private final List<LayerModel> layers = new ArrayList<>();
-    private static int currentId = 0;
 
     private final int widthPixels, heightPixels;
 
     private final HistoryModel historyModel;
 
     public FrameModel(int widthPixels, int heightPixels) {
+        this(widthPixels, heightPixels, new ArrayList<>());
+        addNewLayer();
+    }
+
+    private FrameModel(int widthPixels, int heightPixels, List<LayerModel> layersToClone) {
         id = String.valueOf(currentId++);
+        name = "frame " + id;
         historyModel = new HistoryModel();
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-        addNewLayer();
+        for (LayerModel layer : layersToClone) {
+            addExistingLayer(layer.clone());
+        }
     }
 
     public void applyNewChange(CanvasChange change) {
@@ -36,7 +44,7 @@ public class FrameModel {
 
     public LayerModel addNewLayer() {
         LayerModel layer = new LayerModel(widthPixels, heightPixels);
-        addNewLayer(layer);
+        addExistingLayer(layer);
         return layer;
     }
 
@@ -57,14 +65,18 @@ public class FrameModel {
         layers.removeIf(layer -> layer.getId().equals(id));
     }
 
-
-    public void addNewLayer(LayerModel layer) {
-        addExistingLayer(layer);
-    }
-
     public void addExistingLayer(LayerModel model) {
         layers.add(model);
     }
+
+    @Override
+    public FrameModel clone() {
+        FrameModel clone = new FrameModel(widthPixels, heightPixels, layers);
+        clone.name = name + "(2)";
+        return clone;
+    }
+
+    // GET/SET
 
     public int getWidthPixels() {
         return widthPixels;

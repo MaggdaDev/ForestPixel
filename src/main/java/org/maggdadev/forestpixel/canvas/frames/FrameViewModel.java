@@ -28,9 +28,7 @@ public class FrameViewModel implements Selectable {
             }
         });
         setName(frameModel.getName());
-        if (getName().isEmpty()) {
-            setName("Frame " + frameModel.getId());
-        }
+        nameProperty().subscribe(frameModel::setName);
     }
 
     private void redrawThumbnail() {

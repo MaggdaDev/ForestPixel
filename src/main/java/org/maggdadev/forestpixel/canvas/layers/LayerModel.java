@@ -11,21 +11,24 @@ import org.maggdadev.forestpixel.canvas.utils.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LayerModel {
+public class LayerModel implements Cloneable {
 
     private static int currentId = 0;
     private final int width, height;
     private final WritableImage image;
 
+    private String name = "layer";
     private final String id;
 
-    private int order;
-
     public LayerModel(int width, int height) {
-        this.width = width;
-        this.height = height;
+        this(new WritableImage(width, height));
+    }
+
+    private LayerModel(WritableImage image) {
+        this.width = (int) image.getWidth();
+        this.height = (int) image.getHeight();
         this.id = String.valueOf(currentId++);
-        image = new WritableImage(width, height);
+        this.image = image;
     }
 
     public MultiPixelChange previewImageToMultiPixelChange(PreviewImage previewImage) {
@@ -54,6 +57,13 @@ public class LayerModel {
         return new MultiPixelChange(this, points, colors);
     }
 
+    @Override
+    public LayerModel clone() {
+        LayerModel clone = new LayerModel(this.image);
+        clone.name = this.name;
+        return clone;
+    }
+
     public Color getColorAt(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return Color.TRANSPARENT;
@@ -64,6 +74,8 @@ public class LayerModel {
     public void setColorAt(int x, int y, Color color) {
         image.getPixelWriter().setColor(x, y, color);
     }
+
+    // GET/SET
 
     public int getWidth() {
         return width;
@@ -86,7 +98,11 @@ public class LayerModel {
         return id;
     }
 
-    public void setOrder(int i) {
-        order = i;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

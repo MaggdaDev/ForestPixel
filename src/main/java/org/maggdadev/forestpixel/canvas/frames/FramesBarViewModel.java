@@ -18,6 +18,10 @@ public class FramesBarViewModel {
         framesViewModels.addFrame();
     }
 
+    public void cloneSelectedFrame() {
+        framesViewModels.cloneSelectedFrame();
+    }
+
     public void notifyKeyPressed(KeyCode code) {
         int selectedOrder = framesViewModels.getActiveFrameOrder();
         switch (code) {
@@ -39,4 +43,6 @@ public class FramesBarViewModel {
         framesViewModels.getActiveFrameViewModel().selectedProperty().set(false);
         framesViewModels.getFrames().get(selectedOrder).selectedProperty().set(true);
     }
+
+
 }

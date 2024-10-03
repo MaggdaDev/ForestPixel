@@ -52,9 +52,13 @@ public class FramesBarView extends MinimizableBox {
         frameViewModelListView.prefWidthProperty().bind(Bindings.size(viewModel.getFrames()).multiply(CELL_SIZE).add(5));
         frameViewModelListView.setPrefHeight(CELL_SIZE + 65);
 
-        Button addFrameButton = new Button("Add Frame");
+        Button addFrameButton = new Button("Create new frame");
         addFrameButton.setOnAction(e -> viewModel.addFrame());
-        getContent().getChildren().addAll(frameViewModelListView, addFrameButton);
+
+        Button cloneFrameButton = new Button("Clone selected frame");
+        cloneFrameButton.setOnAction(e -> viewModel.cloneSelectedFrame());
+
+        getContent().getChildren().addAll(frameViewModelListView, new VBox(addFrameButton, cloneFrameButton));
 
 
     }
