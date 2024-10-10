@@ -13,7 +13,11 @@ import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.CanvasView;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 
+import java.io.File;
+
 public class ForestPixelApplication extends Application {
+    private final static String INITIAL_DIRECTORY_PREFERENCE = "initialDirectory";
+
     @Override
     public void start(Stage stage) throws Exception {
         CanvasModel canvasModel = new CanvasModel(800, 500);
@@ -43,7 +47,13 @@ public class ForestPixelApplication extends Application {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp"));
                 fileChooser.setInitialFileName("yourmom.fp");
-                viewModel.saveModelTo(fileChooser.showSaveDialog(stage));
+                fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
+                File file = fileChooser.showSaveDialog(stage);
+                if (file == null || !file.exists()) {
+                    return;
+                }
+                FPPreferences.set(INITIAL_DIRECTORY_PREFERENCE, file.getParent());
+                viewModel.saveModelTo(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
             }
@@ -53,7 +63,13 @@ public class ForestPixelApplication extends Application {
             try {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp"));
-                viewModel.loadModelFrom(fileChooser.showOpenDialog(stage));
+                fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
+                File file = fileChooser.showOpenDialog(stage);
+                if (file == null || !file.exists()) {
+                    return;
+                }
+                FPPreferences.set(INITIAL_DIRECTORY_PREFERENCE, file.getParent());
+                viewModel.loadModelFrom(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
             }
