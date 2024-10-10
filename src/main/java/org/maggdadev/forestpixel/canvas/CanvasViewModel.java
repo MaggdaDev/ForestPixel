@@ -31,6 +31,8 @@ public class CanvasViewModel {
     private final ZoomManager zoomManager;
     private final CopyPasteManager copyPasteManager;
 
+    private final ObjectProperty<File> fileLocation = new SimpleObjectProperty<>();
+
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         zoomManager = new ZoomManager(this);
@@ -82,6 +84,7 @@ public class CanvasViewModel {
         try (FileOutputStream fileOut = new FileOutputStream(file)) {
             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
             objectOut.writeObject(model);
+            setFileLocation(file);
         } catch (IOException e) {
             throw new IOException("Could not save model to file due to error " + e.getMessage(), e);
         }
@@ -94,8 +97,21 @@ public class CanvasViewModel {
         try (FileInputStream fileIn = new FileInputStream(file)) {
             ObjectInputStream objectIn = new ObjectInputStream(fileIn);
             setModel((CanvasModel) objectIn.readObject());
+            setFileLocation(file);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException("Could not open model from file due to error " + e.getMessage(), e);
+        }
+    }
+
+    public void save() {
+        if (fileLocation.get() == null) {
+            System.err.println("Trying to save but no file location set.");
+            return;
+        }
+        try {
+            saveModelTo(fileLocation.get());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not save model to file due to error " + e.getMessage(), e);
         }
     }
 
@@ -344,5 +360,15 @@ public class CanvasViewModel {
         return framesViewModels;
     }
 
+    public File getFileLocation() {
+        return fileLocation.get();
+    }
 
+    public ObjectProperty<File> fileLocationProperty() {
+        return fileLocation;
+    }
+
+    public void setFileLocation(File fileLocation) {
+        this.fileLocation.set(fileLocation);
+    }
 }

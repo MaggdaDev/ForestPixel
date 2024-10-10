@@ -17,6 +17,7 @@ import java.io.File;
 
 public class ForestPixelApplication extends Application {
     private final static String INITIAL_DIRECTORY_PREFERENCE = "initialDirectory";
+    private final static FileChooser.ExtensionFilter EXTENSION_FILTER = new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp");
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -45,11 +46,12 @@ public class ForestPixelApplication extends Application {
         saveAsMenuItem.setOnAction(e -> {
             try {
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp"));
+                fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
+                fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
                 fileChooser.setInitialFileName("yourmom.fp");
                 fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
                 File file = fileChooser.showSaveDialog(stage);
-                if (file == null || !file.exists()) {
+                if (file == null) {
                     return;
                 }
                 FPPreferences.set(INITIAL_DIRECTORY_PREFERENCE, file.getParent());
@@ -62,7 +64,8 @@ public class ForestPixelApplication extends Application {
         openMenuItem.setOnAction(e -> {
             try {
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp"));
+                fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
+                fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
                 fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
                 File file = fileChooser.showOpenDialog(stage);
                 if (file == null || !file.exists()) {
@@ -74,7 +77,21 @@ public class ForestPixelApplication extends Application {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
             }
         });
-        Menu fileMenu = new Menu("File", null, saveAsMenuItem, openMenuItem);
+
+        MenuItem saveMenuItem = new MenuItem("Save");
+        saveMenuItem.setOnAction(e -> {
+            try {
+                if (viewModel.getFileLocation() == null) {
+                    saveAsMenuItem.fire();
+                } else {
+                    viewModel.save();
+                }
+            } catch (Exception ex) {
+                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
+            }
+        });
+
+        Menu fileMenu = new Menu("File", null, saveAsMenuItem, saveMenuItem, openMenuItem);
         return new MenuBar(fileMenu);
     }
 }
