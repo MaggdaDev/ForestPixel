@@ -18,11 +18,17 @@ public class FramesViewModels {
 
     private final StringProperty activeLayerId = new SimpleStringProperty("-1"), activeFrameId = new SimpleStringProperty("-1");
 
-    private final CanvasModel model;
+    private CanvasModel model;
 
-    public FramesViewModels(CanvasModel model, CanvasContext context) {
+    private ListChangeListener<? super FrameViewModel> listenerOnFrames;
+
+    public FramesViewModels(CanvasContext context) {
         this.context = context;
-        this.model = model;
+        activeFrameId.addListener((observable, oldValue, newValue) -> {
+            System.out.println("Active frame id changed from " + oldValue + " to " + newValue);
+        });
+
+        // Listener for bindings + assert always one frame is selected
         frames.addListener((ListChangeListener<? super FrameViewModel>) (change) -> {
             while (change.next()) {
                 if (change.wasAdded() || change.wasRemoved()) {
@@ -33,24 +39,7 @@ public class FramesViewModels {
                 }
             }
         });
-        model.getFrames().forEach(this::addFrame);
-        frames.addListener((ListChangeListener<? super FrameViewModel>) (change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(frameViewModel -> {
-                        model.addExistingFrame(frameViewModel.getModel());
-                    });
-                }
-                if (change.wasRemoved()) {
-                    change.getRemoved().forEach(frameViewModel -> {
-                        model.removeFrame(frameViewModel.getModel().getId());
-                    });
-                }
-                if (change.wasPermutated()) {
-                    SwappableObservableArrayList.applyPermutationsToList(model.getFrames(), change);
-                }
-            }
-        });
+
 
         activeFrameOrder.bind(Bindings.createIntegerBinding(() -> frames.indexOf(getActiveFrameViewModel()), frames, activeFrameId));
         activeFrameId.subscribe((newValue) -> {
@@ -61,10 +50,6 @@ public class FramesViewModels {
                 activeLayerOrder.bind(getActiveFrameViewModel().activeLayerOrderProperty());
             }
         });
-    }
-
-    public FrameViewModel getActiveFrameViewModel() {
-        return frames.stream().filter((frameViewModel -> frameViewModel.getId().equals(getActiveFrameId()))).findFirst().orElse(null);
     }
 
     private void refreshBindings() {
@@ -82,6 +67,42 @@ public class FramesViewModels {
             return "-1";
         }, framesSelectedProperties));
     }
+
+    public void setModel(CanvasModel model) {
+        this.model = model;
+        frames.clear();
+        if (listenerOnFrames != null) {
+            frames.removeListener(listenerOnFrames);
+        }
+        if (model == null) {
+            return;
+        }
+        model.getFrames().forEach(this::addFrame);
+        frames.addListener(listenerOnFrames = (change) -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    change.getAddedSubList().forEach(frameViewModel -> {
+                        model.addExistingFrame(frameViewModel.getModel());
+                    });
+                }
+                if (change.wasRemoved()) {
+                    change.getRemoved().forEach(frameViewModel -> {
+                        model.removeFrame(frameViewModel.getModel().getId());
+                    });
+                }
+                if (change.wasPermutated()) {
+                    SwappableObservableArrayList.applyPermutationsToList(model.getFrames(), change);
+                }
+            }
+        });
+        refreshBindings();
+    }
+
+    public FrameViewModel getActiveFrameViewModel() {
+        return frames.stream().filter((frameViewModel -> frameViewModel.getId().equals(getActiveFrameId()))).findFirst().orElse(null);
+    }
+
+
 
     public SwappableObservableArrayList<FrameViewModel> getFrames() {
         return frames;

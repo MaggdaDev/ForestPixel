@@ -4,10 +4,12 @@ import org.maggdadev.forestpixel.canvas.history.CanvasChange;
 import org.maggdadev.forestpixel.canvas.history.HistoryModel;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FrameModel implements Cloneable {
+public class FrameModel implements Cloneable, Serializable {
     private static int currentId = 0;
     private final String id;
 
@@ -16,7 +18,7 @@ public class FrameModel implements Cloneable {
 
     private final int widthPixels, heightPixels;
 
-    private final HistoryModel historyModel;
+    private transient HistoryModel historyModel;
 
     public FrameModel(int widthPixels, int heightPixels) {
         this(widthPixels, heightPixels, new ArrayList<>());
@@ -32,6 +34,12 @@ public class FrameModel implements Cloneable {
         for (LayerModel layer : layersToClone) {
             addExistingLayer(layer.clone());
         }
+    }
+
+    @Serial
+    private void readObject(java.io.ObjectInputStream in) throws Exception {
+        in.defaultReadObject();
+        historyModel = new HistoryModel();
     }
 
     public void applyNewChange(CanvasChange change) {

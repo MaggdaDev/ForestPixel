@@ -30,8 +30,6 @@ public class LayerView extends Canvas {
     }
 
     private void drawImage(Image image) {
-        int leftExtra = canvasViewModel.getSourceStartIndexX() > 0 ? 1 : 0;
-        int topExtra = canvasViewModel.getSourceStartIndexY() > 0 ? 1 : 0;
         ZoomManager zh = canvasViewModel.getCanvasZoomHandler();
         getGraphicsContext2D().drawImage(image,
                 zh.getDrawSourceX(),

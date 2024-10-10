@@ -82,6 +82,7 @@ public class CanvasView extends BorderPane {
         createBindings();
 
         viewModel.update();
+
     }
 
 
@@ -98,7 +99,7 @@ public class CanvasView extends BorderPane {
             redrawAll();
         });
 
-        viewModel.viewNeedsUpdateProperty().addListener((obs, oldVal, newVal) -> {
+        viewModel.viewNeedsUpdateProperty().subscribe((newVal) -> {
             if (newVal) {
                 redrawAll();
                 viewModel.setViewNeedsUpdate(false);

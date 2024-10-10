@@ -7,10 +7,11 @@ import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CanvasModel {
+public class CanvasModel implements Serializable {
 
     private final List<FrameModel> frames = new ArrayList<>();
 

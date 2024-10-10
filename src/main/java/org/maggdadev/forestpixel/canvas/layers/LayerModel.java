@@ -1,22 +1,24 @@
 package org.maggdadev.forestpixel.canvas.layers;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.PreviewImage;
 import org.maggdadev.forestpixel.canvas.history.MultiPixelChange;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LayerModel implements Cloneable {
+public class LayerModel implements Cloneable, Serializable {
 
     private static int currentId = 0;
     private final int width, height;
-    private final WritableImage image;
+    private transient WritableImage image;
 
+    private byte[] bytesForSerialization;
     private String name = "layer";
     private final String id;
 
@@ -29,6 +31,23 @@ public class LayerModel implements Cloneable {
         this.height = (int) image.getHeight();
         this.id = String.valueOf(currentId++);
         this.image = image;
+    }
+
+    @Serial
+    private void readObject(java.io.ObjectInputStream in) throws Exception {
+        in.defaultReadObject();
+        // https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytesForSerialization);
+        PixelBuffer<ByteBuffer> pixelBuffer = new PixelBuffer<>(width, height, byteBuffer, PixelFormat.getByteBgraPreInstance());
+        image = new WritableImage(pixelBuffer);
+    }
+
+
+    @Serial
+    private void writeObject(java.io.ObjectOutputStream out) throws Exception {
+        bytesForSerialization = new byte[width * height * 4];
+        image.getPixelReader().getPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), bytesForSerialization, 0, width * 4);
+        out.defaultWriteObject();
     }
 
     public MultiPixelChange previewImageToMultiPixelChange(PreviewImage previewImage) {

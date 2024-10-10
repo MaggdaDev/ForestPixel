@@ -14,8 +14,10 @@ import org.maggdadev.forestpixel.canvas.layers.LayersBarViewModel;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarViewModel;
 import org.maggdadev.forestpixel.canvas.tools.viewmodels.ToolViewModel;
 
+import java.io.*;
+
 public class CanvasViewModel {
-    private final CanvasModel model;
+    private CanvasModel model;
     private final DoubleProperty availableViewportWidth = new SimpleDoubleProperty(0), availableViewportHeight = new SimpleDoubleProperty(0);
     private final ObjectProperty<PreviewImage> previewImage = new SimpleObjectProperty<>();
     private final CanvasContext canvasContext;
@@ -31,9 +33,6 @@ public class CanvasViewModel {
 
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
-        this.modelWidth.set(model.getWidthPixels());
-        this.modelHeight.set(model.getHeightPixels());
-
         zoomManager = new ZoomManager(this);
         canvasContext = new CanvasContext(previewImage, zoomManager.zoomScaleFactorProperty());
         toolBarViewModel = new ToolbarViewModel(canvasContext, zoomManager::moveCanvasBy);
@@ -42,7 +41,7 @@ public class CanvasViewModel {
 
 
         // Frames
-        framesViewModels = new FramesViewModels(model, canvasContext);
+        framesViewModels = new FramesViewModels(canvasContext);
         framesBarViewModel = new FramesBarViewModel(framesViewModels);
 
         // Layers
@@ -64,6 +63,40 @@ public class CanvasViewModel {
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
 
+        setModel(model);
+
+    }
+
+    private void setModel(CanvasModel model) {
+        this.model = model;
+        this.modelWidth.set(model.getWidthPixels());
+        this.modelHeight.set(model.getHeightPixels());
+        framesViewModels.setModel(model);
+        update();
+    }
+
+    public void saveModelTo(File file) throws IOException {
+        if (file == null) {
+            return;
+        }
+        try (FileOutputStream fileOut = new FileOutputStream(file)) {
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(model);
+        } catch (IOException e) {
+            throw new IOException("Could not save model to file due to error " + e.getMessage(), e);
+        }
+    }
+
+    public void loadModelFrom(File file) {
+        if (file == null) {
+            return;
+        }
+        try (FileInputStream fileIn = new FileInputStream(file)) {
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            setModel((CanvasModel) objectIn.readObject());
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Could not open model from file due to error " + e.getMessage(), e);
+        }
     }
 
     private void handleCanvasMouseEvent(CanvasMouseEvent event) {
