@@ -1,7 +1,9 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.property.*;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -113,6 +115,19 @@ public class CanvasViewModel {
         } catch (IOException e) {
             throw new RuntimeException("Could not save model to file due to error " + e.getMessage(), e);
         }
+    }
+
+    public void exportTo(File file) {
+        WritableImage image = new WritableImage(model.getWidthPixels() * framesViewModels.getFrames().size(), model.getHeightPixels());
+        for (int i = 0; i < framesViewModels.getFrames().size(); i++) {
+            image.getPixelWriter().setPixels(i * model.getWidthPixels(), 0, model.getWidthPixels(), model.getHeightPixels(), framesViewModels.getFrames().get(i).exportToImage().getPixelReader(), 0, 0);
+        }
+        try {
+            javax.imageio.ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not export model to file due to error " + e.getMessage(), e);
+        }
+
     }
 
     private void handleCanvasMouseEvent(CanvasMouseEvent event) {
@@ -371,4 +386,6 @@ public class CanvasViewModel {
     public void setFileLocation(File fileLocation) {
         this.fileLocation.set(fileLocation);
     }
+
+
 }

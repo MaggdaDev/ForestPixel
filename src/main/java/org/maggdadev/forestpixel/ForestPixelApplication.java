@@ -2,10 +2,7 @@ package org.maggdadev.forestpixel;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -16,7 +13,8 @@ import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 import java.io.File;
 
 public class ForestPixelApplication extends Application {
-    private final static String INITIAL_DIRECTORY_PREFERENCE = "initialDirectory";
+    private final static String FP_FILES_DIRECTORY_PREFERENCE = "initialDirectory";
+    private final static String EXPORT_FILES_DIRECTORY_PREFERENCE = "exportDirectory";
     private final static FileChooser.ExtensionFilter EXTENSION_FILTER = new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp");
 
     @Override
@@ -49,12 +47,12 @@ public class ForestPixelApplication extends Application {
                 fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
                 fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
                 fileChooser.setInitialFileName("yourmom.fp");
-                fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
+                fileChooser.setInitialDirectory(new File(FPPreferences.get(FP_FILES_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
                 File file = fileChooser.showSaveDialog(stage);
                 if (file == null) {
                     return;
                 }
-                FPPreferences.set(INITIAL_DIRECTORY_PREFERENCE, file.getParent());
+                FPPreferences.set(FP_FILES_DIRECTORY_PREFERENCE, file.getParent());
                 viewModel.saveModelTo(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
@@ -66,12 +64,12 @@ public class ForestPixelApplication extends Application {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
                 fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
-                fileChooser.setInitialDirectory(new File(FPPreferences.get(INITIAL_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
+                fileChooser.setInitialDirectory(new File(FPPreferences.get(FP_FILES_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
                 File file = fileChooser.showOpenDialog(stage);
                 if (file == null || !file.exists()) {
                     return;
                 }
-                FPPreferences.set(INITIAL_DIRECTORY_PREFERENCE, file.getParent());
+                FPPreferences.set(FP_FILES_DIRECTORY_PREFERENCE, file.getParent());
                 viewModel.loadModelFrom(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
@@ -91,7 +89,27 @@ public class ForestPixelApplication extends Application {
             }
         });
 
-        Menu fileMenu = new Menu("File", null, saveAsMenuItem, saveMenuItem, openMenuItem);
+        MenuItem exportMenuItem = new MenuItem("Export...");
+        exportMenuItem.setOnAction(e -> {
+            try {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files", "*.png"));
+                fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("PNG files", "*.png"));
+                fileChooser.setInitialFileName("yourmom.png");
+                fileChooser.setInitialDirectory(new File(FPPreferences.get(EXPORT_FILES_DIRECTORY_PREFERENCE, System.getProperty("user.home"))));
+                fileChooser.setTitle("Export");
+                File file = fileChooser.showSaveDialog(stage);
+                if (file == null) {
+                    return;
+                }
+                FPPreferences.set(EXPORT_FILES_DIRECTORY_PREFERENCE, file.getParent());
+                viewModel.exportTo(file);
+            } catch (Exception ex) {
+                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
+            }
+        });
+
+        Menu fileMenu = new Menu("File", null, saveAsMenuItem, saveMenuItem, openMenuItem, new SeparatorMenuItem(), exportMenuItem);
         return new MenuBar(fileMenu);
     }
 }

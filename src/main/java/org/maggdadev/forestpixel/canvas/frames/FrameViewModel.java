@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.canvas.frames;
 import javafx.beans.property.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.layers.LayerViewModel;
 import org.maggdadev.forestpixel.canvas.layers.LayersViewModels;
@@ -32,13 +33,25 @@ public class FrameViewModel implements Selectable {
     }
 
     private void redrawThumbnail() {
-        WritableImage image = new WritableImage(frameModel.getWidthPixels(), frameModel.getHeightPixels());
-        for (LayerViewModel layer : layersViewModels.getLayers()) {
-            if (layer.getOpacity() > 0) {
-                image.getPixelWriter().setPixels(0, 0, frameModel.getWidthPixels(), frameModel.getHeightPixels(), layer.getDrawableImage().getPixelReader(), 0, 0);
+        setThumbnail(exportToImage());
+    }
+
+    public Image exportToImage() {
+        WritableImage output = new WritableImage(frameModel.getWidthPixels(), frameModel.getHeightPixels());
+        Color color;
+        for (LayerViewModel layer : layersViewModels.getLayersUnmodifiable()) {
+            for (int i = 0; i < frameModel.getWidthPixels(); i++) {
+                for (int j = 0; j < frameModel.getHeightPixels(); j++) {
+                    color = layer.getDrawableImage().getPixelReader().getColor(i, j);
+                    if (color.equals(Color.TRANSPARENT)) {
+                        continue;
+                    }
+                    output.getPixelWriter().setColor(i, j, color);
+                }
             }
+
         }
-        setThumbnail(image);
+        return output;
     }
 
 
@@ -95,4 +108,6 @@ public class FrameViewModel implements Selectable {
     public void setName(String name) {
         this.name.set(name);
     }
+
+
 }

@@ -30,7 +30,7 @@ public class LayerModel implements Cloneable, Serializable {
         this.width = (int) image.getWidth();
         this.height = (int) image.getHeight();
         this.id = String.valueOf(currentId++);
-        this.image = image;
+        this.image = new WritableImage(image.getPixelReader(), width, height);
     }
 
     @Serial
@@ -104,6 +104,9 @@ public class LayerModel implements Cloneable, Serializable {
         return height;
     }
 
+    public boolean isTransparentAt(int x, int y) {
+        return getColorAt(x, y).equals(Color.TRANSPARENT);
+    }
 
     public Image getImage() {
         return image;

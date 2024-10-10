@@ -35,6 +35,10 @@ public class LayerViewModel implements Selectable {
 
     }
 
+    public boolean isTransparentAt(int i, int j) {
+        return model.isTransparentAt(i, j);
+    }
+
 
     public Image getDrawableImage() {
         return model.getImage();
@@ -90,4 +94,6 @@ public class LayerViewModel implements Selectable {
     public LayerModel getModel() {
         return model;
     }
+
+
 }
