@@ -23,9 +23,4 @@ jobs:
 
     - name: Package with jpackage
       run: |
-        jpackage \
-          --input target \
-          --name ForestPixel \
-          --main-jar forestpixel-1.0-SNAPSHOT.jar \
-          --main-class org.maggdadev.forestpixel.Main \
-          --type exe
+        jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type exe
