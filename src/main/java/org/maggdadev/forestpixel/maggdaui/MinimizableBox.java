@@ -49,7 +49,6 @@ public class MinimizableBox extends BorderPane {
                 HBox hbox = new HBox(content == null ? null : content.getChildrenUnmodifiable().toArray(new Node[0]));
                 hbox.setSpacing(10);
                 content = hbox;
-                //HBox.setHgrow(content, javafx.scene.layout.Priority.ALWAYS);
 
             } else {
                 // header
