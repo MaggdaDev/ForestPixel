@@ -57,8 +57,6 @@ public class LayerView extends Canvas {
         } else {
             drawImage(viewModel.getDrawableImage());
         }
-        getGraphicsContext2D().setFill(Color.RED);
-        getGraphicsContext2D().fillRect(-10, -10, 20, 20);
     }
 
     public void drawPreviewImage(PreviewImage previewImage) {
