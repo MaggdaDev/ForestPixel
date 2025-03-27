@@ -18,17 +18,18 @@ public class LayersBarView extends MinimizableBox {
         super("Layers");
         this.viewModel = viewModel;
         // ListView
-        layersListView = new SwappableListView<>(viewModel.getCurrentLayers(), (v) -> {
+        layersListView = new SwappableListView<LayerViewModel>(null, (LayerViewModel v) -> {
             TextField textField = new TextField();
             textField.textProperty().bindBidirectional(v.nameProperty());
             textField.setOnAction(e -> textField.getParent().requestFocus());
             return textField;
         });
+        layersListView.itemsProperty().bind(viewModel.currentLayersUnmodifiableProperty());
         layersListView.setRemoveFunction(viewModel::removeLayer);
         layersListView.setSwapFunction(viewModel::swapLayers);
         layersListView.setFixedCellSize(30);
         layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
-                layersListView.getFixedCellSize() * viewModel.getCurrentLayers().size() + 5, viewModel.getCurrentLayers().getUnmodifiable(), layersListView.fixedCellSizeProperty()));
+                layersListView.getFixedCellSize() * viewModel.getCurrentLayersUnmodifiable().size() + 5, viewModel.getCurrentLayersUnmodifiable(), layersListView.fixedCellSizeProperty()));
 
         // Add layer
         Button addLayerButton = new Button("Add layer");

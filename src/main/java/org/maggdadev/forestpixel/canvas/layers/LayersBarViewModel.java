@@ -3,13 +3,9 @@ package org.maggdadev.forestpixel.canvas.layers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import org.maggdadev.forestpixel.canvas.frames.FrameViewModel;
 import org.maggdadev.forestpixel.canvas.frames.FramesViewModels;
-import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LayersBarViewModel {
     private final StringProperty activeLayerProperty = new SimpleStringProperty("-1");
@@ -22,9 +18,7 @@ public class LayersBarViewModel {
 
     private final ObjectProperty<LayersViewModels> layersViewModelsOfActiveFrame = new SimpleObjectProperty<>();
 
-    private final SwappableObservableArrayList<LayerViewModel> currentLayers = new SwappableObservableArrayList<>();
-
-    private ListChangeListener<? super LayerViewModel> currentListenerToViewModelLayers;
+    private final ObjectProperty<ObservableList<LayerViewModel>> currentLayersUnmodifiable = new SimpleObjectProperty<>();
 
 
     public LayersBarViewModel(FramesViewModels framesViewModels) {
@@ -34,21 +28,6 @@ public class LayersBarViewModel {
                 moreThanOneLayer.bind(Bindings.size(newValue.getLayersUnmodifiable()).greaterThan(1));
             }
         });
-
-        layersViewModelsOfActiveFrame.subscribe((oldValue, newValue) -> {
-            if (oldValue != null) {
-                if (currentListenerToViewModelLayers != null) {
-                    oldValue.getLayersUnmodifiable().removeListener(currentListenerToViewModelLayers);
-                    currentListenerToViewModelLayers = null;
-                }
-            }
-            if (newValue != null) {
-                currentLayers.setAll(newValue.getLayers().getUnmodifiable());
-                newValue.getLayersUnmodifiable().addListener(currentListenerToViewModelLayers = createListChangeListener(currentLayers));
-            } else {
-                currentLayers.clear();
-            }
-        });
         layersViewModelsOfActiveFrame.bind(Bindings.createObjectBinding(() -> { // After change subscription such that it is initially called
             FrameViewModel activeFrame = framesViewModels.getActiveFrameViewModel();
             if (activeFrame != null) {
@@ -56,6 +35,13 @@ public class LayersBarViewModel {
             }
             return null;
         }, framesViewModels.activeFrameIdProperty()));
+
+        currentLayersUnmodifiable.bind(Bindings.createObjectBinding(() -> {
+            if (layersViewModelsOfActiveFrame.get() != null) {
+                return layersViewModelsOfActiveFrame.get().getLayers().getUnmodifiable();
+            }
+            return null;
+        }, layersViewModelsOfActiveFrame));
     }
 
     public void addNewLayer() {
@@ -63,39 +49,6 @@ public class LayersBarViewModel {
             layersViewModelsOfActiveFrame.get().addNewLayer();
         }
     }
-
-    private static ListChangeListener<? super LayerViewModel> createListChangeListener(SwappableObservableArrayList<LayerViewModel> listToUpdate) {
-        return (change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    listToUpdate.addAll(change.getAddedSubList());
-                }
-                if (change.wasRemoved()) {
-                    for (LayerViewModel layerViewModel : change.getRemoved()) {
-                        listToUpdate.remove(layerViewModel);
-                    }
-                }
-                if (change.wasPermutated()) {
-                    listToUpdate.applyPermutations(change);
-                }
-            }
-        };
-    }
-
-    // A static method that takes a long permutation consiting of multiple swaps and returns a list of size 2 arrays of integers, where each array represents a swap.
-    private static List<int[]> getSwaps(int[] permutation) {
-        List<int[]> swaps = new ArrayList<>();
-        boolean[] visited = new boolean[permutation.length];
-        for (int i = 0; i < permutation.length; i++) {
-            if (permutation[i] != i && !visited[i] && !visited[permutation[i]]) {
-                swaps.add(new int[]{i, permutation[i]});
-                visited[i] = true;
-                visited[permutation[i]] = true;
-            }
-        }
-        return swaps;
-    }
-
     public ObservableValue<String> activeLayerIdProperty() {
         return activeLayerProperty;
     }
@@ -144,9 +97,12 @@ public class LayersBarViewModel {
         return activeFrameId;
     }
 
-    public SwappableObservableArrayList<LayerViewModel> getCurrentLayers() {
-        return currentLayers;
+    public ObservableList<LayerViewModel> getCurrentLayersUnmodifiable() {
+        return currentLayersUnmodifiable.get();
     }
 
 
+    public ObjectProperty<ObservableList<LayerViewModel>> currentLayersUnmodifiableProperty() {
+        return currentLayersUnmodifiable;
+    }
 }

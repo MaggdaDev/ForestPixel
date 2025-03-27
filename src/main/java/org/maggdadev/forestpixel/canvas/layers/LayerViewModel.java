@@ -95,5 +95,10 @@ public class LayerViewModel implements Selectable {
         return model;
     }
 
+    @Override
+    public String toString() {
+        return "LayerViewModel for: " + model;
+    }
+
 
 }

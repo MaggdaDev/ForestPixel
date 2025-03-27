@@ -1,6 +1,8 @@
 package org.maggdadev.forestpixel.maggdaui;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -26,7 +28,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
     private Consumer<String> removeFunction;
 
     public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory, BiConsumer<String, String> swapFunction, Consumer<String> removeFunction) {
-        super(items.getUnmodifiable());
+        super(items == null ? null : items.getUnmodifiable());
         if (swapFunction == null) {
             swapFunction = this::defaultSwap;
         }
@@ -75,6 +77,8 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
 
         private Subscription subscriptionOnItemSelected = null;
 
+        private final IntegerProperty itemsAmount = new SimpleIntegerProperty(0);
+
         public SwappableListCell() {
             radioButton.setMouseTransparent(true);
             orientationProperty().subscribe((newValue) -> {
@@ -89,7 +93,18 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                 BorderPane.setAlignment(deleteButton, Pos.CENTER);
                 BorderPane.setAlignment(radioButton, Pos.CENTER);
             });
-            deleteButton.visibleProperty().bind(Bindings.size(items.getUnmodifiable()).greaterThan(1));
+            itemsProperty().subscribe((newValue) -> {
+                if (itemsAmount.isBound()) {
+                    itemsAmount.unbind();
+                }
+                if (newValue == null) {
+                    itemsAmount.set(0);
+                } else {
+                    itemsAmount.bind(Bindings.size(newValue));
+                }
+
+            });
+            deleteButton.visibleProperty().bind(itemsAmount.greaterThan(1));
             deleteButton.setOnAction(event -> {
                 if (getItem() != null && getItems().size() > 1) {
                     removeFunction.accept(getItem().getId());

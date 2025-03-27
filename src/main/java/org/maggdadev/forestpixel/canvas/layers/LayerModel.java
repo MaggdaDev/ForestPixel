@@ -127,4 +127,9 @@ public class LayerModel implements Cloneable, Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + ",   ID: " + id;
+    }
 }
