@@ -20,7 +20,7 @@ jobs:
         distribution: 'zulu'
 
     - name: Generate Version Number
-      run: echo "APP_VERSION=1.1.${{ github.run_number }}" >> $GITHUB_ENV
+      run: echo "APP_VERSION=1.1.${{ github.run_number }}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
     - name: Build with Maven
       run: mvn clean package
@@ -30,7 +30,7 @@ jobs:
 
     - name: Package with jpackage
       run: |
-        jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type msi --dest ./build/distributions --runtime-image runtime --win-upgrade-uuid "acc863d7-3ffc-4339-a1b7-0f7c469cc28f" --app-version $APP_VERSION --win-shortcut --win-menu
+        jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type msi --dest ./build/distributions --runtime-image runtime --win-upgrade-uuid "acc863d7-3ffc-4339-a1b7-0f7c469cc28f" --app-version $env:APP_VERSION --win-shortcut --win-menu
     - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
