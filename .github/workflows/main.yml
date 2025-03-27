@@ -31,7 +31,7 @@ jobs:
     - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: ./forestvendetta/build/distributions/consoleapp-0.0.1.msi
+        path: ./forestvendetta/build/distributions/ForestPixel-1.0.msi
         name: windows-installer
         retention-days: 1
         
