@@ -49,7 +49,7 @@ public class FramesBarView extends MinimizableBox {
         });
         frameViewModelListView.setOrientation(Orientation.HORIZONTAL);
         frameViewModelListView.setFixedCellSize(CELL_SIZE);
-        frameViewModelListView.prefWidthProperty().bind(Bindings.size(viewModel.getFrames()).multiply(CELL_SIZE).add(5));
+        frameViewModelListView.prefWidthProperty().bind(Bindings.size(viewModel.getFrames().getUnmodifiable()).multiply(CELL_SIZE).add(5));
         frameViewModelListView.setPrefHeight(CELL_SIZE + 65);
 
         Button addFrameButton = new Button("Create new frame");

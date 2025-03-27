@@ -2,17 +2,18 @@ package org.maggdadev.forestpixel.canvas.layers;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.frames.FrameModel;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
+import java.util.Collections;
+import java.util.function.Consumer;
+
 public class LayersViewModels {
     private final SwappableObservableArrayList<LayerViewModel> layers = new SwappableObservableArrayList<>();
 
-    private final ObservableList<LayerViewModel> layersUnmodifiable = FXCollections.unmodifiableObservableList(layers);
+    private final ObservableList<LayerViewModel> layersUnmodifiable = layers.getUnmodifiable();
 
     private final IntegerProperty activeLayerOrder = new SimpleIntegerProperty(-1);
     private final StringProperty activeLayerId = new SimpleStringProperty("-1");
@@ -25,46 +26,33 @@ public class LayersViewModels {
         this.frameModel = frameModel;
         this.context = context;
 
-        // Bindings, cleanup, and listeners
-        layers.addListener((ListChangeListener<? super LayerViewModel>) (change) -> {
-            while (change.next()) {
-                if (change.wasAdded() || change.wasRemoved()) {
-                    refreshBindings();
-                    if (activeLayerOrder.get() == -1 && !layers.isEmpty()) {
-                        layers.getFirst().setSelected(true);
-                    }
-                }
-                if (change.wasRemoved()) {
-                    for (LayerViewModel layer : change.getRemoved()) {
-                        cleanup(layer.getId());
-                    }
-                }
-                if (change.wasAdded()) {
-                    for (LayerViewModel newLayer : change.getAddedSubList()) {
-                        newLayer.createBindings(context, Bindings.createIntegerBinding(() -> layers.indexOf(newLayer), layers));
-                    }
-                }
+
+        Consumer<LayerViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (_) -> {
+            if (activeLayerOrder.get() == -1 && !layers.isEmpty()) {
+                layers.getFirst().setSelected(true);
             }
+            refreshBindings();
+        };
+        layers.addOnElementAdded((layer) -> {
+            selectFirstIfNoneSelectedAndRefreshBindings.accept(layer);
+            layer.createBindings(context, Bindings.createIntegerBinding(() -> layers.indexOf(layer), layers.getUnmodifiable()));
         });
+        layers.addOnElementRemoved((layer) -> {
+            selectFirstIfNoneSelectedAndRefreshBindings.accept(layer);
+            cleanup(layer.getId());
+        });
+
         // Load from model
         frameModel.getLayers().forEach(this::addExistingLayer);
 
-        layers.addListener((ListChangeListener<? super LayerViewModel>) (change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(layerViewModel -> {
-                        frameModel.addExistingLayer(layerViewModel.getModel());
-                    });
-                }
-                if (change.wasRemoved()) {
-                    change.getRemoved().forEach(layerViewModel -> {
-                        frameModel.removeLayer(layerViewModel.getId());
-                    });
-                }
-                if (change.wasPermutated()) {
-                    SwappableObservableArrayList.applyPermutationsToList(frameModel.getLayers(), change);
-                }
-            }
+        layers.addOnElementAdded((layer) -> {
+            frameModel.addExistingLayer(layer.getModel());
+        });
+        layers.addOnElementRemoved((layer) -> {
+            frameModel.removeLayer(layer.getId());
+        });
+        layers.addOnSwap((swap) -> {
+            Collections.swap(frameModel.getLayers(), swap.index1(), swap.index2());
         });
     }
 
@@ -76,7 +64,7 @@ public class LayersViewModels {
             layersSelectedProperties[i] = layers.get(i).selectedProperty();
         }
         activeLayerId.bind(Bindings.createStringBinding(() -> {
-            for (LayerViewModel layer : layers) {
+            for (LayerViewModel layer : layers.getUnmodifiable()) {
                 if (layer.getSelected()) {
                     return layer.getId();
                 }
@@ -115,7 +103,7 @@ public class LayersViewModels {
     }
 
     public LayerViewModel getById(String id) {
-        for (LayerViewModel layer : layers) {
+        for (LayerViewModel layer : layers.getUnmodifiable()) {
             if (layer.getId().equals(id)) {
                 return layer;
             }

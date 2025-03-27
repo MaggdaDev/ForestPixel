@@ -43,7 +43,7 @@ public class LayersBarViewModel {
                 }
             }
             if (newValue != null) {
-                currentLayers.setAll(newValue.getLayers());
+                currentLayers.setAll(newValue.getLayers().getUnmodifiable());
                 newValue.getLayersUnmodifiable().addListener(currentListenerToViewModelLayers = createListChangeListener(currentLayers));
             } else {
                 currentLayers.clear();

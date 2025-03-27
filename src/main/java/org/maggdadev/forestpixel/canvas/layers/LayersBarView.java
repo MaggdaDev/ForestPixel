@@ -28,7 +28,7 @@ public class LayersBarView extends MinimizableBox {
         layersListView.setSwapFunction(viewModel::swapLayers);
         layersListView.setFixedCellSize(30);
         layersListView.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
-                layersListView.getFixedCellSize() * viewModel.getCurrentLayers().size() + 5, viewModel.getCurrentLayers(), layersListView.fixedCellSizeProperty()));
+                layersListView.getFixedCellSize() * viewModel.getCurrentLayers().size() + 5, viewModel.getCurrentLayers().getUnmodifiable(), layersListView.fixedCellSizeProperty()));
 
         // Add layer
         Button addLayerButton = new Button("Add layer");

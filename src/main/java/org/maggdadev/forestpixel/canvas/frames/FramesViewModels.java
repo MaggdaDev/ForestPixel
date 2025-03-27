@@ -2,10 +2,12 @@ package org.maggdadev.forestpixel.canvas.frames;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.collections.ListChangeListener;
 import org.maggdadev.forestpixel.canvas.CanvasContext;
 import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
+
+import java.util.Collections;
+import java.util.function.Consumer;
 
 /**
  * Class that wraps an observable list and keeps track of changes to install all listeners and bindings
@@ -20,7 +22,8 @@ public class FramesViewModels {
 
     private CanvasModel model;
 
-    private ListChangeListener<? super FrameViewModel> listenerOnFrames;
+    private Consumer<FrameViewModel> frameAddedListener, frameRemovedListener;
+    private Consumer<SwappableObservableArrayList.Swap> frameSwappedListener;
 
     public FramesViewModels(CanvasContext context) {
         this.context = context;
@@ -28,21 +31,20 @@ public class FramesViewModels {
             System.out.println("Active frame id changed from " + oldValue + " to " + newValue);
         });
 
+
         // Listener for bindings + assert always one frame is selected
-        frames.addListener((ListChangeListener<? super FrameViewModel>) (change) -> {
-            while (change.next()) {
-                if (change.wasAdded() || change.wasRemoved()) {
-                    if (activeFrameOrder.get() == -1 && !frames.isEmpty()) {
-                        frames.getFirst().selectedProperty().set(true);
-                    }
-                    refreshBindings();
-                }
+        Consumer<FrameViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (_) -> {
+            if (activeFrameOrder.get() == -1 && !frames.isEmpty()) {
+                frames.getFirst().selectedProperty().set(true);
             }
-        });
+            refreshBindings();
+        };
+        frames.addOnElementAdded(selectFirstIfNoneSelectedAndRefreshBindings);
+        frames.addOnElementRemoved(selectFirstIfNoneSelectedAndRefreshBindings);
 
 
-        activeFrameOrder.bind(Bindings.createIntegerBinding(() -> frames.indexOf(getActiveFrameViewModel()), frames, activeFrameId));
-        activeFrameId.subscribe((newValue) -> {
+        activeFrameOrder.bind(Bindings.createIntegerBinding(() -> frames.indexOf(getActiveFrameViewModel()), frames.getUnmodifiable(), activeFrameId));
+        activeFrameId.subscribe((_) -> {
             activeLayerId.unbind();
             activeLayerOrder.unbind();
             if (getActiveFrameViewModel() != null) {
@@ -59,7 +61,7 @@ public class FramesViewModels {
             framesSelectedProperties[i] = frames.get(i).selectedProperty();
         }
         activeFrameId.bind(Bindings.createStringBinding(() -> {
-            for (FrameViewModel frame : frames) {
+            for (FrameViewModel frame : frames.getUnmodifiable()) {
                 if (frame.selectedProperty().get()) {
                     return frame.getId();
                 }
@@ -71,35 +73,33 @@ public class FramesViewModels {
     public void setModel(CanvasModel model) {
         this.model = model;
         frames.clear();
-        if (listenerOnFrames != null) {
-            frames.removeListener(listenerOnFrames);
+        if (frameAddedListener != null) {
+            frames.removeOnElementAdded(frameAddedListener);
+        }
+        if (frameRemovedListener != null) {
+            frames.removeOnElementRemoved(frameRemovedListener);
+        }
+        if (frameSwappedListener != null) {
+            frames.removeOnSwap(frameSwappedListener);
         }
         if (model == null) {
             return;
         }
         model.getFrames().forEach(this::addFrame);
-        frames.addListener(listenerOnFrames = (change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(frameViewModel -> {
-                        model.addExistingFrame(frameViewModel.getModel());
-                    });
-                }
-                if (change.wasRemoved()) {
-                    change.getRemoved().forEach(frameViewModel -> {
-                        model.removeFrame(frameViewModel.getModel().getId());
-                    });
-                }
-                if (change.wasPermutated()) {
-                    SwappableObservableArrayList.applyPermutationsToList(model.getFrames(), change);
-                }
-            }
+        frames.addOnElementAdded(frameAddedListener = (frame) -> {
+            model.addExistingFrame(frame.getModel());
+        });
+        frames.addOnElementRemoved(frameRemovedListener = (frame) -> {
+            model.removeFrame(frame.getId());
+        });
+        frames.addOnSwap(frameSwappedListener = (swap) -> {
+            Collections.swap(model.getFrames(), swap.index1(), swap.index2());
         });
         refreshBindings();
     }
 
     public FrameViewModel getActiveFrameViewModel() {
-        return frames.stream().filter((frameViewModel -> frameViewModel.getId().equals(getActiveFrameId()))).findFirst().orElse(null);
+        return frames.getUnmodifiable().stream().filter((frameViewModel -> frameViewModel.getId().equals(getActiveFrameId()))).findFirst().orElse(null);
     }
 
 

@@ -1,6 +1,5 @@
 package org.maggdadev.forestpixel.canvas.frames;
 
-import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
@@ -15,24 +14,15 @@ public class FramePane extends StackPane {
         this.framesViewModels = canvasViewModel.getFramesViewModels();
         this.canvasViewModel = canvasViewModel;
         setMouseTransparent(true);
-        framesViewModels.getFrames().forEach(this::addLayersStackPane);
-        framesViewModels.getFrames().addListener((ListChangeListener<? super FrameViewModel>) (change) -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(this::addLayersStackPane);
-                }
-                if (change.wasRemoved()) {
-                    for (FrameViewModel frame : change.getRemoved()) {
-                        getChildren().removeIf(node -> {
-                            if (node instanceof LayersStackPane layersStackPane) {
-                                return layersStackPane.getFrameId().equals(frame.getId());
-                            }
-                            return false;
-                        });
-                    }
-                }
+        framesViewModels.getFrames().getUnmodifiable().forEach(this::addLayersStackPane);
+
+        framesViewModels.getFrames().addOnElementAdded(this::addLayersStackPane);
+        framesViewModels.getFrames().addOnElementRemoved(frame -> getChildren().removeIf(node -> {
+            if (node instanceof LayersStackPane layersStackPane) {
+                return layersStackPane.getFrameId().equals(frame.getId());
             }
-        });
+            return false;
+        }));
     }
 
     public LayersStackPane getActiveLayersStackPane() {//

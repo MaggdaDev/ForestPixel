@@ -26,7 +26,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
     private Consumer<String> removeFunction;
 
     public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory, BiConsumer<String, String> swapFunction, Consumer<String> removeFunction) {
-        super(items);
+        super(items.getUnmodifiable());
         if (swapFunction == null) {
             swapFunction = this::defaultSwap;
         }
@@ -60,7 +60,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
     }
 
     private T getItem(String id) {
-        return items.stream().filter(item -> item.getId().equals(id)).findFirst().orElse(null);
+        return items.getUnmodifiable().stream().filter(item -> item.getId().equals(id)).findFirst().orElse(null);
     }
 
     private void defaultRemove(String id) {
@@ -89,7 +89,7 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                 BorderPane.setAlignment(deleteButton, Pos.CENTER);
                 BorderPane.setAlignment(radioButton, Pos.CENTER);
             });
-            deleteButton.visibleProperty().bind(Bindings.size(items).greaterThan(1));
+            deleteButton.visibleProperty().bind(Bindings.size(items.getUnmodifiable()).greaterThan(1));
             deleteButton.setOnAction(event -> {
                 if (getItem() != null && getItems().size() > 1) {
                     removeFunction.accept(getItem().getId());
