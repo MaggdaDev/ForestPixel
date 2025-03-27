@@ -17,12 +17,13 @@ jobs:
       with:
         distribution: 'adopt'
         java-version: '22'
+        java-package: jdk+fx
 
     - name: Build with Maven
       run: mvn clean package
     - name: Create runtime image using jlink
       run: |
-        jlink --module-path $JAVA_HOME/jmods:$JAVA_FX_HOME/lib --add-modules java.base,java.desktop,java.prefs,javafx.base,javafx.controls,javafx.graphics,javafx.swing --output runtime
+        jlink --add-modules java.base,java.desktop,java.prefs,javafx.base,javafx.controls,javafx.graphics,javafx.swing --output runtime
 
     - name: Package with jpackage
       run: |
