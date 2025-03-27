@@ -15,7 +15,6 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'adopt'
         java-version: '21'
         java-package: jdk+fx
 
