@@ -34,7 +34,7 @@ jobs:
     - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: ./build/distributions/ForestPixel-1.0.msi
+        path: ./build/distributions/*.msi
         name: windows-installer
         retention-days: 1
         overwrite: true
