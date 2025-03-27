@@ -27,7 +27,7 @@ public class LayersViewModels {
         this.context = context;
 
 
-        Consumer<LayerViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (_) -> {
+        Consumer<LayerViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (a) -> {
             if (activeLayerOrder.get() == -1 && !layers.isEmpty()) {
                 layers.getFirst().setSelected(true);
             }

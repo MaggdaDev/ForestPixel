@@ -33,7 +33,7 @@ public class FramesViewModels {
 
 
         // Listener for bindings + assert always one frame is selected
-        Consumer<FrameViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (_) -> {
+        Consumer<FrameViewModel> selectFirstIfNoneSelectedAndRefreshBindings = (a) -> {
             if (activeFrameOrder.get() == -1 && !frames.isEmpty()) {
                 frames.getFirst().selectedProperty().set(true);
             }
@@ -44,7 +44,7 @@ public class FramesViewModels {
 
 
         activeFrameOrder.bind(Bindings.createIntegerBinding(() -> frames.indexOf(getActiveFrameViewModel()), frames.getUnmodifiable(), activeFrameId));
-        activeFrameId.subscribe((_) -> {
+        activeFrameId.subscribe((a) -> {
             activeLayerId.unbind();
             activeLayerOrder.unbind();
             if (getActiveFrameViewModel() != null) {
