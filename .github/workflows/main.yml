@@ -28,7 +28,7 @@ jobs:
       run: |
         jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type msi --dest ./build/distributions --runtime-image runtime
     - name: Upload installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ./forestvendetta/build/distributions/consoleapp-0.0.1.msi
         name: windows-installer
