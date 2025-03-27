@@ -20,10 +20,13 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean package
+    - name: Create runtime image using jlink
+      run: |
+        jlink --module-path $JAVA_HOME/jmods:$JAVA_FX_HOME/lib --add-modules java.base,java.desktop,java.prefs,javafx.base,javafx.controls,javafx.graphics,javafx.swing --output runtime
 
     - name: Package with jpackage
       run: |
-        jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type exe
+        jpackage --input target --name ForestPixel --main-jar forestpixel-1.0-SNAPSHOT.jar --main-class org.maggdadev.forestpixel.Main --type msi --dest ./build/distributions --runtime-image runtime
     - name: Upload installer
       uses: actions/upload-artifact@v3
       with:

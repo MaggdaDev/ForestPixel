@@ -1,13 +1,11 @@
 package org.maggdadev.forestpixel.canvas;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.skin.ScrollPaneSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
@@ -19,7 +17,6 @@ import org.maggdadev.forestpixel.canvas.layers.LayerView;
 import org.maggdadev.forestpixel.canvas.layers.LayersBarView;
 import org.maggdadev.forestpixel.canvas.toolbar.ToolbarView;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 
@@ -180,15 +177,16 @@ public class CanvasView extends BorderPane {
 
         canvasScrollPane.setPadding(new Insets(0));
 
+/* todo: fix
         // dirty hack to make jfx stop messing with my zoom
         canvasScrollPane.contentProperty().addListener((obs, oldVal, newVal) -> {
             removeBoundsChangeListenerFromScrollPane();
         });
-        removeBoundsChangeListenerFromScrollPane();
+        removeBoundsChangeListenerFromScrollPane();*/
 
     }
 
-    private void removeBoundsChangeListenerFromScrollPane() {
+    private void removeBoundsChangeListenerFromScrollPane() {/*
         try {
             canvasScrollPane.setSkin(new ScrollPaneSkin(canvasScrollPane));
             Field field = ScrollPaneSkin.class.getDeclaredField("weakBoundsChangeListener");
@@ -198,7 +196,7 @@ public class CanvasView extends BorderPane {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Hack not working.");
-        }
+        }*/
     }
 
 }
