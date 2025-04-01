@@ -35,6 +35,8 @@ public class CanvasViewModel {
 
     private final ObjectProperty<File> fileLocation = new SimpleObjectProperty<>();
 
+    private final BooleanProperty pauseRedrawAllDueToInternalChangesOngoing = new SimpleBooleanProperty(false);
+
     public CanvasViewModel(CanvasModel model) {
         this.model = model;
         zoomManager = new ZoomManager(this);
@@ -385,6 +387,18 @@ public class CanvasViewModel {
 
     public void setFileLocation(File fileLocation) {
         this.fileLocation.set(fileLocation);
+    }
+
+    public boolean isPauseRedrawAllDueToInternalChangesOngoing() {
+        return pauseRedrawAllDueToInternalChangesOngoing.get();
+    }
+
+    public BooleanProperty pauseRedrawAllDueToInternalChangesOngoingProperty() {
+        return pauseRedrawAllDueToInternalChangesOngoing;
+    }
+
+    public void setPauseRedrawAllDueToInternalChangesOngoing(boolean pauseRedrawAllDueToInternalChangesOngoing) {
+        this.pauseRedrawAllDueToInternalChangesOngoing.set(pauseRedrawAllDueToInternalChangesOngoing);
     }
 
 

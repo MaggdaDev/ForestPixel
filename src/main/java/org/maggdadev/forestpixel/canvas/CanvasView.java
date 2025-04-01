@@ -94,6 +94,9 @@ public class CanvasView extends BorderPane {
 
         viewModel.zoomScaleFactorProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
+            canvasScrollPane.layout();  // Needed such that FIRST ScrollNode-size is adjusted according to new Zoom fact and
+            // THEN new hval is set. The other way around, changing hval first and then layouting (=adjusting scroll node width),
+            // the change in width would induce ANOTHER corrupt hval change
         });
 
         viewModel.viewNeedsUpdateProperty().subscribe((newVal) -> {
@@ -110,6 +113,12 @@ public class CanvasView extends BorderPane {
 
         canvasScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
             redrawAll();
+        });
+
+        viewModel.pauseRedrawAllDueToInternalChangesOngoingProperty().addListener((obs, oldVal, newShouldPause) -> {
+            if (!newShouldPause) {
+                redrawAll();
+            }
         });
     }
 
@@ -176,27 +185,5 @@ public class CanvasView extends BorderPane {
         });
 
         canvasScrollPane.setPadding(new Insets(0));
-
-/* todo: fix
-        // dirty hack to make jfx stop messing with my zoom
-        canvasScrollPane.contentProperty().addListener((obs, oldVal, newVal) -> {
-            removeBoundsChangeListenerFromScrollPane();
-        });
-        removeBoundsChangeListenerFromScrollPane();*/
-
     }
-
-    private void removeBoundsChangeListenerFromScrollPane() {/*
-        try {
-            canvasScrollPane.setSkin(new ScrollPaneSkin(canvasScrollPane));
-            Field field = ScrollPaneSkin.class.getDeclaredField("weakBoundsChangeListener");
-            field.setAccessible(true);
-            WeakChangeListener<Bounds> badListener = (WeakChangeListener<Bounds>) field.get(canvasScrollPane.getSkin());
-            canvasScrollPane.getContent().layoutBoundsProperty().removeListener(badListener);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Hack not working.");
-        }*/
-    }
-
 }

@@ -65,6 +65,8 @@ public class ZoomManager {
         double oldEffHeight = effectiveHeight.get();
         double modelEventX = (e.getX() + oldHVal * oldEffWidth) / oldZoomVal;
         double modelEventY = (e.getY() + oldVVal * oldEffHeight) / oldZoomVal;
+
+        viewModel.setPauseRedrawAllDueToInternalChangesOngoing(true);
         setZoomScaleFactor(newZoomVal);
         double newEffWidth = effectiveWidth.get();
         double newEffHeight = effectiveHeight.get();
@@ -76,6 +78,7 @@ public class ZoomManager {
 
         zoomHValue.set(xAllVisible.get() ? 0 : restrictZoomValue(newHVal));
         zoomVValue.set(yAllVisible.get() ? 0 : restrictZoomValue(newVVal));
+        viewModel.setPauseRedrawAllDueToInternalChangesOngoing(false);  // Redraw only once per zoom!
     }
 
     private double calculateEffectiveDimension(double modelDimension, double zoomFactor, double canvasDimension) {

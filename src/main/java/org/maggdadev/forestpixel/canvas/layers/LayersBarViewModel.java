@@ -21,7 +21,7 @@ public class LayersBarViewModel {
     private final ObjectProperty<ObservableList<LayerViewModel>> currentLayersUnmodifiable = new SimpleObjectProperty<>();
 
 
-    public LayersBarViewModel(FramesViewModels framesViewModels) {  // dummy chango todo remove this comment
+    public LayersBarViewModel(FramesViewModels framesViewModels) {
         layersViewModelsOfActiveFrame.subscribe((newValue) -> {
             if (newValue != null) {
                 moreThanOneLayer.unbind();
