@@ -16,6 +16,7 @@ public class ForestPixelApplication extends Application {
         Scene scene = new Scene(mainScreen);
         stage.setScene(scene);
         stage.setTitle("Forest Pixel");
+        stage.setMaximized(true);
         stage.show();
     }
 }

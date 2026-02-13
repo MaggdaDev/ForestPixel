@@ -1,7 +1,7 @@
 package org.maggdadev.forestpixel.structure;
 
-public class ProjectRootModel extends ProjectNodeModel {
-    public ProjectRootModel() {
+public class ProjectModel extends ProjectNodeModel {
+    public ProjectModel() {
         super();
         setName("Project");
     }
