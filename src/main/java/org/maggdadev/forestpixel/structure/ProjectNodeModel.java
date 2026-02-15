@@ -8,11 +8,13 @@ public class ProjectNodeModel {
     private final String id;
     private String name;
     private List<ProjectNodeModel> children;
+    private boolean isFolder;
 
-    public ProjectNodeModel() {
+    public ProjectNodeModel(String name, boolean isFolder) {
         id = nextNodeId();
-        name = id;
+        this.name = name;
         children = new ArrayList<>();
+        this.isFolder = isFolder;
     }
 
     public List<ProjectNodeModel> getChildren() {
@@ -33,5 +35,9 @@ public class ProjectNodeModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isFolder() {
+        return isFolder;
     }
 }
