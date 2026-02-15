@@ -3,7 +3,7 @@ package org.maggdadev.forestpixel.structure;
 import javafx.scene.control.cell.TextFieldTreeCell;
 
 public class ProjectNodeView extends TextFieldTreeCell<ProjectNodeModel> {
-    public ProjectNodeView() {
+    public ProjectNodeView(ProjectView projectView) {
         super();
     }
 

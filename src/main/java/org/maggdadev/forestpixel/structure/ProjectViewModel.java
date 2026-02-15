@@ -1,5 +1,7 @@
 package org.maggdadev.forestpixel.structure;
 
+import java.util.Optional;
+
 public class ProjectViewModel extends ProjectNodeViewModel {
     private final ProjectModel model;
 
@@ -8,4 +10,14 @@ public class ProjectViewModel extends ProjectNodeViewModel {
         this.model = model;
 
     }
+
+    public Optional<ProjectNodeViewModel> findNodeById(String id) {
+        ProjectNodeViewModel result = super.findNodeByIdRecursive(id);
+        if(result == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(result);
+        }
+    }
+
 }
