@@ -7,10 +7,13 @@ import javafx.scene.control.TreeItem;
 
 public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
     private final BooleanProperty isFolder = new SimpleBooleanProperty();
+    protected  ProjectNodeModel model;
 
     public ProjectNodeViewModel(ProjectNodeModel model) {
         setValue(model);
         this.isFolder.set(model.isFolder());
+        this.model = model;
+        model.getChildren().forEach((child) -> getChildren().add(new ProjectNodeViewModel(child)));
     }
 
     public String getId() {
@@ -45,5 +48,9 @@ public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
         Platform.runLater(() -> {
             getParent().getChildren().remove(this); // remove from viewmodel
         });
+    }
+
+    public ProjectNodeModel getModel() {
+        return model;
     }
 }

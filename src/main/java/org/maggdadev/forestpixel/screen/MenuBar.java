@@ -13,15 +13,18 @@ import java.io.File;
 
 public class MenuBar extends javafx.scene.control.MenuBar {
     private final static FileChooser.ExtensionFilter EXTENSION_FILTER = new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp");
-
+    private MainScreenViewModel mainScreenViewModel;
     public MenuBar(Stage stage, MainScreenViewModel viewModel) {/* todo
         MenuItem saveAsMenuItem = createSaveAsMenuItem(stage, viewModel);
         MenuItem saveMenuItem = createSaveMenuItem(viewModel, saveAsMenuItem);
         MenuItem openMenuItem = createOpenMenuItem(stage, viewModel);
         MenuItem exportMenuItem = createExportMenuItem(stage, viewModel);
 */
+        MenuItem saveAsMenuItem = createSaveAsMenuItem(stage, viewModel);
+        MenuItem openMenuItem = createOpenMenuItem(stage, viewModel);
+        this.mainScreenViewModel = viewModel;
         MenuItem newProjectMenuItem = createNewProjectMenuItem(viewModel);
-        Menu fileMenu = new Menu("File", null, newProjectMenuItem);/*, null, saveAsMenuItem, saveMenuItem, openMenuItem, new SeparatorMenuItem(), exportMenuItem);*/
+        Menu fileMenu = new Menu("File", null, newProjectMenuItem,openMenuItem, saveAsMenuItem);/*, null, saveAsMenuItem, saveMenuItem, openMenuItem, new SeparatorMenuItem(), exportMenuItem);*/
         getMenus().add(fileMenu);
     }
 
@@ -76,7 +79,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         return exportMenuItem;
     }
 
-    private static MenuItem createOpenMenuItem(Stage stage, CanvasViewModel viewModel) {
+    private static MenuItem createOpenMenuItem(Stage stage, MainScreenViewModel viewModel) {
         MenuItem openMenuItem = new MenuItem("Open...");
         openMenuItem.setOnAction(e -> {
             try {
@@ -89,7 +92,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
                     return;
                 }
                 Preferences.set(PreferenceKey.FP_FILES_DIRECTORY, file.getParent());
-                viewModel.loadModelFrom(file);
+                viewModel.openProject(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
             }
@@ -97,8 +100,9 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         return openMenuItem;
     }
 
-    private static MenuItem createSaveAsMenuItem(Stage stage, CanvasViewModel viewModel) {
+    private static MenuItem createSaveAsMenuItem(Stage stage, MainScreenViewModel mainScreenViewModel) {
         MenuItem saveAsMenuItem = new MenuItem("Save as...");
+        saveAsMenuItem.disableProperty().bind(mainScreenViewModel.openedProjectViewModelProperty().isNull());
         saveAsMenuItem.setOnAction(e -> {
             try {
                 FileChooser fileChooser = new FileChooser();
@@ -111,7 +115,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
                     return;
                 }
                 Preferences.set(PreferenceKey.FP_FILES_DIRECTORY, file.getParent());
-                viewModel.saveModelTo(file);
+                mainScreenViewModel.saveModelTo(file);
             } catch (Exception ex) {
                 new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
             }

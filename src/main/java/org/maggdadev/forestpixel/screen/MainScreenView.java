@@ -1,7 +1,6 @@
 package org.maggdadev.forestpixel.screen;
 
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.maggdadev.forestpixel.structure.ProjectView;
 
@@ -16,7 +15,7 @@ public class MainScreenView extends BorderPane {
         VBox leftContent = new VBox();
         setLeft(leftContent);
 
-        viewModel.openedProjectModelProperty().subscribe((newProject) -> {
+        viewModel.openedProjectViewModelProperty().subscribe((newProject) -> {
             if (newProject != null) {
                 ProjectView treeView = new ProjectView(newProject);
                 leftContent.getChildren().setAll(treeView);

@@ -40,4 +40,14 @@ public class ProjectNodeModel {
     public boolean isFolder() {
         return isFolder;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectNodeModel{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", isFolder=" + isFolder +
+                ", children=" + children +
+                '}';
+    }
 }

@@ -25,8 +25,6 @@ public class ProjectView extends VBox {
         treeView.setRoot(viewModel);
         treeView.getSelectionModel().select(viewModel);
         viewModel.setExpanded(true);
-        viewModel.getChildren().addAll(new ProjectNodeViewModel(new ProjectNodeModel("abc", true)),
-                new ProjectNodeViewModel(new ProjectNodeModel("cde", true))); // todo temp
         treeView.setMaxHeight(Double.MAX_VALUE);
         treeView.setCellFactory(param -> {
             return new ProjectNodeView(ProjectView.this);
