@@ -1,6 +1,8 @@
 package org.maggdadev.forestpixel.structure;
 
 import com.google.gson.Gson;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -52,5 +54,6 @@ public class ProjectViewModel extends ProjectNodeViewModel {
             e.printStackTrace();
         }
     }
+
 
 }
