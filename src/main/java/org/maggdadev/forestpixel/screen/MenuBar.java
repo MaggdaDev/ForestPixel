@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class MenuBar extends javafx.scene.control.MenuBar {
-    private final static FileChooser.ExtensionFilter EXTENSION_FILTER = new FileChooser.ExtensionFilter("Forest Pixel files", "*.fp");
     private MainScreenViewModel mainScreenViewModel;
     public MenuBar(Stage stage, MainScreenViewModel viewModel) {/* todo
         MenuItem saveAsMenuItem = createSaveAsMenuItem(stage, viewModel);
@@ -34,53 +33,21 @@ public class MenuBar extends javafx.scene.control.MenuBar {
 
     private static MenuItem createNewProjectMenuItem(MainScreenViewModel viewModel) {
         MenuItem newProjectMenuItem = new MenuItem("New project");
-        newProjectMenuItem.setOnAction(e -> {
-            try {
-                viewModel.newProject();
-            } catch (Exception ex) {
-                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
-            }
-        });
+        newProjectMenuItem.setOnAction(e -> viewModel.newProject());
         return newProjectMenuItem;
     }
 
     private static MenuItem createSaveMenuItem(MainScreenViewModel viewModel, MenuItem saveAsMenuItem, BooleanBinding disable) {
         MenuItem saveMenuItem = new MenuItem("Save");
         saveMenuItem.disableProperty().bind(disable);
-        saveMenuItem.setOnAction(e -> {
-            try {
-                try {
-                    viewModel.save();
-                } catch (FileNotFoundException ex) {
-                    saveAsMenuItem.fire();
-                }
-            } catch (Exception ex) {
-                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
-            }
-        });
+        saveMenuItem.setOnAction(e -> viewModel.save());
         return saveMenuItem;
     }
 
     private static MenuItem createSaveAsMenuItem(Stage stage, MainScreenViewModel mainScreenViewModel, BooleanBinding disable) {
         MenuItem saveAsMenuItem = new MenuItem("Save as...");
         saveAsMenuItem.disableProperty().bind(disable);
-        saveAsMenuItem.setOnAction(e -> {
-            try {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
-                fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
-                fileChooser.setInitialFileName("yourmom.fp");
-                fileChooser.setInitialDirectory(new File(Preferences.get(PreferenceKey.FP_FILES_DIRECTORY, System.getProperty("user.home"))));
-                File file = fileChooser.showSaveDialog(stage);
-                if (file == null) {
-                    return;
-                }
-                Preferences.set(PreferenceKey.FP_FILES_DIRECTORY, file.getParent());
-                mainScreenViewModel.saveModelTo(file);
-            } catch (Exception ex) {
-                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
-            }
-        });
+        saveAsMenuItem.setOnAction(e -> mainScreenViewModel.saveAs());
         return saveAsMenuItem;
     }
 
@@ -109,22 +76,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
 
     private static MenuItem createOpenMenuItem(Stage stage, MainScreenViewModel viewModel) {
         MenuItem openMenuItem = new MenuItem("Open...");
-        openMenuItem.setOnAction(e -> {
-            try {
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.getExtensionFilters().add(EXTENSION_FILTER);
-                fileChooser.setSelectedExtensionFilter(EXTENSION_FILTER);
-                fileChooser.setInitialDirectory(new File(Preferences.get(PreferenceKey.FP_FILES_DIRECTORY, System.getProperty("user.home"))));
-                File file = fileChooser.showOpenDialog(stage);
-                if (file == null || !file.exists()) {
-                    return;
-                }
-                Preferences.set(PreferenceKey.FP_FILES_DIRECTORY, file.getParent());
-                viewModel.openProject(file);
-            } catch (Exception ex) {
-                new Alert(Alert.AlertType.ERROR, ex.getMessage()).show();
-            }
-        });
+        openMenuItem.setOnAction(e -> viewModel.openProject());
         return openMenuItem;
     }
 

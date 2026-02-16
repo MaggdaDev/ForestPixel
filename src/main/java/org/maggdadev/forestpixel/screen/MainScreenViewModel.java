@@ -13,15 +13,39 @@ public class MainScreenViewModel {
     private final ObjectProperty<ProjectViewModel> openedProjectViewModel = new SimpleObjectProperty<ProjectViewModel>();
 
     private final ObjectProperty<File> fileLocation = new SimpleObjectProperty<>();
+    private final MainScreenDialogService dialogService;
 
-    public MainScreenViewModel(MainScreenModel model) {
+    public MainScreenViewModel(MainScreenModel model, MainScreenDialogService dialogService) {
         this.model = model;
+        this.dialogService = dialogService;
     }
 
     public void newProject() {
+        boolean closeSuccessful = closeProject();
+        if(!closeSuccessful) {
+            return;
+        }
         ProjectModel newProject = new ProjectModel();
         ProjectViewModel newProjectViewModel = new ProjectViewModel(newProject);
         openedProjectViewModel.set(newProjectViewModel);
+    }
+
+    /**
+     *
+     * @return whether the closing was successful (i.e. user confirmed closing the project)
+     */
+    public boolean closeProject() {
+        if (openedProjectViewModel.get() == null) {
+            return true;
+        }
+        switch (dialogService.mayDeleteProjectAlert()) {
+            case CANCEL:
+                return false;
+            case SAVE_AND_CLOSE:
+                save();
+        }
+        openedProjectViewModel.set(null);
+        return true;
     }
 
     public ProjectViewModel getOpenedProjectViewModel() {
@@ -39,17 +63,35 @@ public class MainScreenViewModel {
         }
     }
 
-    public void save() throws FileNotFoundException {
-        if (fileLocation.get() == null) {
-            throw new FileNotFoundException("No file location specified for saving the project.");
+    public void saveAs() {
+        File file = dialogService.saveAsDialog();
+        if (file != null) {
+            saveModelTo(file);
         }
-        saveModelTo(fileLocation.get());
     }
 
-    public void openProject(File file) {
+    public void save() {
+        try {
+            if (fileLocation.get() == null) {
+                throw new FileNotFoundException("No file location specified for saving the project.");
+            }
+            saveModelTo(fileLocation.get());
+        } catch(Exception e) {
+            saveAs();
+        }
+    }
+
+    public void openProject() {
+        File file = dialogService.openDialog();
+        if(file == null) {
+            return;
+        }
+        boolean closeSuccessful = closeProject();
+        if (!closeSuccessful) {
+            return;
+        }
         ProjectModel loadedModel = ProjectViewModel.loadProjectModelFrom(file);
         if (loadedModel != null) {
-            System.out.println(loadedModel);
             openedProjectViewModel.set(new ProjectViewModel(loadedModel));
             setFileLocation(file);
         } else {
@@ -70,4 +112,6 @@ public class MainScreenViewModel {
     public void setFileLocation(File file) {
         fileLocation.set(file);
     }
+
+
 }
