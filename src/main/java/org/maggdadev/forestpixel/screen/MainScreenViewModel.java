@@ -3,6 +3,7 @@ package org.maggdadev.forestpixel.screen;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.maggdadev.forestpixel.structure.ProjectModel;
+import org.maggdadev.forestpixel.structure.ProjectView;
 import org.maggdadev.forestpixel.structure.ProjectViewModel;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class MainScreenViewModel {
 
     public void saveModelTo(File file) {
         if (openedProjectViewModel.get() != null) {
-            ProjectViewModel.saveModelTo(file, openedProjectViewModel.get().getModel());
+            openedProjectViewModel.get().saveModelTo(file);
             setFileLocation(file);
         }
     }
@@ -90,9 +91,9 @@ public class MainScreenViewModel {
         if (!closeSuccessful) {
             return;
         }
-        ProjectModel loadedModel = ProjectViewModel.loadProjectModelFrom(file);
-        if (loadedModel != null) {
-            openedProjectViewModel.set(new ProjectViewModel(loadedModel));
+        ProjectViewModel loadedViewModel = ProjectViewModel.loadProjectModelFrom(file);
+        if (loadedViewModel != null) {
+            openedProjectViewModel.set(loadedViewModel);
             setFileLocation(file);
         } else {
             System.err.println("Failed to load project from file: " + file.getAbsolutePath());

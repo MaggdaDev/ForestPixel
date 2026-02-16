@@ -1,5 +1,6 @@
 package org.maggdadev.forestpixel.canvas;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
@@ -77,7 +78,6 @@ public class CanvasView extends BorderPane {
         installEventHandlers();
 
         createBindings();
-
         viewModel.update();
 
     }

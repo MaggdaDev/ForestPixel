@@ -5,15 +5,23 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
 
+import java.util.HashMap;
+
 public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
     private final BooleanProperty isFolder = new SimpleBooleanProperty();
     protected  ProjectNodeModel model;
 
     public ProjectNodeViewModel(ProjectNodeModel model) {
         setValue(model);
-        this.isFolder.set(model.isFolder());
+        this.isFolder.set(model.canHaveChildren());
         this.model = model;
-        model.getChildren().forEach((child) -> getChildren().add(new ProjectNodeViewModel(child)));
+        model.getChildren().forEach((child) -> {
+            if(child instanceof ProjectFileModel fileChild) {
+                 getChildren().add(new ProjectFileViewModel(fileChild));
+            } else {
+                getChildren().add(new ProjectNodeViewModel(child));
+            }
+        });
     }
 
     public String getId() {
@@ -33,11 +41,21 @@ public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
         return null;
     }
 
-    public ProjectNodeViewModel addChild(ProjectNodeModel addedChildModel) {
-        getValue().getChildren().add(addedChildModel);  // add to model
-        ProjectNodeViewModel newViewModelNode = new ProjectNodeViewModel(addedChildModel);
-        getChildren().add(newViewModelNode);
-        return newViewModelNode;
+
+    void addAllResourceAgentsToMapRecursive(HashMap<String, ResourceIOAgent> agents) {
+        if (this instanceof ResourceIOAgent agent) {
+            agents.put(getId(), agent);
+        }
+        for (TreeItem<ProjectNodeModel> child : getChildren()) {
+            if(child instanceof ProjectNodeViewModel childViewModel) {
+                childViewModel.addAllResourceAgentsToMapRecursive(agents);
+            }
+        }
+    }
+
+    public void addChild(ProjectNodeViewModel addedChildViewModel) {
+        getValue().getChildren().add(addedChildViewModel.getModel());  // add to model
+        getChildren().add(addedChildViewModel);
     }
 
     public void delete() {

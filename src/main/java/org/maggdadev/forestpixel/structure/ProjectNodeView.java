@@ -13,7 +13,7 @@ public class ProjectNodeView extends TextFieldTreeCell<ProjectNodeModel> {
         if (empty || item == null) {
             setText(null);
         } else {
-            setText(item.getName());
+            setText(item.getNameWithExtension());
         }
     }
 

@@ -7,6 +7,7 @@ import org.maggdadev.forestpixel.structure.ProjectNodeModel;
 public class AddFolderDialog extends AddProjectNodeDialog {
 
     public AddFolderDialog() {
-        super("folder", folderName -> new ProjectNodeModel(folderName, true));
+        super("folder");
+        setupResultConverter(name -> new ProjectNodeModel(name, ProjectNodeModel.ProjectNodeType.FOLDER));
     }
 }

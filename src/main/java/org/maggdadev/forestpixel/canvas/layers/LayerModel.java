@@ -1,11 +1,13 @@
 package org.maggdadev.forestpixel.canvas.layers;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import org.maggdadev.forestpixel.canvas.PreviewImage;
 import org.maggdadev.forestpixel.canvas.history.MultiPixelChange;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
+import java.awt.image.BufferedImage;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -37,9 +39,23 @@ public class LayerModel implements Cloneable, Serializable {
     private void readObject(java.io.ObjectInputStream in) throws Exception {
         in.defaultReadObject();
         // https://stackoverflow.com/questions/30970005/bufferedimage-to-javafx-image
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytesForSerialization);
-        PixelBuffer<ByteBuffer> pixelBuffer = new PixelBuffer<>(width, height, byteBuffer, PixelFormat.getByteBgraPreInstance());
-        image = new WritableImage(pixelBuffer);
+//        ByteBuffer byteBuffer = ByteBuffer.wrap(bytesForSerialization);
+//        Image image = SwingFXUtils.toFXImage(capture, null)
+//        PixelBuffer<ByteBuffer> pixelBuffer = new PixelBuffer<>(width, height, byteBuffer, PixelFormat.getByteBgraPreInstance());
+        image = fromBytes(bytesForSerialization, width, height);
+    }
+
+    private static WritableImage fromBytes(byte[] bytes, int width, int height) {
+        WritableImage image = new WritableImage(width, height);
+        PixelWriter writer = image.getPixelWriter();
+        writer.setPixels(
+                0, 0, width, height,
+                PixelFormat.getByteBgraPreInstance(),
+                bytes,
+                0,
+                width * 4
+        );
+        return image;
     }
 
 

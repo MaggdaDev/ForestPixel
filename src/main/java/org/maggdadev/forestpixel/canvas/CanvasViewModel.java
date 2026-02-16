@@ -68,8 +68,9 @@ public class CanvasViewModel {
 
         // Copy paste
         copyPasteManager = new CopyPasteManager(this, toolBarViewModel.getSelectViewModel());
-
-        setModel(model);
+        if(model != null) {
+            setModel(model);
+        }
 
     }
 
@@ -81,41 +82,17 @@ public class CanvasViewModel {
         update();
     }
 
-    public void saveModelTo(File file) throws IOException {
-        if (file == null) {
-            return;
-        }
-        try (FileOutputStream fileOut = new FileOutputStream(file)) {
-            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-            objectOut.writeObject(model);
-            setFileLocation(file);
-        } catch (IOException e) {
-            throw new IOException("Could not save model to file due to error " + e.getMessage(), e);
-        }
+    public void saveModelTo(OutputStream out) throws IOException {
+        ObjectOutputStream objectOut = new ObjectOutputStream(out);
+        objectOut.writeObject(model);
     }
 
-    public void loadModelFrom(File file) {
-        if (file == null) {
-            return;
-        }
-        try (FileInputStream fileIn = new FileInputStream(file)) {
-            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-            setModel((CanvasModel) objectIn.readObject());
-            setFileLocation(file);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Could not open model from file due to error " + e.getMessage(), e);
-        }
-    }
-
-    public void save() {
-        if (fileLocation.get() == null) {
-            System.err.println("Trying to save but no file location set.");
-            return;
-        }
+    public void loadModelFrom(InputStream in) throws IOException {
+        ObjectInputStream objectIn = new ObjectInputStream(in);
         try {
-            saveModelTo(fileLocation.get());
-        } catch (IOException e) {
-            throw new RuntimeException("Could not save model to file due to error " + e.getMessage(), e);
+            setModel((CanvasModel) objectIn.readObject());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -402,4 +379,7 @@ public class CanvasViewModel {
     }
 
 
+    public CanvasModel getModel() {
+        return model;
+    }
 }

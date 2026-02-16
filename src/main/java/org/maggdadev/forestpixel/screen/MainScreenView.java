@@ -15,14 +15,22 @@ public class MainScreenView extends BorderPane {
         VBox leftContent = new VBox();
         setLeft(leftContent);
 
+        Pane canvasPane = new Pane();   // will be controlled by project view
+        setCenter(canvasPane);
+
         viewModel.openedProjectViewModelProperty().subscribe((newProject) -> {
             if (newProject != null) {
-                ProjectView treeView = new ProjectView(newProject);
+                canvasPane.getChildren().clear();
+                ProjectView treeView = new ProjectView(newProject, canvasPane);
                 leftContent.getChildren().setAll(treeView);
                 VBox.setVgrow(treeView, Priority.ALWAYS);
             } else {
                 leftContent.getChildren().clear();
+                canvasPane.getChildren().clear();
             }
         });
+
+
+
     }
 }
