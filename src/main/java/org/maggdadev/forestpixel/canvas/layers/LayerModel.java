@@ -13,10 +13,10 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class LayerModel implements Cloneable, Serializable {
 
-    private static int currentId = 0;
     private final int width, height;
     private transient WritableImage image;
 
@@ -31,7 +31,7 @@ public class LayerModel implements Cloneable, Serializable {
     private LayerModel(WritableImage image) {
         this.width = (int) image.getWidth();
         this.height = (int) image.getHeight();
-        this.id = String.valueOf(currentId++);
+        this.id = UUID.randomUUID().toString();
         this.image = new WritableImage(image.getPixelReader(), width, height);
     }
 

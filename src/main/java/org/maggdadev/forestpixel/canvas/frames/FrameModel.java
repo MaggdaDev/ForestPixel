@@ -8,9 +8,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class FrameModel implements Cloneable, Serializable {
-    private static int currentId = 0;
     private final String id;
 
     private String name;
@@ -26,7 +26,7 @@ public class FrameModel implements Cloneable, Serializable {
     }
 
     private FrameModel(int widthPixels, int heightPixels, List<LayerModel> layersToClone) {
-        id = String.valueOf(currentId++);
+        id = UUID.randomUUID().toString();
         name = "frame " + id;
         historyModel = new HistoryModel();
         this.widthPixels = widthPixels;
