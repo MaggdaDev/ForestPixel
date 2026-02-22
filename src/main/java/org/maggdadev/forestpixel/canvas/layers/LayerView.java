@@ -27,8 +27,6 @@ public class LayerView extends Canvas {
         setMouseTransparent(true);
         setManaged(false);
         viewOrderProperty().bind(viewModel.orderProperty().multiply(-1));
-        getGraphicsContext2D().setFill(Color.RED);
-        getGraphicsContext2D().fillRect(0,0,100,100);
     }
 
     private void drawImage(Image image) {

@@ -1,7 +1,8 @@
 package org.maggdadev.forestpixel.canvas;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -12,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.util.Subscription;
 import org.maggdadev.forestpixel.canvas.frames.FramePane;
 import org.maggdadev.forestpixel.canvas.frames.FramesBarView;
 import org.maggdadev.forestpixel.canvas.layers.LayerView;
@@ -78,10 +80,24 @@ public class CanvasView extends BorderPane {
         installEventHandlers();
 
         createBindings();
-        viewModel.update();
+        setOnCanvasReady(viewModel::update);
 
     }
 
+    public void setOnCanvasReady(Runnable onCanvasReady) {
+        ChangeListener<Bounds> listener = new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends Bounds> observableValue, Bounds bounds, Bounds newBounds) {
+                if (newBounds != null && newBounds.getWidth() > 0 && newBounds.getHeight() > 0) {
+                    onCanvasReady.run();
+                    observableValue.removeListener(this);   // Execute only once
+
+                }
+            }
+        };
+        canvasScrollPane.viewportBoundsProperty().addListener(listener);
+        listener.changed(canvasScrollPane.viewportBoundsProperty(), null, canvasScrollPane.getViewportBounds());    // Execute initially
+    }
 
     private void createBindings() {
         placeHolderPane.prefWidthProperty().bind(Bindings.multiply(viewModel.modelWidthProperty(), viewModel.zoomScaleFactorProperty()));

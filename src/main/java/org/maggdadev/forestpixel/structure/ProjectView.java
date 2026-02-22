@@ -67,13 +67,11 @@ public class ProjectView extends VBox {
         // canvas pane
         selectedNodeViewModel.addListener((obs, oldNode, newNode) -> {
             if (newNode instanceof ProjectFileViewModel fileViewModel) {
-                // todo: image is not rendered on first try!
                 String id = fileViewModel.getId();
                 if (canvasMap.containsKey(id)) {
                     canvasPane.getChildren().setAll(canvasMap.get(id));
                 } else {
                     CanvasView canvasView = new CanvasView(fileViewModel.getCanvas());
-                    System.out.println("new canvas view created for file: ");
                     canvasMap.put(id, canvasView);
                     canvasPane.getChildren().setAll(canvasView);
                 }
