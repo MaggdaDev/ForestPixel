@@ -1,17 +1,21 @@
 package org.maggdadev.forestpixel.structure;
 
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
     private final BooleanProperty isFolder = new SimpleBooleanProperty();
     protected  ProjectNodeModel model;
     protected final transient ProjectViewModel rootViewModel;
-
+    private final List<Runnable> onContentUpdatedListeners = new ArrayList<>();
     public ProjectNodeViewModel(ProjectNodeModel model, ProjectViewModel rootViewModel) {
         if (this instanceof ProjectViewModel) { // Only in case this IS the root
             this.rootViewModel = (ProjectViewModel) this;
@@ -23,11 +27,23 @@ public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
         this.model = model;
         model.getChildren().forEach((child) -> {
             if(child instanceof ProjectFileModel fileChild) {
-                 getChildren().add(new ProjectFileViewModel(fileChild, rootViewModel));
+                 getChildren().add(new ProjectFileViewModel(fileChild, this.rootViewModel));
             } else {
-                getChildren().add(new ProjectNodeViewModel(child, rootViewModel));
+                getChildren().add(new ProjectNodeViewModel(child, this.rootViewModel));
             }
         });
+    }
+
+    public void notifyContentUpdated() {
+        onContentUpdatedListeners.forEach(Runnable::run);
+    }
+
+    public void addOnContentUpdatedListener(Runnable listener) {
+        onContentUpdatedListeners.add(listener);
+    }
+
+    public void removeOnContentUpdatedListener(Runnable listener) {
+        onContentUpdatedListeners.remove(listener);
     }
 
     public String getId() {

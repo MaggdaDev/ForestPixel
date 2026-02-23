@@ -15,10 +15,8 @@ import java.io.FileNotFoundException;
 
 public class MenuBar extends javafx.scene.control.MenuBar {
     private MainScreenViewModel mainScreenViewModel;
-    public MenuBar(Stage stage, MainScreenViewModel viewModel) {/* todo
-        MenuItem saveAsMenuItem = createSaveAsMenuItem(stage, viewModel);
-        MenuItem saveMenuItem = createSaveMenuItem(viewModel, saveAsMenuItem);
-        MenuItem openMenuItem = createOpenMenuItem(stage, viewModel);
+    public MenuBar(Stage stage, MainScreenViewModel viewModel) {
+        /* todo
         MenuItem exportMenuItem = createExportMenuItem(stage, viewModel);
 */
         BooleanBinding disableSaveButtons = viewModel.openedProjectViewModelProperty().isNull();

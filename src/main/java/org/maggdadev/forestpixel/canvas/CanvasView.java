@@ -70,7 +70,7 @@ public class CanvasView extends BorderPane {
         framePane = new FramePane(viewModel);
 
         setLeft(leftSideBar);
-        setCenter(new StackPane(canvasScrollPane, framePane));
+        setCenter(new StackPane(framePane, canvasScrollPane));
         setRight(rightSideBar);
         setBottom(bottomBar);
 
@@ -115,11 +115,8 @@ public class CanvasView extends BorderPane {
             // the change in width would induce ANOTHER corrupt hval change
         });
 
-        viewModel.viewNeedsUpdateProperty().subscribe((newVal) -> {
-            if (newVal) {
-                redrawAll();
-                viewModel.setViewNeedsUpdate(false);
-            }
+        viewModel.canvasVersionCounterProperty().subscribe((newVal) -> {
+            redrawAll();
         });
 
 

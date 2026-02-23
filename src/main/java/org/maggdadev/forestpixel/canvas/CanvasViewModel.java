@@ -29,7 +29,7 @@ public class CanvasViewModel {
     private final FramesBarViewModel framesBarViewModel;
     private final FramesViewModels framesViewModels;
     private final IntegerProperty modelWidth = new SimpleIntegerProperty(0), modelHeight = new SimpleIntegerProperty(0);
-    private final BooleanProperty viewNeedsUpdate = new SimpleBooleanProperty(false);
+    private final LongProperty canvasVersionCounter = new SimpleLongProperty(0);  // View needs update whenever this increases
     private final ZoomManager zoomManager;
     private final CopyPasteManager copyPasteManager;
 
@@ -149,7 +149,7 @@ public class CanvasViewModel {
 
             setViewNeedsUpdate(true);
         }*/
-        setViewNeedsUpdate(true);
+        incrementCanvasVersionCounter();
     }
 
     // commands
@@ -277,12 +277,16 @@ public class CanvasViewModel {
         return zoomManager.getZoomScaleFactor();
     }
 
-    public BooleanProperty viewNeedsUpdateProperty() {
-        return viewNeedsUpdate;
+    public long getCanvasVersionCounter() {
+        return canvasVersionCounter.get();
     }
 
-    public void setViewNeedsUpdate(boolean viewNeedsUpdate) {
-        this.viewNeedsUpdate.set(viewNeedsUpdate);
+    public LongProperty canvasVersionCounterProperty() {
+        return canvasVersionCounter;
+    }
+
+    public void incrementCanvasVersionCounter() {
+        canvasVersionCounter.set(canvasVersionCounter.get() + 1);
     }
 
     public int getSourceStartIndexX() {

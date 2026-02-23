@@ -6,6 +6,9 @@ import javafx.stage.Stage;
 import org.maggdadev.forestpixel.screen.*;
 
 public class ForestPixelApplication extends Application {
+    private final static String[] cssPaths = {
+            "/styles/canvas-view.css"
+    };
     @Override
     public void start(Stage stage) throws Exception {
         MainScreenDialogService dialogService = new FxMainScreenDialogService(stage);
@@ -15,6 +18,13 @@ public class ForestPixelApplication extends Application {
         MainScreenViewModel mainScreenViewModel = new MainScreenViewModel(mainScreenModel, dialogService, canvasTabViewService);
         MainScreenView mainScreen = new MainScreenView(mainScreenViewModel, stage, canvasTabViewService);
         Scene scene = new Scene(mainScreen);
+        for(String path : cssPaths) {
+            try {
+                scene.getStylesheets().add(ForestPixelApplication.class.getResource(path).toExternalForm());
+            } catch (NullPointerException e) {
+                System.err.println("Stylesheet not found: " + path);
+            }
+        }
         stage.setScene(scene);
         stage.setTitle("Forest Pixel");
         stage.setHeight(600);
