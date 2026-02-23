@@ -9,10 +9,11 @@ public class ForestPixelApplication extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         MainScreenDialogService dialogService = new FxMainScreenDialogService(stage);
+        FxCanvasTabViewService canvasTabViewService = new FxCanvasTabViewService();
 
         MainScreenModel mainScreenModel = new MainScreenModel();
-        MainScreenViewModel mainScreenViewModel = new MainScreenViewModel(mainScreenModel, dialogService);
-        MainScreenView mainScreen = new MainScreenView(mainScreenViewModel, stage);
+        MainScreenViewModel mainScreenViewModel = new MainScreenViewModel(mainScreenModel, dialogService, canvasTabViewService);
+        MainScreenView mainScreen = new MainScreenView(mainScreenViewModel, stage, canvasTabViewService);
         Scene scene = new Scene(mainScreen);
         stage.setScene(scene);
         stage.setTitle("Forest Pixel");

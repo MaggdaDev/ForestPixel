@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.maggdadev.forestpixel.screen.CanvasTabViewService;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,9 +16,23 @@ import java.util.zip.ZipOutputStream;
 
 public class ProjectViewModel extends ProjectNodeViewModel {
 
-    public ProjectViewModel(ProjectModel model) {
-        super(model);
+    private final ObjectProperty<ProjectNodeViewModel> selectedNodeViewModel = new SimpleObjectProperty<>();    // Will be bound by view so selection model
+    private final CanvasTabViewService canvasTabViewService;
 
+    public ProjectViewModel(ProjectModel model, CanvasTabViewService canvasTabViewService) {
+        super(model, null);
+        this.canvasTabViewService = canvasTabViewService;
+        selectedNodeViewModel.subscribe(selectedViewModel -> {
+            if (selectedViewModel != null && canvasTabViewService != null) {
+                if (selectedViewModel instanceof ProjectFileViewModel projectFileViewModel) { // File (and no folder)
+                    openFile(projectFileViewModel);
+                }
+            }
+        });
+    }
+
+    public void openFile(ProjectFileViewModel projectFileViewModel) {
+        canvasTabViewService.addToActiveTab(projectFileViewModel);
     }
 
     public Optional<ProjectNodeViewModel> findNodeById(String id) {
@@ -35,7 +50,7 @@ public class ProjectViewModel extends ProjectNodeViewModel {
         return agents;
     }
 
-    public static ProjectViewModel loadProjectModelFrom(File file) {
+    public static ProjectViewModel loadProjectViewModelFrom(File file, CanvasTabViewService canvasTabViewService) {
         try (ZipFile zip = new ZipFile(file)) {
             ZipEntry metaEntry = zip.getEntry("project_meta.json");
             ProjectModel model;
@@ -47,7 +62,7 @@ public class ProjectViewModel extends ProjectNodeViewModel {
                 model = gson.fromJson(r, ProjectModel.class);
             }
 
-            ProjectViewModel viewModel = new ProjectViewModel(model);
+            ProjectViewModel viewModel = new ProjectViewModel(model, canvasTabViewService);
             viewModel.getAllResourceAgents().forEach((id, agent) -> {
                 ZipEntry resourceEntry = zip.getEntry(idToResourcePath(id));
                 if (resourceEntry != null) {
@@ -96,6 +111,15 @@ public class ProjectViewModel extends ProjectNodeViewModel {
 
     private static String idToResourcePath(String id) {
         return "resources/" + id;
+    }
+
+
+    public ProjectNodeViewModel getSelectedNodeViewModel() {
+        return selectedNodeViewModel.get();
+    }
+
+    public ObjectProperty<ProjectNodeViewModel> selectedNodeViewModelProperty() {
+        return selectedNodeViewModel;
     }
 
 

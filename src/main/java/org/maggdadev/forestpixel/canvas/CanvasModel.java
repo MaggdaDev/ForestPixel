@@ -7,7 +7,7 @@ import org.maggdadev.forestpixel.canvas.history.SingleColorMultiPixelChange;
 import org.maggdadev.forestpixel.canvas.layers.LayerModel;
 import org.maggdadev.forestpixel.canvas.utils.Point;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,5 +112,19 @@ public class CanvasModel implements Serializable {
 
     public void removeFrame(String id) {
         frames.removeIf(frame -> frame.getId().equals(id));
+    }
+
+    public void saveTo(OutputStream out) throws IOException {
+        ObjectOutputStream objectOut = new ObjectOutputStream(out);
+        objectOut.writeObject(this);
+    }
+
+    public static CanvasModel loadFrom(InputStream in) throws IOException {
+        ObjectInputStream objectIn = new ObjectInputStream(in);
+        try {
+            return ((CanvasModel) objectIn.readObject());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

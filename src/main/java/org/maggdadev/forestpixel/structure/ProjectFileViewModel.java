@@ -1,5 +1,6 @@
 package org.maggdadev.forestpixel.structure;
 
+import org.maggdadev.forestpixel.canvas.CanvasModel;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 
 import java.io.IOException;
@@ -8,25 +9,25 @@ import java.io.OutputStream;
 
 public class ProjectFileViewModel extends ProjectNodeViewModel implements ResourceIOAgent {
     private final ProjectFileModel model;
-    private CanvasViewModel canvasViewModel;
-    private boolean isLoaded = false;
-    public ProjectFileViewModel(ProjectFileModel model) {
-        super(model);
+    public ProjectFileViewModel(ProjectFileModel model, ProjectViewModel rootViewModel) {
+        super(model, rootViewModel);
         this.model = model;
-        canvasViewModel = new CanvasViewModel(model.getCanvas());
-        isLoaded = true;
     }
 
     public void saveTo(OutputStream out) throws IOException {
-        canvasViewModel.saveModelTo(out);
+        model.getCanvas().saveTo(out);
     }
 
     public void loadFrom(InputStream in) throws IOException {
-        canvasViewModel.loadModelFrom(in);
-        model.setCanvasModel(canvasViewModel.getModel());
+        model.setCanvasModel(CanvasModel.loadFrom(in));
     }
 
-    public CanvasViewModel getCanvas() {
-        return canvasViewModel;
+    public CanvasModel getCanvasModel() {
+        return model.getCanvas();
+    }
+
+    @Override
+    public void open() {
+        rootViewModel.openFile(this);
     }
 }

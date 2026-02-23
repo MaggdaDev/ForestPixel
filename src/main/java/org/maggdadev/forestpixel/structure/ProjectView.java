@@ -25,10 +25,9 @@ public class ProjectView extends VBox {
     private final Button addFileButton = new Button("Add File"),
     addFolderButton = new Button("Add Folder"), deleteButton = new Button("Delete");
     private final VBox buttonBox = new VBox();
-    private final ObjectProperty<ProjectNodeViewModel> selectedNodeViewModel = new SimpleObjectProperty<>();
-    private final HashMap<String, CanvasView> canvasMap = new HashMap<>();
-    public ProjectView(ProjectViewModel viewModel, Pane canvasPane) {
-
+    private final ProjectViewModel viewModel;
+    public ProjectView(ProjectViewModel viewModel) {
+        this.viewModel = viewModel;
         treeView.setRoot(viewModel);
         treeView.getSelectionModel().select(viewModel);
         viewModel.setExpanded(true);
@@ -56,27 +55,13 @@ public class ProjectView extends VBox {
         VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS);
         VBox.setVgrow(buttonBox, javafx.scene.layout.Priority.NEVER);
 
-        selectedNodeViewModel.bind(Bindings.createObjectBinding(() -> {
+        viewModel.selectedNodeViewModelProperty().bind(Bindings.createObjectBinding(() -> {
             TreeItem<ProjectNodeModel> selectedItem = treeView.getSelectionModel().getSelectedItem();
             if (selectedItem instanceof ProjectNodeViewModel selectedViewModel) {
                 return selectedViewModel;
             }
             return null;
         }, treeView.getSelectionModel().selectedItemProperty()));
-
-        // canvas pane
-        selectedNodeViewModel.addListener((obs, oldNode, newNode) -> {
-            if (newNode instanceof ProjectFileViewModel fileViewModel) {
-                String id = fileViewModel.getId();
-                if (canvasMap.containsKey(id)) {
-                    canvasPane.getChildren().setAll(canvasMap.get(id));
-                } else {
-                    CanvasView canvasView = new CanvasView(fileViewModel.getCanvas());
-                    canvasMap.put(id, canvasView);
-                    canvasPane.getChildren().setAll(canvasView);
-                }
-            }
-        });
     }
 
     private void deleteNode() {
@@ -99,8 +84,8 @@ public class ProjectView extends VBox {
             dialog.showAndWait().ifPresent(newFile -> {
                 focusedViewModel.setExpanded(true);
                 ProjectNodeViewModel newViewModel = switch (newFile.getType()) {
-                    case SPRITE_FILE -> new ProjectFileViewModel((ProjectFileModel) newFile);
-                    default -> new ProjectNodeViewModel(newFile);
+                    case SPRITE_FILE -> new ProjectFileViewModel((ProjectFileModel) newFile, viewModel);
+                    default -> new ProjectNodeViewModel(newFile, viewModel);
                 };
 
                 focusedViewModel.addChild(newViewModel);
@@ -112,13 +97,5 @@ public class ProjectView extends VBox {
                 });
             });
         }
-    }
-
-    public ProjectNodeViewModel getSelectedNodeViewModel() {
-        return selectedNodeViewModel.get();
-    }
-
-    public ObjectProperty<ProjectNodeViewModel> selectedNodeViewModelProperty() {
-        return selectedNodeViewModel;
     }
 }

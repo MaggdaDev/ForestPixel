@@ -10,16 +10,22 @@ import java.util.HashMap;
 public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
     private final BooleanProperty isFolder = new SimpleBooleanProperty();
     protected  ProjectNodeModel model;
+    protected final transient ProjectViewModel rootViewModel;
 
-    public ProjectNodeViewModel(ProjectNodeModel model) {
+    public ProjectNodeViewModel(ProjectNodeModel model, ProjectViewModel rootViewModel) {
+        if (this instanceof ProjectViewModel) { // Only in case this IS the root
+            this.rootViewModel = (ProjectViewModel) this;
+        } else {
+            this.rootViewModel = rootViewModel;
+        }
         setValue(model);
         this.isFolder.set(model.canHaveChildren());
         this.model = model;
         model.getChildren().forEach((child) -> {
             if(child instanceof ProjectFileModel fileChild) {
-                 getChildren().add(new ProjectFileViewModel(fileChild));
+                 getChildren().add(new ProjectFileViewModel(fileChild, rootViewModel));
             } else {
-                getChildren().add(new ProjectNodeViewModel(child));
+                getChildren().add(new ProjectNodeViewModel(child, rootViewModel));
             }
         });
     }
@@ -70,5 +76,9 @@ public class ProjectNodeViewModel extends TreeItem<ProjectNodeModel> {
 
     public ProjectNodeModel getModel() {
         return model;
+    }
+
+    public void open() {
+        // Default: do nothing. Only files have an open action, folders don't.
     }
 }

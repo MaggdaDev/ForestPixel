@@ -82,19 +82,7 @@ public class CanvasViewModel {
         update();
     }
 
-    public void saveModelTo(OutputStream out) throws IOException {
-        ObjectOutputStream objectOut = new ObjectOutputStream(out);
-        objectOut.writeObject(model);
-    }
 
-    public void loadModelFrom(InputStream in) throws IOException {
-        ObjectInputStream objectIn = new ObjectInputStream(in);
-        try {
-            setModel((CanvasModel) objectIn.readObject());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void exportTo(File file) {
         WritableImage image = new WritableImage(model.getWidthPixels() * framesViewModels.getFrames().size(), model.getHeightPixels());

@@ -3,7 +3,6 @@ package org.maggdadev.forestpixel.screen;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.maggdadev.forestpixel.structure.ProjectModel;
-import org.maggdadev.forestpixel.structure.ProjectView;
 import org.maggdadev.forestpixel.structure.ProjectViewModel;
 
 import java.io.File;
@@ -15,10 +14,12 @@ public class MainScreenViewModel {
 
     private final ObjectProperty<File> fileLocation = new SimpleObjectProperty<>();
     private final MainScreenDialogService dialogService;
+    private final CanvasTabViewService canvasTabViewService;
 
-    public MainScreenViewModel(MainScreenModel model, MainScreenDialogService dialogService) {
+    public MainScreenViewModel(MainScreenModel model, MainScreenDialogService dialogService, CanvasTabViewService canvasTabViewService) {
         this.model = model;
         this.dialogService = dialogService;
+        this.canvasTabViewService = canvasTabViewService;
     }
 
     public void newProject() {
@@ -27,7 +28,7 @@ public class MainScreenViewModel {
             return;
         }
         ProjectModel newProject = new ProjectModel();
-        ProjectViewModel newProjectViewModel = new ProjectViewModel(newProject);
+        ProjectViewModel newProjectViewModel = new ProjectViewModel(newProject, canvasTabViewService);
         openedProjectViewModel.set(newProjectViewModel);
     }
 
@@ -91,7 +92,7 @@ public class MainScreenViewModel {
         if (!closeSuccessful) {
             return;
         }
-        ProjectViewModel loadedViewModel = ProjectViewModel.loadProjectModelFrom(file);
+        ProjectViewModel loadedViewModel = ProjectViewModel.loadProjectViewModelFrom(file, canvasTabViewService);
         if (loadedViewModel != null) {
             openedProjectViewModel.set(loadedViewModel);
             setFileLocation(file);

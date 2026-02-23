@@ -7,7 +7,7 @@ import org.maggdadev.forestpixel.structure.ProjectView;
 public class MainScreenView extends BorderPane {
     private MainScreenViewModel viewModel;
 
-    public MainScreenView(MainScreenViewModel viewModel, Stage stage) {
+    public MainScreenView(MainScreenViewModel viewModel, Stage stage, FxCanvasTabViewService canvasTabViewService) {
         this.viewModel = viewModel;
         MenuBar menuBar = new MenuBar(stage, viewModel);
         setTop(menuBar);
@@ -15,18 +15,15 @@ public class MainScreenView extends BorderPane {
         VBox leftContent = new VBox();
         setLeft(leftContent);
 
-        Pane canvasPane = new Pane();   // will be controlled by project view
-        setCenter(canvasPane);
+        setCenter(canvasTabViewService);
 
         viewModel.openedProjectViewModelProperty().subscribe((newProject) -> {
             if (newProject != null) {
-                canvasPane.getChildren().clear();
-                ProjectView treeView = new ProjectView(newProject, canvasPane);
+                ProjectView treeView = new ProjectView(newProject);
                 leftContent.getChildren().setAll(treeView);
                 VBox.setVgrow(treeView, Priority.ALWAYS);
             } else {
                 leftContent.getChildren().clear();
-                canvasPane.getChildren().clear();
             }
         });
 
