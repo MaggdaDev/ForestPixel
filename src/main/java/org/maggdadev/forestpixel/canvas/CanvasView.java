@@ -32,7 +32,7 @@ public class CanvasView extends BorderPane {
 
     private final FramePane framePane;
 
-    public CanvasView(CanvasViewModel viewModel) {
+    public CanvasView(CanvasViewModel viewModel) {  // todo single layers are no longer transparent!
         this.viewModel = viewModel;
         VBox leftSideBar = new VBox();
         VBox rightSideBar = new VBox();

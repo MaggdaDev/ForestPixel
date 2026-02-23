@@ -17,6 +17,7 @@ import javafx.util.Subscription;
 import org.maggdadev.forestpixel.canvas.utils.Selectable;
 import org.maggdadev.forestpixel.canvas.utils.SwappableObservableArrayList;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -26,6 +27,8 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
 
     private BiConsumer<String, String> swapFunction;
     private Consumer<String> removeFunction;
+
+    private final String swappableListViewId;
 
     public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory, BiConsumer<String, String> swapFunction, Consumer<String> removeFunction) {
         super(items == null ? null : items.getUnmodifiable());
@@ -41,6 +44,25 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
         this.items = items;
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setCellFactory(param -> new SwappableListCell());
+        swappableListViewId = UUID.randomUUID().toString();
+    }
+
+    private String dragboardContentFromListEntry(T item) {
+        return "SWAPPABLE_LIST_VIEW_SWAP:"+swappableListViewId + ":" + item.getId();
+    }
+    private boolean isDragboardContentFromThisListView(String content) {
+        if(!content.startsWith("SWAPPABLE_LIST_VIEW_SWAP")) {
+            return false;
+        }
+        String[] parts = content.split(":");
+        if(parts.length != 3) {
+            return false;
+        }
+        return parts[1].equals(swappableListViewId);
+    }
+    private String itemIdFromDragboardContent(String content) {
+        String[] parts = content.split(":");
+        return parts[2];
     }
 
     public SwappableListView(SwappableObservableArrayList<T> items, Callback<T, Node> contentFactory) {
@@ -149,20 +171,28 @@ public class SwappableListView<T extends Selectable> extends ListView<T> {
                 }
                 Dragboard dragboard = startDragAndDrop(TransferMode.MOVE);
                 ClipboardContent content = new ClipboardContent();
-                content.putString(getItem().getId());
+                content.putString(dragboardContentFromListEntry(this.getItem()));
                 dragboard.setContent(content);
                 event.consume();
             });
             setOnDragOver(event -> {
-                if (event.getDragboard().hasString())
-                    if (getItem().getId().equals(event.getDragboard().getString())) {
-                        event.acceptTransferModes(TransferMode.ANY);
-                    } else {
-                        event.acceptTransferModes(TransferMode.MOVE);
-                        swapFunction.accept(getItem().getId(), event.getDragboard().getString());
-                    }
+                try {
+                    if (event.getDragboard().hasString()) {
+                        String dragboardContent = event.getDragboard().getString();
+                        if (isDragboardContentFromThisListView(dragboardContent)) {
+                            if (getItem().getId().equals(itemIdFromDragboardContent(dragboardContent))) {
+                                event.acceptTransferModes(TransferMode.ANY);
+                            } else {
+                                event.acceptTransferModes(TransferMode.MOVE);
+                                swapFunction.accept(getItem().getId(), itemIdFromDragboardContent(dragboardContent));
+                            }
+                        }
 
-                event.consume();
+                    }
+                    event.consume();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
         }
     }

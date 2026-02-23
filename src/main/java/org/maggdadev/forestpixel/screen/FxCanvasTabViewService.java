@@ -2,27 +2,31 @@ package org.maggdadev.forestpixel.screen;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventTarget;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import org.maggdadev.forestpixel.canvas.CanvasView;
 import org.maggdadev.forestpixel.canvas.CanvasViewModel;
 import org.maggdadev.forestpixel.structure.ProjectFileViewModel;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class FxCanvasTabViewService extends SplitPane implements CanvasTabViewService {
     private final TabPane tabPane;
     private final TabPane tabPane2;
     private final ObjectProperty<TabPane> activeTabPane = new SimpleObjectProperty<>();
+    private Tab currentlyDraggedTab = null;
 
     public FxCanvasTabViewService() {
-        tabPane = new TabPane();
-        tabPane.setId("TabPane1");
-        tabPane2 = new TabPane();
-        tabPane2.setId("TabPane2");
+        tabPane = makeNewTabPane();
+        tabPane2 = makeNewTabPane();
         addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             Node target = (Node) event.getTarget();
             Node splitPaneItem = findSplitPaneItem(target);
@@ -31,7 +35,71 @@ public class FxCanvasTabViewService extends SplitPane implements CanvasTabViewSe
             }
         });
         getItems().addAll(tabPane, tabPane2);
-        activeTabPane.subscribe(pane -> System.out.println("Active TabPane changed: " + (pane != null ? pane.getId() : "null")));
+    }
+
+    private Optional<Tab> findDraggedTab(EventTarget target) {
+        if (target instanceof Node targetNode) {
+            Node currentNode = targetNode;
+            while (currentNode != null) {
+                if (currentNode.getStyleClass().contains("tab")) {
+                    Tab tab = (Tab) currentNode.getProperties().get(Tab.class);
+                    if (tab != null) {
+                        return Optional.of(tab);
+                    }
+                }
+                currentNode = currentNode.getParent();
+            }
+        }
+        return Optional.empty();
+    }
+
+    private TabPane makeNewTabPane() {
+        TabPane newTabPane = new TabPane();
+        newTabPane.setOnDragDetected(event -> {
+            try {
+                System.out.println("Detect");
+                findDraggedTab(event.getTarget()).ifPresent(tab -> {
+                    currentlyDraggedTab = tab;
+                    Dragboard db = newTabPane.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString("TAB_MOVE");
+                    db.setContent(content);
+                });
+                event.consume();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        newTabPane.setOnDragOver(event -> {
+            try {
+                if (currentlyDraggedTab != null && currentlyDraggedTab.getTabPane() != newTabPane && event.getDragboard().hasString() && "TAB_MOVE".equals(event.getDragboard().getString())) {
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
+                event.consume();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        newTabPane.setOnDragDropped(event -> {
+            System.out.println("Dropped");
+            if (currentlyDraggedTab != null && currentlyDraggedTab.getTabPane() != newTabPane && event.getDragboard().hasString() && "TAB_MOVE".equals(event.getDragboard().getString())) {
+                TabPane sourceTabPane = currentlyDraggedTab.getTabPane();
+                sourceTabPane.getTabs().remove(currentlyDraggedTab);
+                newTabPane.getTabs().stream()
+                        .filter(tab -> Objects.equals(tab.getId(), currentlyDraggedTab.getId()))
+                        .findFirst().ifPresentOrElse(
+                                tab -> newTabPane.getSelectionModel().select(tab),
+                                () -> {
+                                    newTabPane.getTabs().add(currentlyDraggedTab);
+                                    newTabPane.getSelectionModel().select(currentlyDraggedTab);
+                                }
+                        );
+                currentlyDraggedTab = null;
+                event.setDropCompleted(true);
+            }
+            event.consume();
+        });
+        return newTabPane;
     }
 
     private Node findSplitPaneItem(Node node) {
